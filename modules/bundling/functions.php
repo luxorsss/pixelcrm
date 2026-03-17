@@ -34,7 +34,6 @@ function getBundlingById($id) {
             JOIN produk p1 ON b.produk_id = p1.id
             JOIN produk p2 ON b.produk_bundling_id = p2.id
             WHERE b.id = ?";
-    
     return fetchRow($sql, [$id]);
 }
 
@@ -59,14 +58,14 @@ function bundlingExists($produk_id, $bundling_id, $exclude_id = null) {
 }
 
 // Create single bundling (updated)
-function createBundling($produk_id, $bundling_id, $diskon, $deskripsi = null) {
+function createBundling($produk_id, $bundling_id, $diskon, $deskripsi = null, $is_active = 1) {
     return execute(
-        "INSERT INTO bundling (produk_id, produk_bundling_id, diskon, deskripsi) VALUES (?, ?, ?, ?)",
-        [$produk_id, $bundling_id, $diskon, $deskripsi]
+        "INSERT INTO bundling (produk_id, produk_bundling_id, diskon, deskripsi, is_active) VALUES (?, ?, ?, ?, ?)",
+        [$produk_id, $bundling_id, $diskon, $deskripsi, $is_active]
     );
 }
 
-// Create multiple bundling (batch insert - updated)
+// Create multiple bundling (batch insert - updated with is_active)
 function createMultipleBundling($produk_id, $bundling_items) {
     if (empty($bundling_items)) return false;
     
@@ -74,14 +73,16 @@ function createMultipleBundling($produk_id, $bundling_items) {
     $params = [];
     
     foreach ($bundling_items as $item) {
-        $values[] = "(?, ?, ?, ?)";
+        $values[] = "(?, ?, ?, ?, ?)"; // Tambah satu tanda tanya
         $params[] = $produk_id;
         $params[] = $item['produk_id'];
         $params[] = $item['diskon'];
         $params[] = $item['deskripsi'] ?? null;
+        $params[] = isset($item['is_active']) ? 1 : 0; // Tambahkan parameter is_active
     }
     
-    $sql = "INSERT INTO bundling (produk_id, produk_bundling_id, diskon, deskripsi) VALUES " . implode(', ', $values);
+    // Tambahkan kolom is_active di SQL-nya
+    $sql = "INSERT INTO bundling (produk_id, produk_bundling_id, diskon, deskripsi, is_active) VALUES " . implode(', ', $values);
     return execute($sql, $params);
 }
 
@@ -91,10 +92,10 @@ function deleteAllBundlingByProduct($produk_id) {
 }
 
 // Update bundling (updated)
-function updateBundling($id, $produk_id, $bundling_id, $diskon, $deskripsi = null) {
+function updateBundling($id, $produk_id, $bundling_id, $diskon, $deskripsi = null, $is_active = 1) {
     return execute(
-        "UPDATE bundling SET produk_id = ?, produk_bundling_id = ?, diskon = ?, deskripsi = ? WHERE id = ?",
-        [$produk_id, $bundling_id, $diskon, $deskripsi, $id]
+        "UPDATE bundling SET produk_id = ?, produk_bundling_id = ?, diskon = ?, deskripsi = ?, is_active = ? WHERE id = ?",
+        [$produk_id, $bundling_id, $diskon, $deskripsi, $is_active, $id]
     );
 }
 

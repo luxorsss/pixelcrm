@@ -93,12 +93,12 @@ if (!$produk) {
 // Get the HTTP POST URL from product
 $post_url = $produk['http_post'];
 
-// Get bundling products
+// Get bundling products (HANYA YANG AKTIF)
 $bundling = fetchAll("
     SELECT b.id, b.deskripsi as deskripsi_bundling, p.nama, p.harga, b.diskon 
     FROM bundling b 
     JOIN produk p ON b.produk_bundling_id = p.id 
-    WHERE b.produk_id = ?
+    WHERE b.produk_id = ? AND b.is_active = 1
 ", [$produk_id]);
 
 // Process form submission

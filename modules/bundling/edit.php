@@ -33,7 +33,7 @@ if (!$mainProduct) {
 
 // Ambil bundling existing + deskripsi
 $existingBundlings = fetchAll(
-    "SELECT b.id, b.produk_bundling_id, b.diskon, b.deskripsi, p.nama, p.harga 
+    "SELECT b.id, b.produk_bundling_id, b.diskon, b.deskripsi, b.is_active, p.nama, p.harga 
      FROM bundling b 
      JOIN produk p ON b.produk_bundling_id = p.id 
      WHERE b.produk_id = ? 
@@ -56,6 +56,7 @@ if (isPost()) {
             $bundle_id = (int)($item['produk_id'] ?? 0);
             $diskon = (int)($item['diskon'] ?? 0);
             $deskripsi = trim($item['deskripsi'] ?? '');
+            $is_active = isset($item['is_active']) ? 1 : 0; // Tangkap status checkbox
             
             if ($bundle_id > 0 && $diskon > 0) {
                 if ($bundle_id == $produk_id) {
@@ -63,7 +64,7 @@ if (isPost()) {
                     break;
                 }
                 
-                if (createBundling($produk_id, $bundle_id, $diskon, $deskripsi)) {
+                if (createBundling($produk_id, $bundle_id, $diskon, $deskripsi, $is_active)) {
                     $success_count++;
                 }
             }
@@ -189,7 +190,14 @@ $products = getAllProducts();
                         <?php foreach ($existingBundlings as $bundle): ?>
                             <div class="d-flex justify-content-between align-items-start mb-2 pb-2 border-bottom">
                                 <div class="small">
-                                    <div class="fw-bold"><?= clean($bundle['nama']) ?></div>
+                                    <div class="fw-bold">
+                                        <?= clean($bundle['nama']) ?>
+                                        <?php if(isset($bundle['is_active']) && $bundle['is_active'] == 0): ?>
+                                            <span class="badge bg-secondary ms-1" style="font-size: 0.6rem;">Non-aktif</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-success ms-1" style="font-size: 0.6rem;">Aktif</span>
+                                        <?php endif; ?>
+                                    </div>
                                     <?php if (!empty($bundle['deskripsi'])): ?>
                                         <div class="text-muted small mt-1"><?= clean(implode(' ', array_slice(explode(' ', strip_tags($bundle['deskripsi'])), 0, 10))) ?>...</div>
                                     <?php endif; ?>
@@ -238,7 +246,7 @@ let existingBundlings = <?= json_encode($existingBundlings) ?>;
 document.addEventListener('DOMContentLoaded', function() {
     if (existingBundlings.length > 0) {
         existingBundlings.forEach(bundle => {
-            addBundlingItem(bundle.produk_bundling_id, bundle.diskon, bundle.deskripsi);
+            addBundlingItem(bundle.produk_bundling_id, bundle.diskon, bundle.deskripsi, bundle.is_active);
         });
     } else {
         addBundlingItem();
@@ -246,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateTotalPreview();
 });
 
-function addBundlingItem(selectedProductId = null, selectedDiskon = null, selectedDeskripsi = null) {
+function addBundlingItem(selectedProductId = null, selectedDiskon = null, selectedDeskripsi = null, selectedIsActive = 1) {
     if (bundlingCount >= maxBundling) {
         alert('Maksimal 5 produk bundling');
         return;
@@ -296,6 +304,14 @@ function addBundlingItem(selectedProductId = null, selectedDiskon = null, select
                     <textarea name="bundling[${bundlingCount}][deskripsi]" class="form-control" rows="2" 
                               placeholder="Contoh: Ebook berisi panduan instalasi...">${selectedDeskripsi ? cleanJs(selectedDeskripsi) : ''}</textarea>
                     <small class="text-muted">Opsional.</small>
+                </div>
+
+                <div class="mt-2">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="bundling[${bundlingCount}][is_active]" 
+                               value="1" id="activeSwitch${bundlingCount}" ${selectedIsActive == 1 ? 'checked' : ''}>
+                        <label class="form-check-label" for="activeSwitch${bundlingCount}">Aktif (Tampilkan di Checkout)</label>
+                    </div>
                 </div>
 
                 <div class="mt-3">
