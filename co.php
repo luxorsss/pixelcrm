@@ -166,12 +166,27 @@ if (isPost()) {
             }
         }
         
-        // ✅ Simpan fbc & fbp ke database — pastikan $fbc tidak kosong
-        execute("INSERT INTO transaksi (pelanggan_id, total_harga, status, ip_pelanggan, user_agent_pelanggan, fbc, fbp) 
-                 VALUES (?, ?, 'pending', ?, ?, ?, ?)", 
-                [$customer_id, $total_harga, $_SERVER['REMOTE_ADDR'] ?? '', $_SERVER['HTTP_USER_AGENT'] ?? '', $fbc, $fbp]);
+        // CEK APAKAH ADA KUPON YANG DIPAKAI
+        $kupon_id = post('kupon_id') ? (int)post('kupon_id') : null;
+        $total_diskon = post('total_diskon') ? (int)post('total_diskon') : 0;
+        
+        // Kurangi total harga dengan diskon
+        if ($total_diskon > 0) {
+            $total_harga -= $total_diskon;
+            if ($total_harga < 0) $total_harga = 0; // Jaga-jaga agar tidak minus
+        }
+        
+        // ✅ Simpan transaksi BESERTA DATA KUPON
+        execute("INSERT INTO transaksi (pelanggan_id, total_harga, status, ip_pelanggan, user_agent_pelanggan, fbc, fbp, kupon_id, total_diskon) 
+                 VALUES (?, ?, 'pending', ?, ?, ?, ?, ?, ?)", 
+                [$customer_id, $total_harga, $_SERVER['REMOTE_ADDR'] ?? '', $_SERVER['HTTP_USER_AGENT'] ?? '', $fbc, $fbp, $kupon_id, $total_diskon]);
         
         $transaksi_id = db()->insert_id;
+
+        // TAMBAHKAN +1 KUOTA KUPON TERPAKAI
+        if ($kupon_id) {
+            execute("UPDATE kupon SET terpakai = terpakai + 1 WHERE id = ?", [$kupon_id]);
+        }
         
 		$profit_produk_utama = ($produk['profit'] > 0) ? $produk['profit'] : $produk['harga'];
 		
@@ -248,6 +263,9 @@ if (isPost()) {
         redirect("invoice.php?id=$transaksi_id");
     }
 }
+
+// Tangkap kupon dari URL (contoh: co.php?id=1&kupon=PROMO20)
+$kupon_dari_url = isset($_GET['kupon']) ? clean($_GET['kupon']) : '';
 
 $page_title = 'Checkout - ' . $produk['nama'];
 ?>
@@ -356,7 +374,24 @@ $page_title = 'Checkout - ' . $produk['nama'];
 					<?php endforeach; ?>
 				</div>
 				<?php endif; ?>
-                
+               
+                <div class="mt-4 mb-4">
+                    <a href="javascript:void(0)" id="toggle-kupon" class="text-primary text-decoration-none fw-bold" style="font-size: 0.95rem;">
+                        <i class="fas fa-tag"></i> Punya Kode Kupon? Masukkan di sini
+                    </a>
+                    
+                    <div id="form-kupon-container" style="display: <?= $kupon_dari_url ? 'block' : 'none' ?>; margin-top: 10px;">
+                        <div class="input-group">
+                            <input type="text" id="kode_promo" class="form-control text-uppercase" placeholder="Masukkan kode promo..." value="<?= $kupon_dari_url ?>">
+                            <button type="button" class="btn btn-primary" id="btn-terapkan-kupon">Terapkan</button>
+                        </div>
+                        <div id="pesan_kupon" class="mt-2" style="font-size: 0.9rem;"></div>
+                    </div>
+                </div>
+
+                <input type="hidden" name="kupon_id" id="input_kupon_id" value="">
+                <input type="hidden" name="total_diskon" id="input_total_diskon" value="0">
+
                 <h6 class="mb-3 mt-4">Ringkasan Pesanan</h6>
                 <div class="summary-box" id="orderSummary">
                     <div class="summary-item d-flex justify-content-between mb-2">
@@ -495,34 +530,128 @@ function setupPhoneValidation() {
     });
 }
 
+// Variabel global untuk menyimpan nilai diskon yang sedang aktif
+let aktifDiskonKupon = 0;
+
 function updateTotal() {
     let total = <?= $produk['harga'] ?>;
     const orderSummary = document.getElementById('orderSummary');
     if (!orderSummary) return;
     orderSummary.innerHTML = '';
+    
+    // Baris Produk Utama
     const mainItem = document.createElement('div');
     mainItem.className = 'summary-item d-flex justify-content-between mb-2';
     mainItem.innerHTML = `<span><?= clean($produk['nama']) ?></span><span><?= formatCurrency($produk['harga']) ?></span>`;
     orderSummary.appendChild(mainItem);
+    
+    // Baris Bundling
     document.querySelectorAll('.bundle-checkbox').forEach(checkbox => {
         if (checkbox.checked) {
             const bundleItemEl = document.createElement('div');
-            bundleItemEl.className = 'summary-bundle-item d-flex justify-content-between mb-2';
+            bundleItemEl.className = 'summary-bundle-item d-flex justify-content-between mb-2 text-success';
             const price = parseFloat(checkbox.dataset.price);
             total += price;
             const bundleLabel = checkbox.closest('.bundle-item').querySelector('strong').textContent;
-            bundleItemEl.innerHTML = `<span>${bundleLabel}</span><span>${formatCurrencyJS(price)}</span>`;
+            bundleItemEl.innerHTML = `<span><i class="fas fa-plus-circle"></i> ${bundleLabel}</span><span>${formatCurrencyJS(price)}</span>`;
             orderSummary.appendChild(bundleItemEl);
         }
         const bundleItem = checkbox.closest('.bundle-item');
         if (bundleItem) bundleItem.classList.toggle('selected', checkbox.checked);
     });
+
+    // Baris Diskon Kupon (Jika Ada)
+    if (aktifDiskonKupon > 0) {
+        const diskonEl = document.createElement('div');
+        diskonEl.className = 'summary-item d-flex justify-content-between mb-2 text-danger fw-bold';
+        diskonEl.innerHTML = `<span><i class="fas fa-tag"></i> Diskon Kupon</span><span>- ${formatCurrencyJS(aktifDiskonKupon)}</span>`;
+        orderSummary.appendChild(diskonEl);
+        
+        // Kurangi total harga, pastikan tidak minus
+        total -= aktifDiskonKupon;
+        if (total < 0) total = 0;
+    }
+
     const hr = document.createElement('hr');
     orderSummary.appendChild(hr);
+    
+    // Baris Total Akhir
     const totalRow = document.createElement('div');
-    totalRow.className = 'd-flex justify-content-between fw-bold';
-    totalRow.innerHTML = `<span>Total</span><span id="totalAmount">${formatCurrencyJS(total)}</span>`;
+    totalRow.className = 'd-flex justify-content-between fw-bold h5 mb-0 text-primary';
+    totalRow.innerHTML = `<span>Total Bayar</span><span id="totalAmount">${formatCurrencyJS(total)}</span>`;
     orderSummary.appendChild(totalRow);
+}
+
+// Logika API Pengecekan Kupon (Letakkan setelah fungsi updateTotal)
+function setupKupon() {
+    const btnKupon = document.getElementById('btn-terapkan-kupon');
+    const toggleKupon = document.getElementById('toggle-kupon');
+    const formKuponContainer = document.getElementById('form-kupon-container');
+    const inputKode = document.getElementById('kode_promo');
+
+    // 1. Logika Toggle (Sembunyikan/Tampilkan Form)
+    if (toggleKupon) {
+        toggleKupon.addEventListener('click', function() {
+            if (formKuponContainer.style.display === 'none') {
+                formKuponContainer.style.display = 'block';
+                inputKode.focus();
+            } else {
+                formKuponContainer.style.display = 'none';
+            }
+        });
+    }
+
+    // 2. Logika Cek Kupon (Fetch ke API)
+    if(btnKupon) {
+        btnKupon.addEventListener('click', function() {
+            const kode = inputKode.value.trim();
+            const pesan = document.getElementById('pesan_kupon');
+            
+            if(kode === '') {
+                pesan.innerHTML = '<span class="text-danger">Masukkan kode promo dulu.</span>';
+                return;
+            }
+
+            pesan.innerHTML = '<span class="text-info"><i class="fas fa-spinner fa-spin"></i> Mengecek...</span>';
+            
+            const formData = new FormData();
+            formData.append('kode_kupon', kode);
+            formData.append('produk_id', '<?= $produk['id'] ?>');
+            formData.append('total_harga', '<?= $produk['harga'] ?>'); 
+
+            fetch('api/cek_kupon.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    pesan.innerHTML = `<span class="text-success fw-bold"><i class="fas fa-check"></i> ${data.message}</span>`;
+                    aktifDiskonKupon = parseFloat(data.potongan);
+                    document.getElementById('input_kupon_id').value = data.kupon_id;
+                    document.getElementById('input_total_diskon').value = data.potongan;
+                    updateTotal();
+                } else {
+                    pesan.innerHTML = `<span class="text-danger fw-bold"><i class="fas fa-times"></i> ${data.message}</span>`;
+                    aktifDiskonKupon = 0;
+                    document.getElementById('input_kupon_id').value = '';
+                    document.getElementById('input_total_diskon').value = '0';
+                    updateTotal();
+                }
+            })
+            .catch(error => {
+                pesan.innerHTML = '<span class="text-danger">Terjadi kesalahan koneksi.</span>';
+            });
+        });
+    }
+
+    // 3. AUTO-APPLY KUPON DARI URL
+    <?php if (!empty($kupon_dari_url)): ?>
+        // Tunggu setengah detik agar halaman selesai merender, lalu klik tombol terapkan otomatis
+        setTimeout(function() {
+            if(btnKupon) btnKupon.click();
+        }, 500);
+    <?php endif; ?>
 }
 
 function setupEventListeners() {
@@ -546,6 +675,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupPhoneValidation();
     setupEventListeners();
     updateTotal();
+    setupKupon();
 });
 </script>
 </body>
