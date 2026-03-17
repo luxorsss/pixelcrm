@@ -188,10 +188,24 @@ if (isPost()) {
             execute("UPDATE kupon SET terpakai = terpakai + 1 WHERE id = ?", [$kupon_id]);
         }
         
-		$profit_produk_utama = ($produk['profit'] > 0) ? $produk['profit'] : $produk['harga'];
-		
+		// HITUNG HARGA DAN PROFIT PRODUK UTAMA SETELAH DIPOTONG KUPON
+        $harga_normal_utama = (float)$produk['harga'];
+        $profit_normal_utama = ($produk['profit'] > 0) ? (float)$produk['profit'] : $harga_normal_utama;
+        
+        // Cari modal asli produk (Harga - Profit)
+        $modal_utama = $harga_normal_utama - $profit_normal_utama;
+
+        // Terapkan pemotongan kupon ke harga jual produk utama
+        $harga_final_utama = $harga_normal_utama - $total_diskon;
+        if ($harga_final_utama < 0) $harga_final_utama = 0; // Jaga-jaga agar harga tidak minus
+
+        // Profit Final = Harga Jual Baru - Modal Asli
+        $profit_final_utama = $harga_final_utama - $modal_utama;
+        if ($profit_final_utama < 0) $profit_final_utama = 0; // Jaga-jaga agar profit tidak minus di laporan
+
+        // Simpan ke detail transaksi dengan harga dan profit yang sudah dipotong diskon
         execute("INSERT INTO detail_transaksi (transaksi_id, produk_id, harga, profit) VALUES (?, ?, ?, ?)", 
-            [$transaksi_id, $produk_id, $produk['harga'], $profit_produk_utama]);
+            [$transaksi_id, $produk_id, $harga_final_utama, $profit_final_utama]);
 		
         foreach ($bundling_details as $bundle_detail) {
 			// Ambil data produk asli untuk cek harga normal & profit normal
