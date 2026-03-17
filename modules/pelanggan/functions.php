@@ -1,0 +1,379 @@
+<?php
+require_once __DIR__ . '/../../includes/init.php';
+
+// Konstanta untuk pagination
+if (!defined('RECORDS_PER_PAGE')) {
+    define('RECORDS_PER_PAGE', 10);
+}
+
+/**
+ * Mengambil semua pelanggan dengan pagination dan search
+ */
+function getAllPelanggan($page = 1, $limit = RECORDS_PER_PAGE, $search = '') {
+    // Validasi parameter
+    $page = max(1, (int)$page);
+    $limit = max(1, (int)$limit);
+    $offset = ($page - 1) * $limit;
+    
+    $where_clause = '';
+    $params = [];
+    
+    if (!empty($search)) {
+        $where_clause = "WHERE (nama LIKE ? OR nomor_wa LIKE ?)";
+        $search_term = "%{$search}%";
+        $params = [$search_term, $search_term];
+    }
+    
+    $sql = "SELECT * FROM pelanggan {$where_clause} ORDER BY tanggal_daftar DESC LIMIT ? OFFSET ?";
+    
+    // Add limit and offset to params
+    $params[] = $limit;
+    $params[] = $offset;
+    
+    return fetchAll($sql, $params);
+}
+
+/**
+ * Mengambil total jumlah pelanggan
+ */
+function getTotalPelanggan($search = '') {
+    $db = db(); // Gunakan fungsi db() yang sudah ada di sistem Anda
+    
+    $where_clause = '';
+    $params = [];
+    
+    if (!empty($search)) {
+        $where_clause = "WHERE (nama LIKE ? OR nomor_wa LIKE ?)";
+        $search_term = "%{$search}%";
+        $params = [$search_term, $search_term];
+    }
+    
+    $sql = "SELECT COUNT(*) as total FROM pelanggan {$where_clause}";
+    
+    // Gunakan fungsi fetchRow yang sudah ada
+    $result = fetchRow($sql, $params);
+    
+    return (int)($result['total'] ?? 0);
+}
+
+/**
+ * Mengambil pelanggan berdasarkan ID
+ */
+function getPelangganById($id) {
+    return fetchRow("SELECT * FROM pelanggan WHERE id = ?", [$id]);
+}
+
+/**
+ * Mengambil pelanggan berdasarkan nomor WA
+ */
+function getPelangganByWA($nomor_wa) {
+    return fetchRow("SELECT * FROM pelanggan WHERE nomor_wa = ?", [$nomor_wa]);
+}
+
+/**
+ * Menambah pelanggan baru
+ */
+function createPelanggan($data) {
+    // Normalize nomor WA
+    $data['nomor_wa'] = normalizePhoneNumber($data['nomor_wa']);
+    
+    // Cek duplikasi
+    if (getPelangganByWA($data['nomor_wa'])) {
+        return false; // Nomor WA sudah ada
+    }
+    
+    if (execute("INSERT INTO pelanggan (nama, nomor_wa) VALUES (?, ?)", 
+                [$data['nama'], $data['nomor_wa']])) {
+        return db()->insert_id;
+    }
+    return false;
+}
+
+/**
+ * Update pelanggan
+ */
+function updatePelanggan($id, $data) {
+    // Normalize nomor WA
+    $data['nomor_wa'] = normalizePhoneNumber($data['nomor_wa']);
+    
+    // Cek duplikasi (kecuali diri sendiri)
+    $existing = getPelangganByWA($data['nomor_wa']);
+    if ($existing && $existing['id'] != $id) {
+        return false;
+    }
+    
+    return execute("UPDATE pelanggan SET nama = ?, nomor_wa = ? WHERE id = ?", 
+                   [$data['nama'], $data['nomor_wa'], $id]);
+}
+
+/**
+ * Hapus pelanggan beserta transaksi terkait
+ */
+function deletePelangganForce($id) {
+    try {
+        db()->begin_transaction();
+        
+        // Hapus detail transaksi
+        execute("DELETE dt FROM detail_transaksi dt 
+                INNER JOIN transaksi t ON dt.transaksi_id = t.id 
+                WHERE t.pelanggan_id = ?", [$id]);
+        
+        // Hapus transaksi
+        execute("DELETE FROM transaksi WHERE pelanggan_id = ?", [$id]);
+        
+        // Hapus pelanggan
+        execute("DELETE FROM pelanggan WHERE id = ?", [$id]);
+        
+        db()->commit();
+        return true;
+        
+    } catch (Exception $e) {
+        db()->rollback();
+        error_log("Error deleting pelanggan: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Mengambil histori pembelian pelanggan
+ */
+function getHistoriPembelian($pelanggan_id) {
+    $sql = "
+        SELECT 
+            t.id as transaksi_id,
+            t.total_harga,
+            t.status,
+            t.tanggal_transaksi,
+            GROUP_CONCAT(
+                CONCAT(p.nama, ' (', FORMAT(dt.harga, 0), ')') 
+                SEPARATOR ', '
+            ) as produk_names,
+            COUNT(DISTINCT dt.produk_id) as jumlah_produk
+        FROM transaksi t
+        LEFT JOIN detail_transaksi dt ON t.id = dt.transaksi_id
+        LEFT JOIN produk p ON dt.produk_id = p.id
+        WHERE t.pelanggan_id = ?
+        GROUP BY t.id, t.total_harga, t.status, t.tanggal_transaksi
+        ORDER BY t.tanggal_transaksi DESC
+    ";
+    
+    return fetchAll($sql, [$pelanggan_id]);
+}
+
+/**
+ * Mengambil statistik pelanggan
+ */
+function getStatistikPelanggan($pelanggan_id) {
+    // Total transaksi
+    $result1 = fetchRow("SELECT COUNT(*) as total FROM transaksi WHERE pelanggan_id = ?", [$pelanggan_id]);
+    $total_transaksi = (int)($result1['total'] ?? 0);
+    
+    // Total pembelian (hanya yang selesai)
+    $result2 = fetchRow("SELECT COALESCE(SUM(total_harga), 0) as total FROM transaksi WHERE pelanggan_id = ? AND status = 'selesai'", [$pelanggan_id]);
+    $total_pembelian = (float)($result2['total'] ?? 0);
+    
+    // Transaksi terakhir
+    $result3 = fetchRow("SELECT tanggal_transaksi FROM transaksi WHERE pelanggan_id = ? ORDER BY tanggal_transaksi DESC LIMIT 1", [$pelanggan_id]);
+    $transaksi_terakhir = $result3 ? $result3['tanggal_transaksi'] : null;
+    
+    return [
+        'total_transaksi' => $total_transaksi,
+        'total_pembelian' => $total_pembelian,
+        'transaksi_terakhir' => $transaksi_terakhir
+    ];
+}
+
+/**
+ * Normalisasi nomor telepon ke format Indonesia
+ */
+function normalizePhoneNumber($phone) {
+    // Hapus semua karakter non-digit
+    $phone = preg_replace('/[^0-9]/', '', $phone);
+    
+    // Konversi ke format 62
+    if (substr($phone, 0, 1) === '0') {
+        $phone = '62' . substr($phone, 1);
+    } elseif (substr($phone, 0, 2) !== '62') {
+        $phone = '62' . $phone;
+    }
+    
+    return $phone;
+}
+
+/**
+ * Validasi nomor telepon Indonesia
+ */
+function isValidPhoneNumber($phone) {
+    return preg_match('/^62[0-9]{8,11}$/', $phone);
+}
+
+/**
+ * Parse CSV data untuk bulk import
+ */
+function parseCSVData($csv_data) {
+    $lines = explode("\n", trim($csv_data));
+    $pelanggan_array = [];
+    
+    foreach ($lines as $line_number => $line) {
+        $line = trim($line);
+        if (empty($line)) continue;
+        
+        $columns = str_getcsv($line);
+        if (count($columns) >= 2) {
+            $nama = trim($columns[0]);
+            $nomor_wa = normalizePhoneNumber(trim($columns[1]));
+            
+            if (!empty($nama) && isValidPhoneNumber($nomor_wa)) {
+                $pelanggan_array[] = [
+                    'nama' => $nama,
+                    'nomor_wa' => $nomor_wa,
+                    'line' => $line_number + 1
+                ];
+            }
+        }
+    }
+    
+    return $pelanggan_array;
+}
+
+/**
+ * Bulk create pelanggan
+ */
+function bulkCreatePelanggan($pelanggan_array) {
+    $success_count = 0;
+    $duplicate_count = 0;
+    $failed_count = 0;
+    $errors = [];
+    
+    foreach ($pelanggan_array as $pelanggan) {
+        // Cek duplikasi
+        if (getPelangganByWA($pelanggan['nomor_wa'])) {
+            $duplicate_count++;
+            continue;
+        }
+        
+        // Simpan pelanggan
+        if (createPelanggan($pelanggan)) {
+            $success_count++;
+        } else {
+            $failed_count++;
+            $errors[] = "Baris {$pelanggan['line']}: Gagal menyimpan {$pelanggan['nama']}";
+        }
+    }
+    
+    return [
+        'success_count' => $success_count,
+        'duplicate_count' => $duplicate_count,
+        'failed_count' => $failed_count,
+        'total_processed' => count($pelanggan_array),
+        'errors' => $errors
+    ];
+}
+
+/**
+ * Generate pagination HTML
+ */
+function generatePagination($current_page, $total_pages, $base_url) {
+    // Validasi input
+    $current_page = max(1, min($current_page, $total_pages));
+    
+    $html = '<nav><ul class="pagination justify-content-center">';
+    
+    // Tombol Previous
+    if ($current_page > 1) {
+        $url = updateQueryString($base_url, 'page', $current_page - 1);
+        $html .= '<li class="page-item"><a class="page-link" href="'.$url.'">&laquo;</a></li>';
+    } else {
+        $html .= '<li class="page-item disabled"><span class="page-link">&laquo;</span></li>';
+    }
+    
+    // Tentukan range halaman yang ditampilkan
+    $start = max(1, $current_page - 2);
+    $end = min($total_pages, $current_page + 2);
+    
+    // Selalu tampilkan halaman 1
+    if ($start > 1) {
+        $url = updateQueryString($base_url, 'page', 1);
+        $html .= '<li class="page-item"><a class="page-link" href="'.$url.'">1</a></li>';
+        if ($start > 2) {
+            $html .= '<li class="page-item disabled"><span class="page-link">...</span></li>';
+        }
+    }
+    
+    // Tampilkan range halaman
+    for ($i = $start; $i <= $end; $i++) {
+        $active = ($i == $current_page) ? ' active' : '';
+        $url = updateQueryString($base_url, 'page', $i);
+        $html .= '<li class="page-item'.$active.'"><a class="page-link" href="'.$url.'">'.$i.'</a></li>';
+    }
+    
+    // Selalu tampilkan halaman terakhir
+    if ($end < $total_pages) {
+        if ($end < $total_pages - 1) {
+            $html .= '<li class="page-item disabled"><span class="page-link">...</span></li>';
+        }
+        $url = updateQueryString($base_url, 'page', $total_pages);
+        $html .= '<li class="page-item"><a class="page-link" href="'.$url.'">'.$total_pages.'</a></li>';
+    }
+    
+    // Tombol Next
+    if ($current_page < $total_pages) {
+        $url = updateQueryString($base_url, 'page', $current_page + 1);
+        $html .= '<li class="page-item"><a class="page-link" href="'.$url.'">&raquo;</a></li>';
+    } else {
+        $html .= '<li class="page-item disabled"><span class="page-link">&raquo;</span></li>';
+    }
+    
+    return $html . '</ul></nav>';
+}
+
+// Helper function untuk update query string
+function updateQueryString($url, $key, $value) {
+    $parsed = parse_url($url);
+    $query = [];
+    
+    if (isset($parsed['query'])) {
+        parse_str($parsed['query'], $query);
+    }
+    
+    $query[$key] = $value;
+    
+    $newQuery = http_build_query($query);
+    return $parsed['path'] . '?' . $newQuery;
+}
+
+/**
+ * Set success message
+ */
+function setSuccessMessage($message) {
+    setMessage($message, 'success');
+}
+
+/**
+ * Set error message
+ */
+function setErrorMessage($message) {
+    setMessage($message, 'error');
+}
+
+/**
+ * Display session message
+ */
+function displaySessionMessage() {
+    $message = getMessage();
+    if ($message) {
+        $type = $message[1] === 'error' ? 'danger' : $message[1];
+        echo '<div class="alert alert-' . $type . ' alert-dismissible fade show">
+                ' . clean($message[0]) . '
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>';
+    }
+}
+
+/**
+ * Safe HTML output
+ */
+function safeHtml($text) {
+    return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+}
+?>

@@ -1,0 +1,220 @@
+<?php
+/**
+ * Rekening Functions - QRIS Payload Version (Tanpa Upload File)
+ */
+
+function createRekening($data) {
+    $sql = "INSERT INTO rekening (nama_pemilik, nomor_rekening, nama_bank, qr_image, created_at) VALUES (?, ?, ?, ?, NOW())";
+    
+    // qr_image sekarang akan menyimpan STRING PANJANG (Payload QRIS), bukan path file
+    $payload_qris = isset($data['qris_payload']) ? $data['qris_payload'] : null;
+
+    return execute($sql, [
+        clean($data['nama_pemilik']),
+        clean($data['nomor_rekening']),
+        clean($data['nama_bank']),
+        $payload_qris
+    ]);
+}
+
+function updateRekening($id, $data) {
+    $existing = getRekeningById($id);
+    
+    // Jika tidak ada payload baru yang dikirim, gunakan yang lama
+    $payload_qris = !empty($data['qris_payload']) ? $data['qris_payload'] : $existing['qr_image'];
+    
+    $sql = "UPDATE rekening SET nama_pemilik = ?, nomor_rekening = ?, nama_bank = ?, qr_image = ? WHERE id = ?";
+    
+    return execute($sql, [
+        clean($data['nama_pemilik']),
+        clean($data['nomor_rekening']),
+        clean($data['nama_bank']),
+        $payload_qris,
+        $id
+    ]);
+}
+
+function deleteRekening($id) {
+    // Tidak perlu lagi script hapus file fisik dengan unlink()
+    return execute("DELETE FROM rekening WHERE id = ?", [$id]);
+}
+
+/**
+ * Get all rekening dengan pagination
+ */
+function getRekening($page = 1, $limit = 10, $search = '') {
+    $offset = ($page - 1) * $limit;
+    $where = $search ? "WHERE nama_pemilik LIKE '%$search%' OR nomor_rekening LIKE '%$search%' OR nama_bank LIKE '%$search%'" : "";
+    
+    return fetchAll("SELECT * FROM rekening $where ORDER BY created_at DESC LIMIT $limit OFFSET $offset");
+}
+
+/**
+ * Count total rekening untuk pagination
+ */
+function countRekening($search = '') {
+    $where = $search ? "WHERE nama_pemilik LIKE '%$search%' OR nomor_rekening LIKE '%$search%' OR nama_bank LIKE '%$search%'" : "";
+    $result = fetchRow("SELECT COUNT(*) as total FROM rekening $where");
+    return $result['total'] ?? 0;
+}
+
+/**
+ * Get rekening by ID
+ */
+function getRekeningById($id) {
+    return fetchRow("SELECT * FROM rekening WHERE id = ?", [$id]);
+}
+
+/**
+ * Validate rekening data
+ */
+function validateRekening($data) {
+    $errors = [];
+    
+    if (empty($data['nama_pemilik'])) {
+        $errors[] = 'Nama pemilik harus diisi';
+    }
+    
+    if (empty($data['nomor_rekening'])) {
+        $errors[] = 'Nomor rekening harus diisi';
+    } elseif (strlen($data['nomor_rekening']) < 8 && !isQRISByBank($data['nama_bank'])) {
+        $errors[] = 'Nomor rekening minimal 8 karakter';
+    }
+    
+    if (empty($data['nama_bank'])) {
+        $errors[] = 'Nama bank harus diisi';
+    }
+    
+    // Check duplicate nomor rekening
+    $existing = fetchRow("SELECT id FROM rekening WHERE nomor_rekening = ? AND id != ?", [
+        $data['nomor_rekening'], 
+        $data['id'] ?? 0
+    ]);
+    
+    if ($existing) {
+        $errors[] = 'Nomor rekening sudah terdaftar';
+    }
+    
+    return $errors;
+}
+
+/**
+ * Format rekening untuk display
+ */
+function formatRekening($rekening) {
+    if (!$rekening) return '-';
+    
+    // Detect QRIS
+    if (isQRIS($rekening)) {
+        return $rekening['nama_pemilik'] . ' (QRIS)';
+    }
+    
+    // Regular bank account
+    $masked = substr($rekening['nomor_rekening'], 0, 4) . '****' . substr($rekening['nomor_rekening'], -4);
+    return $rekening['nama_bank'] . ' - ' . $masked . ' a.n ' . $rekening['nama_pemilik'];
+}
+
+/**
+ * Get rekening options untuk dropdown
+ */
+function getRekeningOptions() {
+    $rekening = fetchAll("SELECT * FROM rekening ORDER BY nama_bank, nama_pemilik");
+    $options = [];
+    
+    foreach ($rekening as $r) {
+        $options[$r['id']] = formatRekening($r);
+    }
+    
+    return $options;
+}
+
+/**
+ * Check if rekening is QRIS
+ */
+function isQRIS($rekening) {
+    return isQRISByBank($rekening['nama_bank']);
+}
+
+/**
+ * Check if bank name indicates QRIS
+ */
+function isQRISByBank($bankName) {
+    return strtoupper($bankName) === 'QRIS' || 
+           stripos($bankName, 'qris') !== false;
+}
+
+/**
+ * Handle QRIS image upload
+ */
+function handleQRISImageUpload($file, $rekening_id = null) {
+    if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
+        return ['success' => false, 'error' => 'No file uploaded or upload error'];
+    }
+    
+    $upload_dir = '../../assets/qris/';
+    
+    // Create directory if not exists
+    if (!is_dir($upload_dir)) {
+        mkdir($upload_dir, 0755, true);
+    }
+    
+    $allowed_types = ['image/jpeg', 'image/png', 'image/jpg'];
+    $max_size = 2 * 1024 * 1024; // 2MB
+    
+    // Validate file type
+    if (!in_array($file['type'], $allowed_types)) {
+        return ['success' => false, 'error' => 'File harus berupa gambar (JPG/PNG)'];
+    }
+    
+    // Validate file size
+    if ($file['size'] > $max_size) {
+        return ['success' => false, 'error' => 'Ukuran file maksimal 2MB'];
+    }
+    
+    // Generate filename
+    $file_extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $filename = 'qris_' . ($rekening_id ? $rekening_id . '_' : '') . time() . '.' . $file_extension;
+    $upload_path = $upload_dir . $filename;
+    
+    // Move uploaded file
+    if (move_uploaded_file($file['tmp_name'], $upload_path)) {
+        return [
+            'success' => true, 
+            'path' => 'assets/qris/' . $filename,
+            'filename' => $filename
+        ];
+    } else {
+        return ['success' => false, 'error' => 'Gagal upload gambar'];
+    }
+}
+
+/**
+ * Delete QRIS image file
+ */
+function deleteQRISImage($image_path) {
+    if (empty($image_path)) return true;
+    
+    $full_path = '../../' . $image_path;
+    if (file_exists($full_path)) {
+        return unlink($full_path);
+    }
+    
+    return true;
+}
+
+/**
+ * Get QRIS image URL for display
+ */
+function getQRISImageURL($rekening) {
+    if (!isQRIS($rekening) || empty($rekening['qr_image'])) {
+        return null;
+    }
+    
+    $image_path = '../../' . $rekening['qr_image'];
+    if (file_exists($image_path)) {
+        return $rekening['qr_image'];
+    }
+    
+    return null;
+}
+?>

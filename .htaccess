@@ -1,0 +1,5 @@
+# File: /pixelcrm/.htaccess
+RewriteEngine On
+
+# Redirect /pixelcrm/bebeb.php → ke file asli di modules/transaksi/bebeb.php
+RewriteRule ^bebeb\.php$ modules/transaksi/bebeb.php [L,NC]

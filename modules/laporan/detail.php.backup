@@ -1,0 +1,362 @@
+<?php
+// Handle export CSV sebelum output HTML
+require_once __DIR__ . '/../../includes/init.php';
+require_once __DIR__ . '/functions.php';
+
+$laporan = new LaporanManager();
+
+// Handle filters
+$filters = [
+    'tanggal_dari' => sanitizeInput($_GET['tanggal_dari'] ?? ''),
+    'tanggal_sampai' => sanitizeInput($_GET['tanggal_sampai'] ?? ''),
+    'produk_id' => (int)($_GET['produk_id'] ?? 0),
+    'cari_customer' => sanitizeInput($_GET['cari_customer'] ?? ''),
+    'limit' => (int)($_GET['limit'] ?? 20),
+    'page' => (int)($_GET['page'] ?? 1)
+];
+
+// Handle export CSV
+if (isset($_GET['export']) && $_GET['export'] === 'csv') {
+    try {
+        $csv_content = $laporan->exportDetailCSV($filters);
+        
+        if (ob_get_length()) ob_clean();
+        
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="detail_penjualan_' . date('Y-m-d_H-i-s') . '.csv"');
+        header('Cache-Control: no-cache, must-revalidate');
+        header('Expires: Mon, 01 Jan 1990 00:00:00 GMT');
+        
+        echo "\xEF\xBB\xBF" . $csv_content; // BOM untuk UTF-8
+        exit;
+    } catch (Exception $e) {
+        setMessage('Error export CSV: ' . $e->getMessage(), 'error');
+    }
+}
+
+$page_title = "Detail Penjualan";
+require_once __DIR__ . '/../../includes/header.php';
+require_once __DIR__ . '/../../includes/sidebar.php';
+
+// Ambil data
+try {
+    $report = $laporan->getDetailPenjualan($filters);
+    $all_produk = $laporan->getAllProduk();
+} catch (Exception $e) {
+    setMessage('Error loading data: ' . $e->getMessage(), 'error');
+    $report = ['data' => [], 'total' => 0, 'page' => 1, 'limit' => 20, 'total_pages' => 0];
+    $all_produk = [];
+}
+
+// Remove empty filters untuk URL
+$active_filters = array_filter($filters, function($value) {
+    return $value !== '' && $value !== 0;
+});
+
+// Build URL function
+function buildFilterUrl($additional_params = []) {
+    global $active_filters;
+    $params = array_merge($active_filters, $additional_params);
+    return 'detail.php?' . http_build_query($params);
+}
+?>
+
+<div class="main-content">
+    <!-- Header -->
+    <div class="top-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="page-title mb-0">Detail Penjualan</h1>
+                <nav class="breadcrumb">
+                    <a href="<?= BASE_URL ?>" class="breadcrumb-item text-decoration-none">Dashboard</a>
+                    <a href="analitik.php" class="breadcrumb-item text-decoration-none">Analytics</a>
+                    <span class="breadcrumb-item active">Detail</span>
+                </nav>
+            </div>
+            <div class="d-flex gap-2">
+                <?php if (!empty($report['data'])): ?>
+                    <a href="<?= buildFilterUrl(['export' => 'csv']) ?>" class="btn btn-success">
+                        <i class="fas fa-download me-2"></i>Export CSV
+                    </a>
+                <?php endif; ?>
+                <a href="analitik.php" class="btn btn-outline-primary">
+                    <i class="fas fa-chart-line me-2"></i>Analytics
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-area">
+        <!-- Filter Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Filter Data</h6>
+                    <?php if (!empty($active_filters)): ?>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-muted small">
+                                <?= $report['total'] ?> data ditemukan
+                            </span>
+                            <a href="detail.php" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-times me-1"></i>Reset
+                            </a>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="GET" class="row g-3" id="filterForm">
+                    <div class="col-md-3">
+                        <label class="form-label">Dari Tanggal</label>
+                        <input type="date" name="tanggal_dari" class="form-control" 
+                               value="<?= $filters['tanggal_dari'] ?>">
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label class="form-label">Sampai Tanggal</label>
+                        <input type="date" name="tanggal_sampai" class="form-control" 
+                               value="<?= $filters['tanggal_sampai'] ?>">
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label class="form-label">Produk</label>
+                        <select name="produk_id" class="form-select">
+                            <option value="">Semua Produk</option>
+                            <?php foreach ($all_produk as $produk): ?>
+                                <option value="<?= $produk['id'] ?>" 
+                                        <?= $produk['id'] == $filters['produk_id'] ? 'selected' : '' ?>>
+                                    <?= safeHtml($produk['nama']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label class="form-label">Cari Customer</label>
+                        <input type="text" name="cari_customer" class="form-control" 
+                               placeholder="Nama atau WhatsApp..." 
+                               value="<?= $filters['cari_customer'] ?>">
+                    </div>
+                    
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i>Filter
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="window.location='detail.php'">
+                            <i class="fas fa-refresh me-1"></i>Reset
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Results Table -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        Data Penjualan
+                        <?php if (!empty($active_filters)): ?>
+                            (<?= $report['total'] ?> data)
+                        <?php endif; ?>
+                    </h5>
+                    
+                    <?php if (!empty($report['data'])): ?>
+                        <div class="d-flex gap-2 align-items-center">
+                            <span class="text-muted">
+                                Halaman <?= $report['page'] ?> dari <?= $report['total_pages'] ?>
+                            </span>
+                            <select class="form-select form-select-sm" style="width: auto;" onchange="changeLimit(this.value)">
+                                <option value="10" <?= $filters['limit'] == 10 ? 'selected' : '' ?>>10 per halaman</option>
+                                <option value="20" <?= $filters['limit'] == 20 ? 'selected' : '' ?>>20 per halaman</option>
+                                <option value="50" <?= $filters['limit'] == 50 ? 'selected' : '' ?>>50 per halaman</option>
+                                <option value="100" <?= $filters['limit'] == 100 ? 'selected' : '' ?>>100 per halaman</option>
+                            </select>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <div class="card-body">
+                <?php if (empty($report['data'])): ?>
+                    <div class="text-center py-5">
+                        <?php if (!empty($active_filters)): ?>
+                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Tidak ada data yang sesuai kriteria</h5>
+                            <p class="text-muted">Coba sesuaikan filter pencarian Anda.</p>
+                            <a href="detail.php" class="btn btn-outline-primary">Reset Filter</a>
+                        <?php else: ?>
+                            <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Belum ada data penjualan</h5>
+                            <p class="text-muted">Data akan muncul setelah ada transaksi selesai.</p>
+                            <a href="<?= BASE_URL ?>modules/transaksi/create.php" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Buat Transaksi
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                <?php else: ?>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Customer</th>
+                                    <th>Produk</th>
+                                    <th>Tanggal</th>
+                                    <th>Harga</th>
+                                    <th>Total Transaksi</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php 
+                                $start_number = ($report['page'] - 1) * $report['limit'] + 1;
+                                foreach ($report['data'] as $index => $row): 
+                                ?>
+                                <tr>
+                                    <td><?= $start_number + $index ?></td>
+                                    
+                                    <td>
+                                        <div class="fw-bold"><?= safeHtml($row['customer_nama']) ?></div>
+                                        <a href="https://wa.me/<?= $row['nomor_wa'] ?>" 
+                                           target="_blank" class="text-success text-decoration-none">
+                                            <i class="fab fa-whatsapp me-1"></i><?= $row['nomor_wa'] ?>
+                                        </a>
+                                    </td>
+                                    
+                                    <td>
+                                        <strong><?= safeHtml($row['produk_nama']) ?></strong>
+                                    </td>
+                                    
+                                    <td>
+                                        <div><?= date('d/m/Y', strtotime($row['tanggal_transaksi'])) ?></div>
+                                        <small class="text-muted"><?= date('H:i', strtotime($row['tanggal_transaksi'])) ?></small>
+                                    </td>
+                                    
+                                    <td>
+                                        <span class="fw-bold text-success"><?= formatCurrency($row['harga']) ?></span>
+                                    </td>
+                                    
+                                    <td>
+                                        <span class="fw-bold text-primary"><?= formatCurrency($row['total_harga']) ?></span>
+                                    </td>
+                                    
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="https://wa.me/<?= $row['nomor_wa'] ?>" 
+                                               class="btn btn-success" target="_blank" title="Hubungi via WhatsApp">
+                                                <i class="fab fa-whatsapp"></i>
+                                            </a>
+                                            <a href="<?= BASE_URL ?>modules/transaksi/detail.php?id=<?= $row['transaksi_id'] ?>" 
+                                               class="btn btn-primary" title="Lihat detail transaksi">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <?php if ($report['total_pages'] > 1): ?>
+                        <nav class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                <?php if ($report['page'] > 1): ?>
+                                    <li class="page-item">
+                                        <a class="page-link" href="<?= buildFilterUrl(['page' => $report['page'] - 1]) ?>">
+                                            <i class="fas fa-chevron-left"></i> Sebelumnya
+                                        </a>
+                                    </li>
+                                <?php endif; ?>
+                                
+                                <?php 
+                                $start_page = max(1, $report['page'] - 2);
+                                $end_page = min($report['total_pages'], $report['page'] + 2);
+                                
+                                for ($i = $start_page; $i <= $end_page; $i++): 
+                                ?>
+                                    <li class="page-item <?= $i == $report['page'] ? 'active' : '' ?>">
+                                        <a class="page-link" href="<?= buildFilterUrl(['page' => $i]) ?>">
+                                            <?= $i ?>
+                                        </a>
+                                    </li>
+                                <?php endfor; ?>
+                                
+                                <?php if ($report['page'] < $report['total_pages']): ?>
+                                    <li class="page-item">
+                                        <a class="page-link" href="<?= buildFilterUrl(['page' => $report['page'] + 1]) ?>">
+                                            Berikutnya <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                <?php endif; ?>
+                            </ul>
+                        </nav>
+                    <?php endif; ?>
+                    
+                    <!-- Summary Info -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="text-muted">
+                                Menampilkan <?= count($report['data']) ?> dari <?= $report['total'] ?> data
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <?php if (!empty($report['data'])): ?>
+                                <a href="<?= buildFilterUrl(['export' => 'csv']) ?>" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-download me-1"></i>Export CSV
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto submit form ketika filter berubah
+document.querySelectorAll('#filterForm select, #filterForm input[type="date"]').forEach(element => {
+    element.addEventListener('change', function() {
+        document.getElementById('filterForm').submit();
+    });
+});
+
+// Search dengan delay
+let searchTimeout;
+document.querySelector('input[name="cari_customer"]').addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    const searchValue = this.value.trim();
+    
+    if (searchValue.length >= 3 || searchValue.length === 0) {
+        searchTimeout = setTimeout(() => {
+            document.getElementById('filterForm').submit();
+        }, 1000);
+    }
+});
+
+// Change limit per page
+function changeLimit(limit) {
+    const url = new URL(window.location);
+    url.searchParams.set('limit', limit);
+    url.searchParams.set('page', '1'); // Reset ke halaman 1
+    window.location = url.toString();
+}
+
+// Export loading state
+document.querySelectorAll('a[href*="export=csv"]').forEach(function(link) {
+    link.addEventListener('click', function() {
+        const originalText = this.innerHTML;
+        this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Export...';
+        this.style.pointerEvents = 'none';
+        
+        setTimeout(() => {
+            this.innerHTML = originalText;
+            this.style.pointerEvents = 'auto';
+        }, 3000);
+    });
+});
+</script>
+
+<?php require_once __DIR__ . '/../../includes/footer.php'; ?>

@@ -1,0 +1,202 @@
+<?php
+// === LOGIC SECTION (No Output) ===
+require_once __DIR__ . '/../../includes/init.php';
+require_once __DIR__ . '/functions.php';
+
+$page_title = "Edit Produk";
+
+// Validate ID
+$produk_id = (int)get('id');
+if (!$produk_id) {
+    setMessage('ID produk tidak valid!', 'error');
+    redirect('index.php');
+}
+
+$produk = getProdukById($produk_id);
+if (!$produk) {
+    setMessage('Produk tidak ditemukan!', 'error');
+    redirect('index.php');
+}
+
+$onesender_accounts = getOneSenderAccounts();
+$errors = [];
+
+if (isPost()) {
+    $data = [
+        'nama' => post('nama'),
+        'deskripsi' => post('deskripsi'),
+        'harga' => post('harga'),
+        'link_akses' => clean(post('link_akses')),
+        'onesender_account' => clean(post('onesender_account')),
+        'admin_wa' => clean(post('admin_wa')),
+        'meta_pixel_id' => clean(post('meta_pixel_id')),
+        'conversion_api_token' => clean(post('conversion_api_token')),
+        'tracking_aktif' => post('tracking_aktif') ? 1 : 0
+    ];
+    
+    $errors = validateProdukData($data);
+    
+    if (empty($errors)) {
+        if (updateProduk($produk_id, $data)) {
+            setMessage('Produk berhasil diupdate!', 'success');
+            redirect('index.php');
+        } else {
+            $errors[] = 'Gagal mengupdate produk. Silakan coba lagi.';
+        }
+    }
+} else {
+    // Set form data from database
+    $_POST = $produk;
+}
+
+// === PRESENTATION SECTION ===
+require_once __DIR__ . '/../../includes/header.php';
+require_once __DIR__ . '/../../includes/sidebar.php';
+?>
+
+<div class="main-content">
+    <!-- Top Header -->
+    <div class="bg-white border-bottom p-3 mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-1">Edit Produk</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="index.php">Produk</a></li>
+                        <li class="breadcrumb-item active">Edit</li>
+                    </ol>
+                </nav>
+            </div>
+            <div>
+                <a href="index.php" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Kembali
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid px-4">
+        <?php if (!empty($errors)): ?>
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    <?php foreach ($errors as $error): ?>
+                        <li><?= $error ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+        
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Form Edit Produk</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="nama" class="form-label">Nama Produk <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="nama" name="nama" 
+                                    value="<?= clean(post('nama')) ?>" required>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="harga" class="form-label">Harga <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Rp</span>
+                                    <input type="number" class="form-control" id="harga" name="harga" 
+                                        value="<?= post('harga') ?>" min="0" step="1000" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="deskripsi" class="form-label">Deskripsi Produk</label>
+                        <textarea class="form-control" id="deskripsi" name="deskripsi" rows="3"><?= clean(post('deskripsi')) ?></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="link_akses" class="form-label">Link Akses Produk</label>
+                                <input type="url" class="form-control" id="link_akses" name="link_akses" 
+                                    value="<?= clean(post('link_akses')) ?>" placeholder="https://example.com/produk">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="admin_wa" class="form-label">Nomor WA Admin</label>
+                                <input type="text" class="form-control" id="admin_wa" name="admin_wa" 
+                                    value="<?= clean(post('admin_wa')) ?>" placeholder="628xxxxxxxxxx">
+                                <small class="form-text text-muted">Format: 628xxxxxxxxxx (tanpa tanda +)</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="onesender_account" class="form-label">Akun OneSender</label>
+                        <select class="form-select" id="onesender_account" name="onesender_account">
+                            <?php foreach ($onesender_accounts as $account): ?>
+                                <option value="<?= $account['account_name'] ?>"
+                                        <?= (post('onesender_account') === $account['account_name']) ? 'selected' : '' ?>>
+                                    <?= $account['account_name'] ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    
+                    <!-- Meta Pixel Section -->
+                    <div class="card border-info mb-3">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0"><i class="fab fa-facebook me-2"></i>Meta Pixel & Conversion API</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="meta_pixel_id" class="form-label">Meta Pixel ID</label>
+                                        <input type="text" class="form-control" id="meta_pixel_id" name="meta_pixel_id" 
+                                            value="<?= clean(post('meta_pixel_id')) ?>" placeholder="1234567890123456">
+                                        <small class="form-text text-muted">ID Pixel Meta untuk tracking (16 digit)</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="conversion_api_token" class="form-label">Conversion API Token</label>
+                                        <input type="password" class="form-control" id="conversion_api_token" name="conversion_api_token" 
+                                            value="<?= clean(post('conversion_api_token')) ?>" placeholder="EAAxxxxxxxxxxxxxxx">
+                                        <small class="form-text text-muted">Token akses untuk Conversion API</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="tracking_aktif" name="tracking_aktif" 
+                                    value="1" <?= post('tracking_aktif') ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="tracking_aktif">
+                                    <strong>Aktifkan tracking untuk produk ini</strong>
+                                </label>
+                                <small class="form-text text-muted d-block">Centang untuk mengaktifkan Meta Pixel tracking saat ada transaksi produk ini</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="index.php" class="btn btn-secondary">Batal</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Update Produk
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php require_once __DIR__ . '/../../includes/footer.php'; ?>

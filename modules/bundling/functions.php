@@ -1,0 +1,170 @@
+<?php
+/**
+ * Bundling Functions - Updated with 'deskripsi' support
+ */
+
+// Get all bundling with pagination
+function getBundlingList($page = 1, $limit = 10) {
+    $offset = ($page - 1) * $limit;
+    
+    $sql = "SELECT b.id, b.produk_id, b.produk_bundling_id, b.diskon, b.deskripsi,
+                   p1.nama as produk_utama, p1.harga as harga_utama,
+                   p2.nama as produk_bundling, p2.harga as harga_bundling
+            FROM bundling b
+            JOIN produk p1 ON b.produk_id = p1.id
+            JOIN produk p2 ON b.produk_bundling_id = p2.id
+            ORDER BY b.id DESC
+            LIMIT ? OFFSET ?";
+    
+    return fetchAll($sql, [$limit, $offset]);
+}
+
+// Count total bundling
+function countBundling() {
+    $result = fetchRow("SELECT COUNT(*) as total FROM bundling");
+    return $result['total'] ?? 0;
+}
+
+// Get bundling by ID
+function getBundlingById($id) {
+    $sql = "SELECT b.*, 
+                   p1.nama as produk_utama, p1.harga as harga_utama,
+                   p2.nama as produk_bundling, p2.harga as harga_bundling
+            FROM bundling b
+            JOIN produk p1 ON b.produk_id = p1.id
+            JOIN produk p2 ON b.produk_bundling_id = p2.id
+            WHERE b.id = ?";
+    
+    return fetchRow($sql, [$id]);
+}
+
+// Get all products for dropdown
+function getAllProducts() {
+    return fetchAll("SELECT id, nama, harga FROM produk ORDER BY nama");
+}
+
+// Check if bundling exists (for duplicate prevention)
+function bundlingExists($produk_id, $bundling_id, $exclude_id = null) {
+    $sql = "SELECT COUNT(*) as total FROM bundling 
+            WHERE produk_id = ? AND produk_bundling_id = ?";
+    $params = [$produk_id, $bundling_id];
+    
+    if ($exclude_id) {
+        $sql .= " AND id != ?";
+        $params[] = $exclude_id;
+    }
+    
+    $result = fetchRow($sql, $params);
+    return $result['total'] > 0;
+}
+
+// Create single bundling (updated)
+function createBundling($produk_id, $bundling_id, $diskon, $deskripsi = null) {
+    return execute(
+        "INSERT INTO bundling (produk_id, produk_bundling_id, diskon, deskripsi) VALUES (?, ?, ?, ?)",
+        [$produk_id, $bundling_id, $diskon, $deskripsi]
+    );
+}
+
+// Create multiple bundling (batch insert - updated)
+function createMultipleBundling($produk_id, $bundling_items) {
+    if (empty($bundling_items)) return false;
+    
+    $values = [];
+    $params = [];
+    
+    foreach ($bundling_items as $item) {
+        $values[] = "(?, ?, ?, ?)";
+        $params[] = $produk_id;
+        $params[] = $item['produk_id'];
+        $params[] = $item['diskon'];
+        $params[] = $item['deskripsi'] ?? null;
+    }
+    
+    $sql = "INSERT INTO bundling (produk_id, produk_bundling_id, diskon, deskripsi) VALUES " . implode(', ', $values);
+    return execute($sql, $params);
+}
+
+// Delete all bundling for a product
+function deleteAllBundlingByProduct($produk_id) {
+    return execute("DELETE FROM bundling WHERE produk_id = ?", [$produk_id]);
+}
+
+// Update bundling (updated)
+function updateBundling($id, $produk_id, $bundling_id, $diskon, $deskripsi = null) {
+    return execute(
+        "UPDATE bundling SET produk_id = ?, produk_bundling_id = ?, diskon = ?, deskripsi = ? WHERE id = ?",
+        [$produk_id, $bundling_id, $diskon, $deskripsi, $id]
+    );
+}
+
+// Delete bundling
+function deleteBundling($id) {
+    return execute("DELETE FROM bundling WHERE id = ?", [$id]);
+}
+
+// Calculate final price after discount
+function calculateBundlePrice($normal_price, $discount) {
+    return max(0, $normal_price - $discount);
+}
+
+// Format discount for display
+function formatDiscount($discount) {
+    return 'Rp ' . number_format($discount, 0, ',', '.');
+}
+
+// Validate bundling data
+function validateBundling($produk_id, $bundling_id, $diskon, $exclude_id = null) {
+    $errors = [];
+    
+    if (empty($produk_id)) {
+        $errors[] = "Produk utama harus dipilih";
+    }
+    
+    if (empty($bundling_id)) {
+        $errors[] = "Produk bundling harus dipilih";
+    }
+    
+    if (empty($diskon) || $diskon <= 0) {
+        $errors[] = "Diskon harus lebih dari 0";
+    }
+    
+    if ($produk_id == $bundling_id) {
+        $errors[] = "Produk tidak bisa dibundle dengan dirinya sendiri";
+    }
+    
+    if (empty($errors) && bundlingExists($produk_id, $bundling_id, $exclude_id)) {
+        $errors[] = "Bundling ini sudah ada";
+    }
+    
+    return $errors;
+}
+
+// Generate simple pagination
+function getBundlingPagination($current, $total_pages, $base_url = 'index.php') {
+    if ($total_pages <= 1) return '';
+    
+    $html = '<nav><ul class="pagination justify-content-center">';
+    
+    // Previous
+    if ($current > 1) {
+        $html .= '<li class="page-item"><a class="page-link" href="'.$base_url.'?page='.($current-1).'">‹</a></li>';
+    }
+    
+    // Pages
+    $start = max(1, $current - 2);
+    $end = min($total_pages, $current + 2);
+    
+    for ($i = $start; $i <= $end; $i++) {
+        $active = ($i == $current) ? ' active' : '';
+        $html .= '<li class="page-item'.$active.'"><a class="page-link" href="'.$base_url.'?page='.$i.'">'.$i.'</a></li>';
+    }
+    
+    // Next
+    if ($current < $total_pages) {
+        $html .= '<li class="page-item"><a class="page-link" href="'.$base_url.'?page='.($current+1).'">›</a></li>';
+    }
+    
+    return $html . '</ul></nav>';
+}
+?>

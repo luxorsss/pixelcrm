@@ -1,0 +1,238 @@
+# 🚀 Setup QRIS dengan QR Generator
+
+## 📋 **Langkah Setup:**
+
+### **1. Install QR Library (Pilih salah satu):**
+
+#### **Opsi A: Auto Installer (Termudah)**
+```bash
+# Upload file install_qr.php ke folder root (crm2/)
+# Buka di browser: http://localhost/crm2/install_qr.php
+# Follow instruksi di browser
+```
+
+#### **Opsi B: Manual Download**
+```bash
+# 1. Download phpqrcode dari SourceForge
+# 2. Extract ke folder: crm2/includes/phpqrcode/
+# 3. Pastikan ada file: crm2/includes/phpqrcode/qrlib.php
+```
+
+#### **Opsi C: Via Composer (Jika ada composer)**
+```bash
+composer require phpqrcode/phpqrcode
+# Sesuaikan path di functions.php
+```
+
+### **2. Buat Folder Assets:**
+```bash
+mkdir crm2/assets/qr/
+chmod 755 crm2/assets/qr/
+```
+
+### **3. Update Database (Optional):**
+```sql
+-- Jika mau simpan QR filename di database
+ALTER TABLE rekening ADD qr_filename VARCHAR(255) NULL;
+```
+
+## 🎯 **Cara Menggunakan:**
+
+### **Input QRIS Baru:**
+1. Pilih "QRIS" di dropdown bank
+2. Input kode QRIS: `ID1234567890123456789`
+3. Sistem auto-generate QR code
+4. QR tersimpan di `assets/qr/qris_[ID].png`
+
+### **Melihat QR Code:**
+1. Di halaman rekening, klik tombol mata hijau
+2. Modal popup menampilkan QR code
+3. Bisa download QR untuk print/share
+
+### **Update QRIS:**
+1. Edit rekening QRIS
+2. Ubah kode → QR auto re-generate
+3. QR lama otomatis terhapus
+
+## 🔧 **Kustomisasi QR:**
+
+Edit di `functions.php` → `generateQRCode()`:
+```php
+// Parameter QR:
+QRcode::png($qrisCode, $filepath, QR_ECLEVEL_M, 8, 2);
+//                               ↑ Error Correction ↑ Size ↑ Border
+```
+
+**Error Correction Levels:**
+- `QR_ECLEVEL_L` - Low (7%)
+- `QR_ECLEVEL_M` - Medium (15%) ← Default
+- `QR_ECLEVEL_Q` - Quartile (25%)
+- `QR_ECLEVEL_H` - High (30%)
+
+## 📱 **Testing QR Code:**
+
+### **Apps untuk Test:**
+- **Banking**: BCA Mobile, Mandiri Online, BRImo
+- **E-wallet**: GoPay, OVO, DANA, ShopeePay
+- **Generic**: Google Lens, QR Scanner apps
+
+### **Test Steps:**
+1. Generate QRIS di sistem
+2. Scan dengan app pilihan
+3. Pastikan nama merchant muncul benar
+4. Test small transaction (Rp 1000)
+
+## 🛡️ **Security Notes:**
+
+- ✅ QR files disimpan di `assets/qr/` (public)
+- ✅ Filename di-hash: `qris_[ID].png`
+- ✅ Kode QRIS relatif aman untuk public
+- ⚠️ Jangan share QR di social media
+- ⚠️ Monitor transaksi secara berkala
+
+## 🚨 **Troubleshooting:**
+
+### **QR Tidak Generate:**
+```bash
+# Check permissions
+chmod 755 crm2/assets/qr/
+chmod 644 crm2/includes/phpqrcode/qrlib.php
+
+# Check PHP extensions
+php -m | grep gd  # Harus ada GD extension
+```
+
+### **QR Tidak Muncul:**
+```bash
+# Check file exists
+ls -la crm2/assets/qr/qris_*.png
+
+# Check web path
+curl http://localhost/crm2/assets/qr/qris_1.png
+```
+
+### **Library Error:**
+```bash
+# Check phpqrcode installation
+ls -la crm2/includes/phpqrcode/
+
+# Required files:
+- qrlib.php (main library)
+- qrconst.php (constants)
+- qrtools.php (utilities)
+```
+
+## 📊 **Performance Tips:**
+
+1. **QR Caching**: File disimpan permanent, tidak regenerate setiap request
+2. **File Size**: Default ~2-5KB per QR image
+3. **Cleanup**: Auto delete QR saat rekening dihapus
+4. **CDN Ready**: QR files bisa di-serve via CDN
+
+## 🔄 **Migration dari Upload Image:**
+
+Jika sebelumnya pakai upload image QR:
+```sql
+-- Backup old images first
+-- Then update to ID-based system
+UPDATE rekening SET nomor_rekening = '[QRIS_ID]' WHERE nama_bank = 'QRIS';
+-- Replace [QRIS_ID] with actual QRIS codes
+```
+
+## 📈 **Advanced Features (Optional):**
+
+### **Bulk QR Generation:**
+```php
+// Tambah ke functions.php
+function regenerateAllQRIS() {
+    $qrisList = fetchAll("SELECT * FROM rekening WHERE nama_bank = 'QRIS'");
+    foreach ($qrisList as $qris) {
+        generateQRCode($qris['nomor_rekening'], $qris['id']);
+    }
+}
+```
+
+### **QR Analytics:**
+```sql
+-- Track QR views (optional)
+CREATE TABLE qr_views (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    rekening_id INT,
+    viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_agent TEXT
+);
+```
+
+### **Custom QR Styling:**
+```php
+// Di functions.php, customize QR appearance:
+function generateStyledQR($qrisCode, $rekeningId) {
+    // Add logo overlay
+    // Custom colors
+    // Brand styling
+}
+```
+
+## 🎨 **UI Enhancements:**
+
+### **QR Preview di Form:**
+Update `create.php` dan `edit.php` untuk live QR preview saat user mengetik kode QRIS.
+
+### **Print-Ready QR:**
+Tambah CSS print styles untuk QR yang optimal saat di-print.
+
+### **Mobile Optimization:**
+QR modal responsive untuk mobile users.
+
+## 💾 **Backup Strategy:**
+
+```bash
+# Backup QR files
+tar -czf qr_backup_$(date +%Y%m%d).tar.gz assets/qr/
+
+# Backup database
+mysqldump -u root -p crm_db rekening > rekening_backup.sql
+```
+
+## 🔗 **Integration Options:**
+
+### **WhatsApp Integration:**
+```php
+function sendQRViaWhatsApp($rekeningId, $phoneNumber) {
+    $qrPath = getQRCodePath($rekeningId);
+    // Send via WhatsApp API
+}
+```
+
+### **Email Integration:**
+```php
+function emailQRCode($rekeningId, $email) {
+    $qrPath = getQRCodePath($rekeningId);
+    // Attach QR to email
+}
+```
+
+### **API Endpoint:**
+```php
+// api/qr.php
+if ($_GET['id']) {
+    $qrPath = getQRCodePath($_GET['id']);
+    header('Content-Type: image/png');
+    readfile($qrPath);
+}
+```
+
+---
+
+## ✅ **Quick Checklist:**
+
+- [ ] QR library installed
+- [ ] `assets/qr/` folder created with write permissions  
+- [ ] Test QR generation works
+- [ ] Test QR scanning dengan real apps
+- [ ] UI menampilkan QR button untuk QRIS
+- [ ] Download QR berfungsi
+- [ ] Delete QR cleanup works
+- [ ] Mobile responsive QR modal
+
+**🎉 Ready to use! Sistem QRIS dengan auto QR generation sudah siap.**

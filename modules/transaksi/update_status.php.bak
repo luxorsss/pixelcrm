@@ -1,0 +1,344 @@
+<?php
+require_once __DIR__ . '/../../includes/init.php';
+require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/../../includes/whatsapp_helper.php';
+
+// --- TAMBAHAN: Definisi Fungsi sendMetaCAPIEvent ---
+// Function untuk kirim CAPI
+function sendMetaCAPIEvent($access_token, $pixel_id, $event_name, $user_data, $custom_data = [], $event_id = null) {
+    if (!$event_id) {
+        $event_id = uniqid('event_', true);
+    }
+
+    $capi_url = 'https://graph.facebook.com/v20.0/' . $pixel_id . '/events';
+    
+    $data = [
+        'data' => [
+            [
+                'event_name' => $event_name,
+                'event_time' => time(),
+                'event_id' => $event_id,
+                'action_source' => 'website',
+                'user_data' => $user_data,
+                'custom_data' => $custom_data
+            ]
+        ],
+        'access_token' => $access_token
+    ];
+
+    $ch = curl_init($capi_url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json'
+    ]);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 5); // Timeout 5 detik
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $error = curl_error($ch);
+    curl_close($ch);
+
+    error_log("CAPI Response for event '$event_name': HTTP $http_code, Error: '$error', Response: " . substr($response, 0, 200)); // Log sebagian response
+
+    return $response;
+}
+// --- AKHIR TAMBAHAN ---
+
+// Debug: Log URL yang diterima
+error_log("DEBUG: REQUEST_URI: " . ($_SERVER['REQUEST_URI'] ?? 'N/A'));
+error_log("DEBUG: QUERY_STRING: " . ($_SERVER['QUERY_STRING'] ?? 'N/A'));
+
+// Cara yang lebih andal untuk mengambil parameter
+$id = 0;
+$new_status = '';
+
+// Parse query string secara manual untuk menghindari masalah duplikasi parameter
+$query_string = $_SERVER['QUERY_STRING'] ?? '';
+$params = [];
+if ($query_string) {
+    $pairs = explode('&', $query_string);
+    foreach ($pairs as $pair) {
+        $parts = explode('=', $pair, 2);
+        if (count($parts) == 2) {
+            $key = urldecode($parts[0]);
+            $value = urldecode($parts[1]);
+            // Simpan semua nilai parameter (array jika ada duplikat)
+            if (isset($params[$key])) {
+                if (!is_array($params[$key])) {
+                    $params[$key] = [$params[$key]];
+                }
+                $params[$key][] = $value;
+            } else {
+                $params[$key] = $value;
+            }
+        }
+    }
+}
+
+// Ambil parameter id
+if (isset($params['id'])) {
+    $id = (int)(is_array($params['id']) ? $params['id'][0] : $params['id']);
+}
+
+// Ambil parameter status (prioritaskan status dari tombol)
+if (isset($params['status'])) {
+    if (is_array($params['status'])) {
+        // Jika ada banyak status, ambil yang pertama (dari tombol)
+        $new_status = clean($params['status'][0]);
+    } else {
+        $new_status = clean($params['status']);
+    }
+}
+
+// Debug: Log parameter yang ditemukan
+error_log("DEBUG: Extracted ID: $id, Status: '$new_status'");
+
+// Validasi parameter
+if (!$id || empty($new_status)) {
+    error_log("ERROR: Invalid parameters - ID: $id, Status: '$new_status'");
+    setMessage('Parameter tidak valid', 'error');
+    redirect('index.php');
+}
+
+// Validasi status
+$valid_statuses = ['pending', 'diproses', 'selesai', 'batal'];
+if (!in_array($new_status, $valid_statuses)) {
+    error_log("ERROR: Invalid status: '$new_status'");
+    setMessage('Status tidak valid', 'error');
+    redirect('index.php');
+}
+
+// Cek apakah transaksi ada
+$transaksi = getTransaksiById($id);
+if (!$transaksi) {
+    error_log("ERROR: Transaction not found with ID: $id");
+    setMessage('Transaksi tidak ditemukan', 'error');
+    redirect('index.php');
+}
+
+$old_status = $transaksi['status'];
+
+// Debug: Log status lama dan baru
+error_log("DEBUG: Transaction #$id - Old status: '$old_status', New status: '$new_status'");
+
+try {
+    // Update status transaksi
+    $update_result = manualUpdateTransactionStatus($id, $new_status);
+    
+    if (!$update_result['success']) {
+        throw new Exception($update_result['message']);
+    }
+    
+    // Bangun pesan sukses
+    $message = "Status transaksi #$id berhasil diubah dari '$old_status' menjadi '$new_status'";
+    
+    if ($new_status === 'selesai') {
+        $message .= " (waktu selesai tercatat)";
+    }
+    
+    // Tambahkan informasi penghapusan follow-up jika ada
+    if (isset($update_result['followups_deleted']) && $update_result['followups_deleted'] > 0) {
+        $message .= ". {$update_result['followups_deleted']} pesan followup yang belum terkirim telah dihapus otomatis";
+    }
+    
+    // Jika status diubah menjadi "selesai", jalankan logic integrasi (CAPI & WA)
+    if ($new_status === 'selesai' && $old_status !== 'selesai') {
+
+        // 1. Ambil detail produk dulu (dipindah ke atas agar bisa dipakai CAPI & WA)
+        // Query ini mengambil semua produk dalam transaksi beserta data pelanggan dan config pixel
+        $produk_list = fetchAll("
+            SELECT 
+                dt.produk_id,
+                dt.harga as harga_satuan, -- Menggunakan kolom harga dari detail_transaksi
+                pr.nama as produk_nama, 
+                pr.link_akses, 
+                pr.onesender_account,
+                pr.conversion_api_token, 
+                pr.meta_pixel_id,
+                p.nama as pelanggan_nama, 
+                p.nomor_wa
+            FROM detail_transaksi dt
+            JOIN transaksi t ON dt.transaksi_id = t.id
+            JOIN produk pr ON dt.produk_id = pr.id
+            JOIN pelanggan p ON t.pelanggan_id = p.id
+            WHERE t.id = ?
+        ", [$id]);
+
+        // --- LOGIC META CAPI (PURCHASE EVENT) ---
+        try {
+            // Cek apakah ada produk dan ambil config pixel dari produk pertama yang punya token
+            // Kita cari produk yang punya token CAPI
+            $main_config = null;
+            foreach ($produk_list as $prod) {
+                if (!empty($prod['conversion_api_token']) && !empty($prod['meta_pixel_id'])) {
+                    $main_config = $prod;
+                    break; 
+                }
+            }
+
+            if ($main_config) {
+                $email = $transaksi['email'] ?? '';
+
+                // A. Siapkan User Data (Hashing wajib untuk PII)
+                // Bersihkan nomor WA: ambil digit saja
+                $clean_wa = preg_replace('/[^0-9]/', '', $transaksi['nomor_wa']);
+                
+                $user_data = [
+                    'ph' => hash('sha256', $clean_wa),
+                    'client_ip_address' => $transaksi['ip_pelanggan'] ?? $_SERVER['REMOTE_ADDR'],
+                    'client_user_agent' => $transaksi['user_agent_pelanggan'] ?? $_SERVER['HTTP_USER_AGENT']
+                ];
+
+                // Tambahkan email jika ada
+                if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $user_data['em'] = hash('sha256', strtolower(trim($email)));
+                }
+
+                // Tambahkan fbc/fbp (browser cookies) untuk matching akurat
+                if (!empty($transaksi['fbc'])) $user_data['fbc'] = $transaksi['fbc'];
+                if (!empty($transaksi['fbp'])) $user_data['fbp'] = $transaksi['fbp'];
+
+                // B. Siapkan Data Produk (Content IDs)
+                $content_ids = [];
+                $contents = [];
+                
+                foreach ($produk_list as $item) {
+                    $content_ids[] = (string) $item['produk_id'];
+                    $contents[] = [
+                        'id' => (string) $item['produk_id'],
+                        'quantity' => 1, // Default 1
+                        'item_price' => (float) ($item['harga_satuan'] ?? 0)
+                    ];
+                }
+
+                // C. Siapkan Custom Data (Value & Currency)
+                $custom_data = [
+                    'currency' => 'IDR',
+                    'value' => (float) $transaksi['total_harga'], // Total value transaksi
+                    'content_type' => 'product', 
+                    'content_ids' => $content_ids,
+                    'contents' => $contents,
+                    'content_name' => 'Order #' . $id 
+                ];
+
+                // D. Kirim ke Meta
+                sendMetaCAPIEvent(
+                    $main_config['conversion_api_token'],
+                    $main_config['meta_pixel_id'],
+                    'Purchase', // Event Belanja
+                    $user_data,
+                    $custom_data
+                );
+                
+                error_log("CAPI Event 'Purchase' sent for transaction #$id. Value: " . $transaksi['total_harga']);
+            } else {
+                 error_log("INFO: CAPI credentials not found for transaction #$id, skipping Purchase event.");
+            }
+        } catch (Exception $e) {
+            // Bungkus try-catch agar error CAPI tidak membatalkan pengiriman WA
+            error_log("WARNING: Failed to send CAPI Purchase event: " . $e->getMessage());
+        }
+        // --- AKHIR LOGIC META CAPI ---
+
+        // --- LOGIC WHATSAPP ---
+        try {
+            if (!empty($produk_list)) {
+                $pelanggan_nama = $produk_list[0]['pelanggan_nama'];
+                $nomor_wa = $produk_list[0]['nomor_wa'];
+                
+                // Ambil semua template sekali (cache untuk performa)
+                $template_result = fetchAll("SELECT produk_id, isi_pesan FROM template_pesan_produk WHERE jenis_pesan = 'akses_produk'");
+                $templates = [];
+                foreach ($template_result as $row) {
+                    $templates[$row['produk_id']] = $row['isi_pesan'];
+                }
+                
+                // Ambil template default
+                $default_template_row = fetchRow("SELECT isi_pesan FROM pengaturan_pesan WHERE jenis_pesan = 'akses_produk' LIMIT 1");
+                $default_template = $default_template_row['isi_pesan'] ?? "Halo {nama}!\n\nTerima kasih telah melakukan pembelian. Berikut akses produk Anda:\n\nProduk: {produk}\nLink: {link_akses}\n\nSilakan simpan link tersebut dengan baik.\n\nTerima kasih!";
+                
+                // Variabel untuk menyimpan jumlah pesan
+                $pesan_terkirim = 0;
+                $pesan_gagal = 0;
+                
+                // Delay antar pesan untuk menghindari pembatasan API (500ms)
+                $delay = 500000; // dalam mikrodetik
+                
+                // Kirim pesan untuk setiap produk menggunakan WhatsApp Helper
+                foreach ($produk_list as $index => $produk) {
+                    // Ambil template yang sesuai
+                    $template = $templates[$produk['produk_id']] ?? $default_template;
+                    
+                    if (!empty($template)) {
+                        // Siapkan variabel pengganti - menggunakan array untuk efisiensi
+                        $search = [
+                            '[nama]', '{nama}', '{nama_pelanggan}',
+                            '[produk]', '{produk}', '{produk_nama}',
+                            '[link_akses]', '{link_akses}',
+                            '[nowa]', '{nowa}', '{nomor_wa}',
+                            '{id_transaksi}', '{transaksi_id}'
+                        ];
+                        
+                        $replace = [
+                            $pelanggan_nama, $pelanggan_nama, $pelanggan_nama,
+                            $produk['produk_nama'], $produk['produk_nama'], $produk['produk_nama'],
+                            $produk['link_akses'], $produk['link_akses'],
+                            $nomor_wa, $nomor_wa, $nomor_wa,
+                            $id, $id
+                        ];
+                        
+                        // Ganti placeholder dengan nilai aktual
+                        $pesan = str_replace($search, $replace, $template);
+                        
+                        // Ambil account OneSender
+                        $account = $produk['onesender_account'] ?? 'default';
+                        
+                        // Tambahkan delay jika bukan pesan pertama
+                        if ($index > 0) {
+                            usleep($delay);
+                        }
+                        
+                        // Kirim pesan menggunakan WhatsApp Helper
+                        $wa_result = sendWhatsAppText($nomor_wa, $pesan, $account);
+                        
+                        if ($wa_result['success']) {
+                            $pesan_terkirim++;
+                            $message_id = $wa_result['message_id'] ?? 'unknown';
+                            error_log("Pesan akses produk berhasil dikirim untuk transaksi #$id, produk: {$produk['produk_nama']}, message_id: $message_id");
+                        } else {
+                            $pesan_gagal++;
+                            error_log("Error kirim pesan akses produk transaksi #$id, produk {$produk['produk_nama']}: " . ($wa_result['error'] ?? 'Unknown error'));
+                        }
+                    }
+                }
+                
+                // Tambahkan informasi ke pesan sukses
+                if ($pesan_terkirim > 0) {
+                    $message .= ". $pesan_terkirim pesan akses produk telah dikirim ke pelanggan";
+                    if ($pesan_gagal > 0) {
+                        $message .= " ($pesan_gagal pesan gagal terkirim)";
+                    }
+                } elseif ($pesan_gagal > 0) {
+                    $message .= ". Namun $pesan_gagal pesan gagal dikirim (cek log untuk detail)";
+                }
+            }
+            
+        } catch (Exception $e) {
+            error_log("Error sending WhatsApp message for transaction #$id: " . $e->getMessage());
+            $message .= ". Namun terjadi error saat mengirim pesan: " . $e->getMessage();
+        }
+    }
+    
+    setMessage($message, 'success');
+    
+} catch (Exception $e) {
+    error_log("ERROR updating transaction status #$id: " . $e->getMessage());
+    setMessage('Terjadi kesalahan saat mengubah status transaksi: ' . $e->getMessage(), 'error');
+}
+
+// Redirect kembali ke halaman utama tanpa parameter kompleks
+redirect(BASE_URL . 'bebeb.php');
+?>

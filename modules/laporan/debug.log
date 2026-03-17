@@ -1,0 +1,594 @@
+2025-06-03 13:13:08 - Report result - Array
+(
+    [data] => Array
+        (
+            [0] => Array
+                (
+                    [nama_pelanggan] => Fadil
+                    [nomor_wa] => 6285780146447
+                    [nama_produk] => Ebook Ihfadz
+                    [tanggal_transaksi] => 2025-04-15 08:45:24
+                    [harga] => 27000.00
+                    [frekuensi_beli] => 4
+                    [terakhir_belanja_sebelumnya] => 2025-04-14 23:24:31
+                )
+
+            [1] => Array
+                (
+                    [nama_pelanggan] => Fadil
+                    [nomor_wa] => 6285780146447
+                    [nama_produk] => Aplikasi Menghafal Al-Qur'an
+                    [tanggal_transaksi] => 2025-04-15 08:45:24
+                    [harga] => 20000.00
+                    [frekuensi_beli] => 4
+                    [terakhir_belanja_sebelumnya] => 2025-04-14 23:24:31
+                )
+
+            [2] => Array
+                (
+                    [nama_pelanggan] => Fadil
+                    [nomor_wa] => 6285780146447
+                    [nama_produk] => Ebook Ihfadz
+                    [tanggal_transaksi] => 2025-04-14 23:24:31
+                    [harga] => 27000.00
+                    [frekuensi_beli] => 4
+                    [terakhir_belanja_sebelumnya] => 2025-04-15 08:45:24
+                )
+
+            [3] => Array
+                (
+                    [nama_pelanggan] => Fadil
+                    [nomor_wa] => 6285780146447
+                    [nama_produk] => Aplikasi Menghafal Al-Qur'an
+                    [tanggal_transaksi] => 2025-04-14 23:24:31
+                    [harga] => 20000.00
+                    [frekuensi_beli] => 4
+                    [terakhir_belanja_sebelumnya] => 2025-04-15 08:45:24
+                )
+
+            [4] => Array
+                (
+                    [nama_pelanggan] => Fadil
+                    [nomor_wa] => 6285780146447
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2025-04-01 13:06:49
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 4
+                    [terakhir_belanja_sebelumnya] => 2025-04-15 08:45:24
+                )
+
+            [5] => Array
+                (
+                    [nama_pelanggan] => Sabriani
+                    [nomor_wa] => 6282292297335
+                    [nama_produk] => Ebook Ihfadz
+                    [tanggal_transaksi] => 2024-10-01 18:32:21
+                    [harga] => 27000.00
+                    [frekuensi_beli] => 1
+                    [terakhir_belanja_sebelumnya] => 
+                )
+
+            [6] => Array
+                (
+                    [nama_pelanggan] => Imas Sulastri
+                    [nomor_wa] => 6285966515171
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-10-01 13:35:08
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 4
+                    [terakhir_belanja_sebelumnya] => 2024-08-27 10:09:01
+                )
+
+            [7] => Array
+                (
+                    [nama_pelanggan] => Ibrahim Abdullah
+                    [nomor_wa] => 6282123968328
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-09-28 17:38:37
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 2
+                    [terakhir_belanja_sebelumnya] => 2024-02-20 00:00:00
+                )
+
+            [8] => Array
+                (
+                    [nama_pelanggan] => Wiwoho Suharto
+                    [nomor_wa] => 6281316477008
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-09-28 04:16:17
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 2
+                    [terakhir_belanja_sebelumnya] => 2024-07-27 10:07:29
+                )
+
+            [9] => Array
+                (
+                    [nama_pelanggan] => Sumarsono
+                    [nomor_wa] => 628126600525
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-09-27 10:11:12
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 3
+                    [terakhir_belanja_sebelumnya] => 2024-07-27 10:07:29
+                )
+
+            [10] => Array
+                (
+                    [nama_pelanggan] => Nugroho
+                    [nomor_wa] => 62811129089
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-09-27 10:10:20
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 4
+                    [terakhir_belanja_sebelumnya] => 2024-08-27 10:09:01
+                )
+
+            [11] => Array
+                (
+                    [nama_pelanggan] => Muhammad Yusuf
+                    [nomor_wa] => 628125006424
+                    [nama_produk] => Ebook Ihfadz
+                    [tanggal_transaksi] => 2024-09-06 00:00:00
+                    [harga] => 27000.00
+                    [frekuensi_beli] => 1
+                    [terakhir_belanja_sebelumnya] => 
+                )
+
+            [12] => Array
+                (
+                    [nama_pelanggan] => Muthia
+                    [nomor_wa] => 6281387611179
+                    [nama_produk] => Ebook Ihfadz
+                    [tanggal_transaksi] => 2024-09-03 00:00:00
+                    [harga] => 27000.00
+                    [frekuensi_beli] => 1
+                    [terakhir_belanja_sebelumnya] => 
+                )
+
+            [13] => Array
+                (
+                    [nama_pelanggan] => Arman Chepy
+                    [nomor_wa] => 6289644270590
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-28 13:07:55
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 3
+                    [terakhir_belanja_sebelumnya] => 2024-07-28 10:09:01
+                )
+
+            [14] => Array
+                (
+                    [nama_pelanggan] => Dewi Rahayu
+                    [nomor_wa] => 6281395306415
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-27 10:09:01
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 2
+                    [terakhir_belanja_sebelumnya] => 2024-06-03 00:00:00
+                )
+
+            [15] => Array
+                (
+                    [nama_pelanggan] => Rosita Taufieq
+                    [nomor_wa] => 628161458882
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-27 10:09:01
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 2
+                    [terakhir_belanja_sebelumnya] => 2024-08-03 00:00:00
+                )
+
+            [16] => Array
+                (
+                    [nama_pelanggan] => Az Rifki
+                    [nomor_wa] => 62811664371
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-27 10:09:01
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 2
+                    [terakhir_belanja_sebelumnya] => 2024-07-22 00:00:00
+                )
+
+            [17] => Array
+                (
+                    [nama_pelanggan] => Nova Fridalni
+                    [nomor_wa] => 6281373508133
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-27 10:09:01
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 3
+                    [terakhir_belanja_sebelumnya] => 2024-07-27 10:07:29
+                )
+
+            [18] => Array
+                (
+                    [nama_pelanggan] => Imas Sulastri
+                    [nomor_wa] => 6285966515171
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-27 10:09:01
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 4
+                    [terakhir_belanja_sebelumnya] => 2024-10-01 13:35:08
+                )
+
+            [19] => Array
+                (
+                    [nama_pelanggan] => Dedy Mulyady
+                    [nomor_wa] => 6285719299934
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-27 10:09:01
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 2
+                    [terakhir_belanja_sebelumnya] => 2024-04-20 00:00:00
+                )
+
+            [20] => Array
+                (
+                    [nama_pelanggan] => Fauzi Syarif
+                    [nomor_wa] => 6281284066977
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-27 10:09:01
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 2
+                    [terakhir_belanja_sebelumnya] => 2024-08-05 00:00:00
+                )
+
+            [21] => Array
+                (
+                    [nama_pelanggan] => Surya Hadi Kusuma
+                    [nomor_wa] => 6281295427326
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-27 10:09:01
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 2
+                    [terakhir_belanja_sebelumnya] => 2024-06-27 00:00:00
+                )
+
+            [22] => Array
+                (
+                    [nama_pelanggan] => Nugroho
+                    [nomor_wa] => 62811129089
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-27 10:09:01
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 4
+                    [terakhir_belanja_sebelumnya] => 2024-09-27 10:10:20
+                )
+
+            [23] => Array
+                (
+                    [nama_pelanggan] => Nila Sari
+                    [nomor_wa] => 6285364511851
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-27 10:09:01
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 2
+                    [terakhir_belanja_sebelumnya] => 2024-06-01 00:00:00
+                )
+
+            [24] => Array
+                (
+                    [nama_pelanggan] => Danang Hastabrata
+                    [nomor_wa] => 62811252980
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-27 10:09:01
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 3
+                    [terakhir_belanja_sebelumnya] => 2024-07-27 10:07:29
+                )
+
+        )
+
+    [total] => 2444
+    [page] => 1
+    [limit] => 25
+    [total_pages] => 98
+)
+
+2025-06-03 13:13:08 - Filters received - Array
+(
+    [date_from] => 
+    [date_to] => 
+    [produk_id] => 
+    [customer_search] => 
+    [limit] => 25
+    [page] => 1
+)
+
+2025-06-03 13:13:50 - Report result - Array
+(
+    [data] => Array
+        (
+            [0] => Array
+                (
+                    [nama_pelanggan] => Fadil
+                    [nomor_wa] => 6285780146447
+                    [nama_produk] => Ebook Ihfadz
+                    [tanggal_transaksi] => 2025-04-15 08:45:24
+                    [harga] => 27000.00
+                    [frekuensi_beli] => 4
+                    [terakhir_belanja_sebelumnya] => 2025-04-14 23:24:31
+                )
+
+            [1] => Array
+                (
+                    [nama_pelanggan] => Fadil
+                    [nomor_wa] => 6285780146447
+                    [nama_produk] => Aplikasi Menghafal Al-Qur'an
+                    [tanggal_transaksi] => 2025-04-15 08:45:24
+                    [harga] => 20000.00
+                    [frekuensi_beli] => 4
+                    [terakhir_belanja_sebelumnya] => 2025-04-14 23:24:31
+                )
+
+            [2] => Array
+                (
+                    [nama_pelanggan] => Fadil
+                    [nomor_wa] => 6285780146447
+                    [nama_produk] => Ebook Ihfadz
+                    [tanggal_transaksi] => 2025-04-14 23:24:31
+                    [harga] => 27000.00
+                    [frekuensi_beli] => 4
+                    [terakhir_belanja_sebelumnya] => 2025-04-15 08:45:24
+                )
+
+            [3] => Array
+                (
+                    [nama_pelanggan] => Fadil
+                    [nomor_wa] => 6285780146447
+                    [nama_produk] => Aplikasi Menghafal Al-Qur'an
+                    [tanggal_transaksi] => 2025-04-14 23:24:31
+                    [harga] => 20000.00
+                    [frekuensi_beli] => 4
+                    [terakhir_belanja_sebelumnya] => 2025-04-15 08:45:24
+                )
+
+            [4] => Array
+                (
+                    [nama_pelanggan] => Fadil
+                    [nomor_wa] => 6285780146447
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2025-04-01 13:06:49
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 4
+                    [terakhir_belanja_sebelumnya] => 2025-04-15 08:45:24
+                )
+
+            [5] => Array
+                (
+                    [nama_pelanggan] => Sabriani
+                    [nomor_wa] => 6282292297335
+                    [nama_produk] => Ebook Ihfadz
+                    [tanggal_transaksi] => 2024-10-01 18:32:21
+                    [harga] => 27000.00
+                    [frekuensi_beli] => 1
+                    [terakhir_belanja_sebelumnya] => 
+                )
+
+            [6] => Array
+                (
+                    [nama_pelanggan] => Imas Sulastri
+                    [nomor_wa] => 6285966515171
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-10-01 13:35:08
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 4
+                    [terakhir_belanja_sebelumnya] => 2024-08-27 10:09:01
+                )
+
+            [7] => Array
+                (
+                    [nama_pelanggan] => Ibrahim Abdullah
+                    [nomor_wa] => 6282123968328
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-09-28 17:38:37
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 2
+                    [terakhir_belanja_sebelumnya] => 2024-02-20 00:00:00
+                )
+
+            [8] => Array
+                (
+                    [nama_pelanggan] => Wiwoho Suharto
+                    [nomor_wa] => 6281316477008
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-09-28 04:16:17
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 2
+                    [terakhir_belanja_sebelumnya] => 2024-07-27 10:07:29
+                )
+
+            [9] => Array
+                (
+                    [nama_pelanggan] => Sumarsono
+                    [nomor_wa] => 628126600525
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-09-27 10:11:12
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 3
+                    [terakhir_belanja_sebelumnya] => 2024-07-27 10:07:29
+                )
+
+            [10] => Array
+                (
+                    [nama_pelanggan] => Nugroho
+                    [nomor_wa] => 62811129089
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-09-27 10:10:20
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 4
+                    [terakhir_belanja_sebelumnya] => 2024-08-27 10:09:01
+                )
+
+            [11] => Array
+                (
+                    [nama_pelanggan] => Muhammad Yusuf
+                    [nomor_wa] => 628125006424
+                    [nama_produk] => Ebook Ihfadz
+                    [tanggal_transaksi] => 2024-09-06 00:00:00
+                    [harga] => 27000.00
+                    [frekuensi_beli] => 1
+                    [terakhir_belanja_sebelumnya] => 
+                )
+
+            [12] => Array
+                (
+                    [nama_pelanggan] => Muthia
+                    [nomor_wa] => 6281387611179
+                    [nama_produk] => Ebook Ihfadz
+                    [tanggal_transaksi] => 2024-09-03 00:00:00
+                    [harga] => 27000.00
+                    [frekuensi_beli] => 1
+                    [terakhir_belanja_sebelumnya] => 
+                )
+
+            [13] => Array
+                (
+                    [nama_pelanggan] => Arman Chepy
+                    [nomor_wa] => 6289644270590
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-28 13:07:55
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 3
+                    [terakhir_belanja_sebelumnya] => 2024-07-28 10:09:01
+                )
+
+            [14] => Array
+                (
+                    [nama_pelanggan] => Dewi Rahayu
+                    [nomor_wa] => 6281395306415
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-27 10:09:01
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 2
+                    [terakhir_belanja_sebelumnya] => 2024-06-03 00:00:00
+                )
+
+            [15] => Array
+                (
+                    [nama_pelanggan] => Rosita Taufieq
+                    [nomor_wa] => 628161458882
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-27 10:09:01
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 2
+                    [terakhir_belanja_sebelumnya] => 2024-08-03 00:00:00
+                )
+
+            [16] => Array
+                (
+                    [nama_pelanggan] => Az Rifki
+                    [nomor_wa] => 62811664371
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-27 10:09:01
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 2
+                    [terakhir_belanja_sebelumnya] => 2024-07-22 00:00:00
+                )
+
+            [17] => Array
+                (
+                    [nama_pelanggan] => Nova Fridalni
+                    [nomor_wa] => 6281373508133
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-27 10:09:01
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 3
+                    [terakhir_belanja_sebelumnya] => 2024-07-27 10:07:29
+                )
+
+            [18] => Array
+                (
+                    [nama_pelanggan] => Imas Sulastri
+                    [nomor_wa] => 6285966515171
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-27 10:09:01
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 4
+                    [terakhir_belanja_sebelumnya] => 2024-10-01 13:35:08
+                )
+
+            [19] => Array
+                (
+                    [nama_pelanggan] => Dedy Mulyady
+                    [nomor_wa] => 6285719299934
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-27 10:09:01
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 2
+                    [terakhir_belanja_sebelumnya] => 2024-04-20 00:00:00
+                )
+
+            [20] => Array
+                (
+                    [nama_pelanggan] => Fauzi Syarif
+                    [nomor_wa] => 6281284066977
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-27 10:09:01
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 2
+                    [terakhir_belanja_sebelumnya] => 2024-08-05 00:00:00
+                )
+
+            [21] => Array
+                (
+                    [nama_pelanggan] => Surya Hadi Kusuma
+                    [nomor_wa] => 6281295427326
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-27 10:09:01
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 2
+                    [terakhir_belanja_sebelumnya] => 2024-06-27 00:00:00
+                )
+
+            [22] => Array
+                (
+                    [nama_pelanggan] => Nugroho
+                    [nomor_wa] => 62811129089
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-27 10:09:01
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 4
+                    [terakhir_belanja_sebelumnya] => 2024-09-27 10:10:20
+                )
+
+            [23] => Array
+                (
+                    [nama_pelanggan] => Nila Sari
+                    [nomor_wa] => 6285364511851
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-27 10:09:01
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 2
+                    [terakhir_belanja_sebelumnya] => 2024-06-01 00:00:00
+                )
+
+            [24] => Array
+                (
+                    [nama_pelanggan] => Danang Hastabrata
+                    [nomor_wa] => 62811252980
+                    [nama_produk] => TOB
+                    [tanggal_transaksi] => 2024-08-27 10:09:01
+                    [harga] => 149000.00
+                    [frekuensi_beli] => 3
+                    [terakhir_belanja_sebelumnya] => 2024-07-27 10:07:29
+                )
+
+        )
+
+    [total] => 2444
+    [page] => 1
+    [limit] => 25
+    [total_pages] => 98
+)
+
+2025-06-03 13:13:50 - Filters received - Array
+(
+    [date_from] => 
+    [date_to] => 
+    [produk_id] => 
+    [customer_search] => 
+    [limit] => 25
+    [page] => 1
+)
+
