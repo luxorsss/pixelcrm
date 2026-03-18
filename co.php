@@ -271,8 +271,12 @@ if (isPost()) {
             }
         }
 
-        // Hapus session fbclid setelah dipakai (clean up)
+        // ✅ BERSIHKAN SESSION & COOKIE SETELAH CHECKOUT SUKSES
+        // Agar jika besok dia beli lagi lewat link WA organik, tidak terhitung sebagai konversi iklan lama
         unset($_SESSION['fbclid_final']);
+        
+        // Hancurkan cookie _fbc di browser pembeli
+        setcookie('_fbc', '', time() - 3600, '/', '.edumuslim.my.id', true, false);
 
         redirect("invoice.php?id=$transaksi_id");
     }
