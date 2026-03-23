@@ -93,6 +93,13 @@ function isActive($page, $module = '')
                     <i class="fas fa-clock"></i><span>Follow-up Messages</span>
                 </a>
             </div>
+
+            <div class="nav-item">
+                <a href="<?= BASE_URL ?>modules/broadcast/" class="nav-link <?= isActive('', 'broadcast') ?>"
+                    onclick="closeSidebarMobile()">
+                    <i class="fas fa-bullhorn"></i><span>Broadcast WA</span>
+                </a>
+            </div>
         </div>
 
         <div class="nav-group">
