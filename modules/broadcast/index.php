@@ -171,6 +171,20 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                                 </select>
                             </div>
 
+                            <div class="mb-3 border border-warning rounded p-3 bg-warning bg-opacity-10">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="mode_uji" name="mode_uji" value="1">
+                                    <label class="form-check-label fw-bold text-dark" for="mode_uji">
+                                        <i class="fas fa-flask text-warning me-1"></i> Aktifkan Mode Uji Coba
+                                    </label>
+                                </div>
+                                <div id="ujiFields" style="display:none;" class="mt-2">
+                                    <small class="text-muted d-block mb-1">Pesan HANYA dikirim ke nomor ini:</small>
+                                    <input type="text" class="form-control border-warning" id="nomor_uji" name="nomor_uji" placeholder="Contoh: 6281234567890">
+                                    <small class="text-danger mt-1" style="font-size: 11px;">*Abaikan opsi Segmen/Limit di bawah jika ini aktif.</small>
+                                </div>
+                            </div>
+                            
                             <div class="mb-3 border rounded p-3 bg-light">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" id="tglCheckbox">
@@ -418,6 +432,20 @@ require_once __DIR__ . '/../../includes/sidebar.php';
     });
 
     triggerPreview();
+
+    // Mode Uji Toggle
+    document.getElementById('mode_uji').addEventListener('change', function() {
+        const ujiFields = document.getElementById('ujiFields');
+        const nomorUji = document.getElementById('nomor_uji');
+        
+        if (this.checked) {
+            ujiFields.style.display = 'block';
+            nomorUji.required = true;
+        } else {
+            ujiFields.style.display = 'none';
+            nomorUji.required = false;
+        }
+    });
 </script>
 
 <?php require_once __DIR__ . '/../../includes/footer.php'; ?>

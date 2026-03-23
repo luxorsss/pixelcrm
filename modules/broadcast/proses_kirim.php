@@ -8,11 +8,11 @@ require_once __DIR__ . '/../../includes/whatsapp_helper.php';
 // Mencegah PHP Timeout jika mengirim banyak pesan (batch besar)
 set_time_limit(0);
 
-// === MODE UJI ===
-$MODE_UJI = true; 
-$NOMOR_UJI = '6285780146447'; // Ganti dengan nomor Anda
-$NAMA_UJI = 'Admin Uji';
-// ================
+// === TANGKAP MODE UJI DARI FORM ===
+$MODE_UJI = post('mode_uji') == '1'; 
+$NOMOR_UJI = trim(post('nomor_uji')); 
+$NAMA_UJI = 'Admin Uji'; // Nama dummy agar placeholder [nama] tetap bisa dicek
+// ==================================
 
 if (!isPost()) die('Akses ditolak.');
 
@@ -60,7 +60,6 @@ $results = fetchAll($sql, $params) ?: [];
 $penerima = [];
 
 // 3. Filter Manual Segmentasi
-// 3. Filter Manual Segmentasi
 foreach ($results as $row) {
     if (!empty($segments) && !in_array($row['rfm_segment'], $segments)) continue;
     
@@ -76,15 +75,18 @@ $urut_awal = max(1, (int)post('urut_awal', 1));
 $urut_akhir = max($urut_awal, (int)post('urut_akhir', 100));
 $penerima = array_slice($penerima, $urut_awal - 1, $urut_akhir - $urut_awal + 1);
 
-// PINDAHKAN PENGECEKAN MODE UJI KE ATAS SINI
-// Jika Mode Uji Aktif, override array penerima jadi 1 orang saja (Nomor Anda)
+// === OVERRIDE JIKA MODE UJI AKTIF ===
 if ($MODE_UJI) {
+    if (empty($NOMOR_UJI) || strlen($NOMOR_UJI) < 10) {
+        die('<div style="text-align:center; padding:50px; font-family:sans-serif;"><h3>❌ Nomor uji tidak valid.</h3><br><a href="index.php" style="padding:10px 20px; background:#0d6efd; color:white; text-decoration:none; border-radius:5px;">Kembali</a></div>');
+    }
+    // Paksa array penerima HANYA berisi 1 orang (Nomor Anda)
     $penerima = [
         ['nama' => $NAMA_UJI, 'nomor_wa' => normalizeWa($NOMOR_UJI)]
     ];
 }
 
-// Pengecekan kosong diletakkan paling bawah
+// Pengecekan kosong
 if (empty($penerima)) {
     die('<div style="text-align:center; padding:50px; font-family:sans-serif;"><h3>❌ Tidak ada penerima valid di batch ini.</h3><br><a href="index.php" style="padding:10px 20px; background:#0d6efd; color:white; text-decoration:none; border-radius:5px;">Kembali</a></div>');
 }
@@ -161,7 +163,8 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                 <?php endif; ?>
                 
                 <p class="text-muted small mb-4">
-                    *Semua pesan yang terkirim telah dicatat di <a href="<?= BASE_URL ?>modules/followup/logs.php" class="text-decoration-none">Log WhatsApp</a>.
+                    *Semua pesan yang terkirim otomatis dicatat oleh sistem ke dalam file <br>
+                    <span class="badge bg-light text-dark border">logs/whatsapp_<?= date('Y-m') ?>.log</span>
                 </p>
 
                 <a href="index.php" class="btn btn-primary px-4 py-2">
