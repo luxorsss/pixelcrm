@@ -13,8 +13,7 @@ if (isPost()) {
         'nama' => clean(post('nama')),
         'deskripsi' => clean(post('deskripsi')),
         'harga' => post('harga'),
-        'show_kupon' => post('show_kupon') ? 1 : 0,
-        'show_email' => post('show_email') ? 1 : 0, // <--- TAMBAHAN BARU
+        'show_kupon' => post('show_kupon') ? 1 : 0, // <--- TAMBAHAN BARU
         'link_akses' => clean(post('link_akses')),
         'onesender_account' => clean(post('onesender_account')),
         'admin_wa' => clean(post('admin_wa')),
@@ -106,44 +105,38 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 
 						<!-- Kolom Profit Baru -->
 						<div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="profit" class="form-label">Profit (Rp) 
-                                    <span class="text-muted">(Opsional)</span>
+							<div class="mb-3">
+								<label for="profit" class="form-label">Profit (Rp) 
+									<span class="text-muted">(Opsional)</span>
+								</label>
+								<div class="input-group">
+									<span class="input-group-text">Rp</span>
+									<input type="number" 
+										   class="form-control" 
+										   id="profit" 
+										   name="profit"
+										   value="<?= post('profit') ?>"
+										   min="0" 
+										   step="1" 
+										   placeholder="Contoh: 50000">
+								</div>
+								<small class="form-text text-muted">
+									<i class="fas fa-info-circle me-1"></i>
+									Kosongkan jika profit anda adalah 100% dari harga jual (Misal produk digital milik sendiri).
+								</small>
+							</div>
+						</div>
+
+                        <div class="col-md-12 mt-2">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="show_kupon" name="show_kupon" value="1" <?= post('show_kupon') ? 'checked' : '' ?>>
+                                <label class="form-check-label fw-bold" for="show_kupon">
+                                    Tampilkan Kolom Input Kupon di Checkout
                                 </label>
-                                <div class="input-group">
-                                    <span class="input-group-text">Rp</span>
-                                    <input type="number" class="form-control" id="profit" name="profit"
-                                           value="<?= post('profit') ?>" min="0" step="1" placeholder="Contoh: 50000">
-                                </div>
-                                <small class="form-text text-muted">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    Kosongkan jika profit anda adalah 100% dari harga jual.
-                                </small>
+                                <small class="form-text text-muted d-block">Aktifkan ini jika Anda ingin pembeli bisa memasukkan kode diskon untuk produk ini.</small>
                             </div>
                         </div>
-                    </div> 
-                    
-                    <div class="card bg-light border-0 rounded-3 mb-4">
-                        <div class="card-body">
-                            <h6 class="card-title fw-bold mb-3"><i class="fas fa-sliders-h me-2 text-primary"></i>Pengaturan Halaman Checkout</h6>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="show_kupon" name="show_kupon" value="1" <?= post('show_kupon') ? 'checked' : '' ?>>
-                                        <label class="form-check-label fw-bold" for="show_kupon">Kupon Diskon</label>
-                                        <small class="form-text text-muted d-block">Munculkan form pengisian kode promo/diskon.</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-check form-switch mt-3 mt-md-0">
-                                        <input class="form-check-input" type="checkbox" id="show_email" name="show_email" value="1" <?= post('show_email') ? 'checked' : '' ?>>
-                                        <label class="form-check-label fw-bold" for="show_email">Koleksi Email</label>
-                                        <small class="form-text text-muted d-block">Munculkan form pengisian email pembeli (opsional).</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+					</div>
                     
                     <div class="mb-3">
                         <label for="deskripsi" class="form-label">Deskripsi Produk</label>
