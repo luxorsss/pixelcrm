@@ -98,7 +98,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
-											<a href="<?= BASE_URL ?>checkout.php?id=<?= $produk['id'] ?>" 
+											<a href="<?= BASE_URL ?>co.php?id=<?= $produk['id'] ?>" 
                                                class="btn btn-outline-success" 
                                                title="Checkout"
                                                target="_blank">
