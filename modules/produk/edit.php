@@ -29,7 +29,8 @@ if (isPost()) {
         'nama' => post('nama'),
         'deskripsi' => clean(post('deskripsi')),
         'harga' => post('harga'),
-        'show_kupon' => post('show_kupon') ? 1 : 0, // <--- TAMBAHAN BARU
+        'show_kupon' => post('show_kupon') ? 1 : 0,
+        'show_email' => post('show_email') ? 1 : 0, // <--- PASTIKAN BARIS INI ADA
         'link_akses' => clean(post('link_akses')),
         'onesender_account' => clean(post('onesender_account')),
         'admin_wa' => clean(post('admin_wa')),
@@ -145,14 +146,26 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 								</small>
 							</div>
 						</div>
+                    </div>
 
-                        <div class="col-md-12 mt-2">
-                            <div class="form-check form-switch mb-3">
-                                <input class="form-check-input" type="checkbox" id="show_kupon" name="show_kupon" value="1" <?= (isset($_POST['show_kupon']) ? post('show_kupon') : (isset($produk['show_kupon']) && $produk['show_kupon'] == 1)) ? 'checked' : '' ?>>
-                                <label class="form-check-label fw-bold" for="show_kupon">
-                                    Tampilkan Kolom Input Kupon di Checkout
-                                </label>
-                                <small class="form-text text-muted d-block">Aktifkan ini jika Anda ingin pembeli bisa memasukkan kode diskon untuk produk ini.</small>
+                    <div class="card bg-light border-0 rounded-3 mb-4 mt-3">
+                        <div class="card-body">
+                            <h6 class="card-title fw-bold mb-3"><i class="fas fa-sliders-h me-2 text-primary"></i>Pengaturan Halaman Checkout</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="show_kupon" name="show_kupon" value="1" <?= (isset($_POST['show_kupon']) ? post('show_kupon') : (isset($produk['show_kupon']) && $produk['show_kupon'] == 1)) ? 'checked' : '' ?>>
+                                        <label class="form-check-label fw-bold" for="show_kupon">Kupon Diskon</label>
+                                        <small class="form-text text-muted d-block">Munculkan form pengisian kode promo/diskon.</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch mt-3 mt-md-0">
+                                        <input class="form-check-input" type="checkbox" id="show_email" name="show_email" value="1" <?= (isset($_POST['show_email']) ? post('show_email') : (isset($produk['show_email']) && $produk['show_email'] == 1)) ? 'checked' : '' ?>>
+                                        <label class="form-check-label fw-bold" for="show_email">Koleksi Email</label>
+                                        <small class="form-text text-muted d-block">Munculkan form pengisian email pembeli (wajib).</small>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
