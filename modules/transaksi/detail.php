@@ -76,6 +76,18 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                                         </td>
                                     </tr>
                                     <tr>
+                                        <td><strong>Email:</strong></td>
+                                        <td>
+                                            <?php if (!empty($transaksi['email'])): ?>
+                                                <a href="mailto:<?= safeHtml($transaksi['email']) ?>" class="text-primary text-decoration-none">
+                                                    <i class="fas fa-envelope me-1"></i><?= safeHtml($transaksi['email']) ?>
+                                                </a>
+                                            <?php else: ?>
+                                                <span class="text-muted"><i class="fas fa-minus"></i> Belum diisi</span>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                    <tr>
                                         <td><strong>Total Harga:</strong></td>
                                         <td><h5 class="text-success mb-0"><?= formatCurrency($transaksi['total_harga']) ?></h5></td>
                                     </tr>

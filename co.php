@@ -568,10 +568,17 @@ function setupPhoneValidation() {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success && data.customer) {
-                        // Hanya timpa jika input nama masih kosong atau berbeda
+                        // 1. Auto-fill Nama
                         if(!namaInput.value || namaInput.value == "Nama lengkap Anda") {
                             namaInput.value = data.customer.nama;
                             localStorage.setItem('customer_nama', data.customer.nama);
+                        }
+                        
+                        // 2. Auto-fill Email (TAMBAHAN BARU)
+                        const emailInput = document.getElementById('email');
+                        if(emailInput && data.customer.email && !emailInput.value) {
+                            emailInput.value = data.customer.email;
+                            localStorage.setItem('customer_email', data.customer.email);
                         }
                     }
                 });
