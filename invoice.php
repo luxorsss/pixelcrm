@@ -106,7 +106,7 @@ if (!$transaksi_id) {
 
 // Get transaction data with customer and products
 $transaksi = fetchRow("
-    SELECT t.*, p.nama as nama_customer, p.nomor_wa 
+    SELECT t.*, p.nama as nama_customer, p.nomor_wa, p.email 
     FROM transaksi t 
     JOIN pelanggan p ON t.pelanggan_id = p.id 
     WHERE t.id = ?
@@ -139,6 +139,7 @@ if ($transaksi['is_invoice_sent'] == 0 && $transaksi['status'] === 'pending') {
         $template_data = [
             'nama_customer' => $transaksi['nama_customer'],
             'nomor_wa' => $transaksi['nomor_wa'],
+            'email_customer' => $transaksi['email'] ?? '-', // <--- BARU
             'id_transaksi' => $transaksi_id,
             'total_harga' => $transaksi['total_harga'],
             'tanggal' => date('d/m/Y'),

@@ -105,6 +105,7 @@ $bundling = fetchAll("
 if (isPost()) {
     $nama = trim(post('nama'));
     $nomor_wa = trim(post('nomor_wa'));
+    $email = trim(post('email')); // <--- TANGKAP EMAIL
     $bundling_ids = post('bundling_ids', []);
     
     // === AMBIL fbc dari COOKIE dulu, baru SESSION (lebih andal) ===
@@ -118,10 +119,8 @@ if (isPost()) {
     if (empty($nama) || empty($nomor_wa)) {
         setMessage('Nama dan nomor WhatsApp wajib diisi', 'error');
     } elseif ($is_email_required && empty($email)) {
-        // Peringatan jika email kosong padahal fitur email diaktifkan
         setMessage('Alamat email wajib diisi', 'error');
     } elseif ($is_email_required && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        // (Opsional tapi disarankan) Peringatan jika format email salah/ngasal
         setMessage('Format alamat email tidak valid', 'error');
     } elseif (strlen($nomor_wa) < 5 || !is_numeric($nomor_wa)) {
         setMessage('Nomor WhatsApp minimal 5 digit dan hanya boleh angka', 'error');
@@ -133,12 +132,14 @@ if (isPost()) {
         $existing_customer = fetchRow("SELECT * FROM pelanggan WHERE nomor_wa = ?", [$nomor_wa]);
         
         if ($existing_customer) {
-            if ($existing_customer['nama'] !== $nama) {
-                execute("UPDATE pelanggan SET nama = ? WHERE id = ?", [$nama, $existing_customer['id']]);
-            }
+            // Update nama dan email jika ada inputan baru
+            $new_nama = $nama;
+            $new_email = !empty($email) ? $email : $existing_customer['email'];
+            execute("UPDATE pelanggan SET nama = ?, email = ? WHERE id = ?", [$new_nama, $new_email, $existing_customer['id']]);
             $customer_id = $existing_customer['id'];
         } else {
-            execute("INSERT INTO pelanggan (nama, nomor_wa) VALUES (?, ?)", [$nama, $nomor_wa]);
+            // Insert pelanggan baru beserta email
+            execute("INSERT INTO pelanggan (nama, nomor_wa, email) VALUES (?, ?, ?)", [$nama, $nomor_wa, $email]);
             $customer_id = db()->insert_id;
         }
         

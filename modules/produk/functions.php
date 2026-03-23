@@ -29,15 +29,16 @@ function getProdukById($id) {
 
 // Create new produk
 function createProduk($data) {
-    // PERUBAHAN: profit_persen diganti jadi profit
-    $sql = "INSERT INTO produk (nama, deskripsi, harga, show_kupon, link_akses, onesender_account, admin_wa, meta_pixel_id, conversion_api_token, tracking_aktif, http_post, profit) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    // Tambahkan show_kupon, show_email
+    $sql = "INSERT INTO produk (nama, deskripsi, harga, show_kupon, show_email, link_akses, onesender_account, admin_wa, meta_pixel_id, conversion_api_token, tracking_aktif, http_post, profit) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
     $params = [
         $data['nama'],
         $data['deskripsi'],
         $data['harga'],
-        $data['show_kupon'] ?? 0,
+        $data['show_kupon'] ?? 0, // <--- BARU
+        $data['show_email'] ?? 0, // <--- BARU
         $data['link_akses'],
         $data['onesender_account'],
         $data['admin_wa'],
@@ -45,18 +46,16 @@ function createProduk($data) {
         $data['conversion_api_token'] ?? '',
         $data['tracking_aktif'] ?? 0,
         $data['http_post'] ?? '',
-        // PERUBAHAN: Ambil data 'profit' nominal
         $data['profit'] ?? 0 
     ];
     
     return execute($sql, $params);
 }
 
-// Update produk
 function updateProduk($id, $data) {
-    // PERUBAHAN: profit_persen diganti jadi profit
+    // Tambahkan show_kupon, show_email
     $sql = "UPDATE produk SET 
-            nama = ?, deskripsi = ?, harga = ?, show_kupon = ?, link_akses = ?, 
+            nama = ?, deskripsi = ?, harga = ?, show_kupon = ?, show_email = ?, link_akses = ?, 
             onesender_account = ?, admin_wa = ?, meta_pixel_id = ?, 
             conversion_api_token = ?, tracking_aktif = ?, http_post = ?,
             profit = ?
@@ -66,7 +65,8 @@ function updateProduk($id, $data) {
         $data['nama'],
         $data['deskripsi'],
         $data['harga'],
-        $data['show_kupon'] ?? 0,
+        $data['show_kupon'] ?? 0, // <--- BARU
+        $data['show_email'] ?? 0, // <--- BARU
         $data['link_akses'],
         $data['onesender_account'],
         $data['admin_wa'],
@@ -74,7 +74,6 @@ function updateProduk($id, $data) {
         $data['conversion_api_token'] ?? '',
         $data['tracking_aktif'] ?? 0,
         $data['http_post'] ?? '',
-        // PERUBAHAN: Ambil data 'profit' nominal
         $data['profit'] ?? 0,
         $id
     ];
