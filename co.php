@@ -392,23 +392,6 @@ $page_title = 'Checkout - ' . $produk['nama'];
 					<?php endforeach; ?>
 				</div>
 				<?php endif; ?>
-               
-                <div class="mt-4 mb-4">
-                    <a href="javascript:void(0)" id="toggle-kupon" class="text-primary text-decoration-none fw-bold" style="font-size: 0.95rem;">
-                        <i class="fas fa-tag"></i> Punya Kode Kupon? Masukkan di sini
-                    </a>
-                    
-                    <div id="form-kupon-container" style="display: <?= $kupon_dari_url ? 'block' : 'none' ?>; margin-top: 10px;">
-                        <div class="input-group">
-                            <input type="text" id="kode_promo" class="form-control text-uppercase" placeholder="Masukkan kode promo..." value="<?= $kupon_dari_url ?>">
-                            <button type="button" class="btn btn-primary" id="btn-terapkan-kupon">Terapkan</button>
-                        </div>
-                        <div id="pesan_kupon" class="mt-2" style="font-size: 0.9rem;"></div>
-                    </div>
-                </div>
-
-                <input type="hidden" name="kupon_id" id="input_kupon_id" value="">
-                <input type="hidden" name="total_diskon" id="input_total_diskon" value="0">
 
                 <h6 class="mb-3 mt-4">Ringkasan Pesanan</h6>
                 <div class="summary-box" id="orderSummary">
@@ -434,6 +417,20 @@ $page_title = 'Checkout - ' . $produk['nama'];
                         <span id="totalAmount"><?= formatCurrency($produk['harga']) ?></span>
                     </div>
                 </div>
+
+                <div class="mt-4 mb-3">
+                    <label class="form-label fw-bold"><i class="fas fa-tag"></i> Kode Kupon (Opsional)</label>
+                    <div id="form-kupon-container">
+                        <div class="input-group">
+                            <input type="text" id="kode_promo" class="form-control text-uppercase" placeholder="Masukkan kode promo..." value="<?= $kupon_dari_url ?>">
+                            <button type="button" class="btn btn-secondary" id="btn-terapkan-kupon">Terapkan</button>
+                        </div>
+                        <div id="pesan_kupon" class="mt-2" style="font-size: 0.9rem;"></div>
+                    </div>
+                </div>
+
+                <input type="hidden" name="kupon_id" id="input_kupon_id" value="">
+                <input type="hidden" name="total_diskon" id="input_total_diskon" value="0">
                 
                 <button type="submit" class="btn btn-primary w-100 mt-3" id="checkoutBtn">
                     <i class="fas fa-credit-card me-2"></i>Proses Checkout
@@ -603,21 +600,8 @@ function updateTotal() {
 // Logika API Pengecekan Kupon (Letakkan setelah fungsi updateTotal)
 function setupKupon() {
     const btnKupon = document.getElementById('btn-terapkan-kupon');
-    const toggleKupon = document.getElementById('toggle-kupon');
     const formKuponContainer = document.getElementById('form-kupon-container');
     const inputKode = document.getElementById('kode_promo');
-
-    // 1. Logika Toggle (Sembunyikan/Tampilkan Form)
-    if (toggleKupon) {
-        toggleKupon.addEventListener('click', function() {
-            if (formKuponContainer.style.display === 'none') {
-                formKuponContainer.style.display = 'block';
-                inputKode.focus();
-            } else {
-                formKuponContainer.style.display = 'none';
-            }
-        });
-    }
 
     // 2. Logika Cek Kupon (Fetch ke API)
     if(btnKupon) {
