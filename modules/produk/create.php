@@ -13,6 +13,7 @@ if (isPost()) {
         'nama' => clean(post('nama')),
         'deskripsi' => clean(post('deskripsi')),
         'harga' => post('harga'),
+        'show_kupon' => post('show_kupon') ? 1 : 0, // <--- TAMBAHAN BARU
         'link_akses' => clean(post('link_akses')),
         'onesender_account' => clean(post('onesender_account')),
         'admin_wa' => clean(post('admin_wa')),
@@ -125,6 +126,16 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 								</small>
 							</div>
 						</div>
+
+                        <div class="col-md-12 mt-2">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="show_kupon" name="show_kupon" value="1" <?= post('show_kupon') ? 'checked' : '' ?>>
+                                <label class="form-check-label fw-bold" for="show_kupon">
+                                    Tampilkan Kolom Input Kupon di Checkout
+                                </label>
+                                <small class="form-text text-muted d-block">Aktifkan ini jika Anda ingin pembeli bisa memasukkan kode diskon untuk produk ini.</small>
+                            </div>
+                        </div>
 					</div>
                     
                     <div class="mb-3">

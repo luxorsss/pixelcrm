@@ -30,13 +30,14 @@ function getProdukById($id) {
 // Create new produk
 function createProduk($data) {
     // PERUBAHAN: profit_persen diganti jadi profit
-    $sql = "INSERT INTO produk (nama, deskripsi, harga, link_akses, onesender_account, admin_wa, meta_pixel_id, conversion_api_token, tracking_aktif, http_post, profit) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO produk (nama, deskripsi, harga, show_kupon, link_akses, onesender_account, admin_wa, meta_pixel_id, conversion_api_token, tracking_aktif, http_post, profit) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
     $params = [
         $data['nama'],
         $data['deskripsi'],
         $data['harga'],
+        $data['show_kupon'] ?? 0,
         $data['link_akses'],
         $data['onesender_account'],
         $data['admin_wa'],
@@ -55,7 +56,7 @@ function createProduk($data) {
 function updateProduk($id, $data) {
     // PERUBAHAN: profit_persen diganti jadi profit
     $sql = "UPDATE produk SET 
-            nama = ?, deskripsi = ?, harga = ?, link_akses = ?, 
+            nama = ?, deskripsi = ?, harga = ?, show_kupon = ?, link_akses = ?, 
             onesender_account = ?, admin_wa = ?, meta_pixel_id = ?, 
             conversion_api_token = ?, tracking_aktif = ?, http_post = ?,
             profit = ?
@@ -65,6 +66,7 @@ function updateProduk($id, $data) {
         $data['nama'],
         $data['deskripsi'],
         $data['harga'],
+        $data['show_kupon'] ?? 0,
         $data['link_akses'],
         $data['onesender_account'],
         $data['admin_wa'],

@@ -418,6 +418,7 @@ $page_title = 'Checkout - ' . $produk['nama'];
                     </div>
                 </div>
 
+                <?php if ($produk['show_kupon'] == 1): ?>
                 <div class="mt-4 mb-3">
                     <label class="form-label fw-bold"><i class="fas fa-tag"></i> Kode Kupon (Opsional)</label>
                     <div id="form-kupon-container">
@@ -431,6 +432,7 @@ $page_title = 'Checkout - ' . $produk['nama'];
 
                 <input type="hidden" name="kupon_id" id="input_kupon_id" value="">
                 <input type="hidden" name="total_diskon" id="input_total_diskon" value="0">
+                <?php endif; ?>
                 
                 <button type="submit" class="btn btn-primary w-100 mt-3" id="checkoutBtn">
                     <i class="fas fa-credit-card me-2"></i>Proses Checkout
