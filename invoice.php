@@ -324,6 +324,10 @@ $bank_logos = [
             <h6 class="mb-3">Informasi Pembeli</h6>
             <p><strong>Nama:</strong> <?= clean($transaksi['nama_customer']) ?></p>
             <p><strong>WhatsApp:</strong> <?= clean($transaksi['nomor_wa']) ?></p>
+
+            <?php if (!empty($transaksi['email'])): ?>
+            <p class="mb-1"><strong>Email:</strong> <?= clean($transaksi['email']) ?></p>
+            <?php endif; ?>
         </div>
     </div>
 

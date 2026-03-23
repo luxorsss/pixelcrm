@@ -62,8 +62,7 @@ function replaceTemplatePlaceholders($template, $data) {
     $replacements = [
         '[nama]' => $data['nama_customer'] ?? '',
         '[nowa]' => $data['nomor_wa'] ?? '',
-		'[email]' => $data['email_customer'] ?? '',
-        '[tanggal]' => $data['tanggal'] ?? date('d/m/Y'),
+'[email]' => !empty($data['email_customer']) ? $data['email_customer'] : '-',        '[tanggal]' => $data['tanggal'] ?? date('d/m/Y'),
         '[waktu]' => $data['waktu'] ?? date('H:i'),
         '[total]' => isset($data['total_harga']) ? formatCurrency($data['total_harga']) : '',
         '[id_transaksi]' => $data['id_transaksi'] ?? '',

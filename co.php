@@ -113,6 +113,9 @@ if (isPost()) {
     $fbp = $_COOKIE['_fbp'] ?? null;
     // === AKHIR AMBIL fbc ===
     
+    // Cek apakah fitur email aktif tapi pengunjung tidak mengisinya
+    $is_email_required = (isset($produk['show_email']) && $produk['show_email'] == 1);
+
     if (empty($nama) || empty($nomor_wa)) {
         setMessage('Nama dan nomor WhatsApp wajib diisi', 'error');
     } elseif (strlen($nomor_wa) < 5 || !is_numeric($nomor_wa)) {
@@ -358,9 +361,9 @@ $page_title = 'Checkout - ' . $produk['nama'];
 
                 <?php if (isset($produk['show_email']) && $produk['show_email'] == 1): ?>
                 <div class="mb-3">
-                    <label class="form-label">Email (Opsional)</label>
+                    <label class="form-label">Email *</label>
                     <input type="email" name="email" id="email" class="form-control" 
-                           placeholder="alamat@email.com" value="<?= clean(post('email')) ?>">
+                           placeholder="alamat@email.com" value="<?= clean(post('email')) ?>" required>
                 </div>
                 <?php endif; ?>
 
@@ -515,22 +518,36 @@ document.addEventListener('click', function(e) {
 
 function formatCurrencyJS(t){return"Rp "+t.toLocaleString("id-ID")}
 
-// Logic Auto-fill dari LocalStorage
+// Logika Auto-fill dari LocalStorage
 function setupAutoFill() {
     const namaInput = document.getElementById('nama');
     const nomorWaInput = document.getElementById('nomor_wa');
+    const emailInput = document.getElementById('email'); // TANGKAP ID EMAIL
 
     // Ambil dari cache browser jika ada
     const cachedNama = localStorage.getItem('customer_nama');
     const cachedWA = localStorage.getItem('customer_wa');
+    const cachedEmail = localStorage.getItem('customer_email'); // AMBIL CACHE EMAIL
 
-    if (cachedNama && !namaInput.value) namaInput.value = cachedNama;
-    if (cachedWA && !nomorWaInput.value) nomorWaInput.value = cachedWA;
+    if (namaInput && cachedNama && !namaInput.value) namaInput.value = cachedNama;
+    if (nomorWaInput && cachedWA && !nomorWaInput.value) nomorWaInput.value = cachedWA;
+    
+    // Set value email jika formnya ada (tidak disembunyikan) dan cache-nya ada
+    if (emailInput && cachedEmail && !emailInput.value) emailInput.value = cachedEmail;
 
     // Simpan ke cache saat user mengetik (agar tetap bisa diedit)
-    namaInput.addEventListener('input', () => localStorage.setItem('customer_nama', namaInput.value));
-    nomorWaInput.addEventListener('input', () => localStorage.setItem('customer_wa', nomorWaInput.value));
-}	
+    if (namaInput) {
+        namaInput.addEventListener('input', () => localStorage.setItem('customer_nama', namaInput.value));
+    }
+    if (nomorWaInput) {
+        nomorWaInput.addEventListener('input', () => localStorage.setItem('customer_wa', nomorWaInput.value));
+    }
+    
+    // Simpan email ke cache saat user mengetik
+    if (emailInput) {
+        emailInput.addEventListener('input', () => localStorage.setItem('customer_email', emailInput.value));
+    }
+}
 
 function setupPhoneValidation() {
     const nomorWaInput = document.getElementById('nomor_wa');
