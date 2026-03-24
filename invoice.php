@@ -98,19 +98,40 @@ function sendMetaCAPIEvent($access_token, $pixel_id, $event_name, $user_data, $c
     return $response;
 }
 
-// Get transaction ID
-$transaksi_id = (int) get('id');
-if (!$transaksi_id) {
+// Tangkap parameter UUID atau ID (untuk transaksi lama)
+$uuid = get('uuid');
+$transaksi_id_lama = (int) get('id');
+
+if ($uuid) {
+    // Cari berdasarkan UUID baru
+    $transaksi = fetchRow("
+        SELECT t.*, p.nama as nama_customer, p.nomor_wa, p.email 
+        FROM transaksi t 
+        JOIN pelanggan p ON t.pelanggan_id = p.id 
+        WHERE t.uuid = ?
+    ", [$uuid]);
+} elseif ($transaksi_id_lama) {
+    // Fallback: Cari berdasarkan ID lama
+    $transaksi = fetchRow("
+        SELECT t.*, p.nama as nama_customer, p.nomor_wa, p.email 
+        FROM transaksi t 
+        JOIN pelanggan p ON t.pelanggan_id = p.id 
+        WHERE t.id = ?
+    ", [$transaksi_id_lama]);
+} else {
     redirect('index.php');
 }
 
-// Get transaction data with customer and products
-$transaksi = fetchRow("
-    SELECT t.*, p.nama as nama_customer, p.nomor_wa, p.email 
-    FROM transaksi t 
-    JOIN pelanggan p ON t.pelanggan_id = p.id 
-    WHERE t.id = ?
-", [$transaksi_id]);
+if (!$transaksi) {
+    setMessage('Invoice tidak ditemukan', 'error');
+    redirect('index.php');
+}
+
+// Ambil ID asli untuk query database di bawahnya (detail_produk)
+$transaksi_id = $transaksi['id'];
+
+// Tentukan nomor invoice yang akan ditampilkan di layar
+$invoice_display = !empty($transaksi['uuid']) ? $transaksi['uuid'] : $transaksi_id;
 
 if (!$transaksi) {
     setMessage('Invoice tidak ditemukan', 'error');
@@ -182,7 +203,7 @@ if ($transaksi['is_invoice_sent'] == 0 && $transaksi['status'] === 'pending') {
 if (isPost() && post('action') === 'confirm_payment') {
     $admin_wa = $main_product['admin_wa'];
     if ($admin_wa) {
-        $message = "Assalamualaikum Admin, saya mau konfirmasi pembayaran untuk Invoice #$transaksi_id atas nama {$transaksi['nama_customer']} dengan total " . formatCurrency($transaksi['total_harga']);
+        $message = "Assalamualaikum Admin, saya mau konfirmasi pembayaran untuk Invoice #$invoice_display atas nama {$transaksi['nama_customer']} dengan total " . formatCurrency($transaksi['total_harga']);
         $wa_link = whatsappLink($admin_wa, $message);
         redirect($wa_link);
     }
@@ -233,7 +254,7 @@ if ($transaksi['status'] === 'pending' && !isset($_SESSION['addpaymentinfo_sent_
     }
 }
 
-$page_title = 'Invoice #' . $transaksi_id;
+$page_title = 'Invoice #' . $invoice_display;
 
 // Bank logos base64 untuk speed
 $bank_logos = [
@@ -290,7 +311,7 @@ $bank_logos = [
         <div class="card-header status-<?= $transaksi['status'] ?>">
             <div class="row align-items-center">
                 <div class="col">
-                    <h4 class="mb-0"><i class="fas fa-file-invoice me-2"></i>Invoice #<?= $transaksi_id ?></h4>
+                    <h4 class="mb-0"><i class="fas fa-file-invoice me-2"></i>Invoice #<?= $invoice_display ?></h4>
                     <p class="mb-0 opacity-75">
                         <?php
                         $status_text = [

@@ -314,6 +314,12 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 											   class="btn btn-outline-primary btn-sm" title="Detail">
 												<i class="fas fa-eye me-1"></i>Detail
 											</a>
+											
+											<a href="<?= BASE_URL ?>invoice.php?<?= !empty($transaksi['uuid']) ? 'uuid=' . $transaksi['uuid'] : 'id=' . $transaksi['id'] ?>" 
+											   target="_blank" 
+											   class="btn btn-outline-info btn-sm" title="Buka Halaman Invoice">
+												<i class="fas fa-file-invoice me-1"></i>Invoice
+											</a>
 											<?php if ($transaksi['status'] === 'pending'): ?>
 												<a href="edit.php?id=<?= $transaksi['id'] ?>" 
 												   class="btn btn-outline-warning btn-sm" title="Edit">

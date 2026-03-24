@@ -186,10 +186,13 @@ if (isPost()) {
             if ($total_harga < 0) $total_harga = 0; // Jaga-jaga agar tidak minus
         }
         
-        // ✅ Simpan transaksi BESERTA DATA KUPON
-        execute("INSERT INTO transaksi (pelanggan_id, total_harga, status, ip_pelanggan, user_agent_pelanggan, fbc, fbp, kupon_id, total_diskon) 
-                 VALUES (?, ?, 'pending', ?, ?, ?, ?, ?, ?)", 
-                [$customer_id, $total_harga, $_SERVER['REMOTE_ADDR'] ?? '', $_SERVER['HTTP_USER_AGENT'] ?? '', $fbc, $fbp, $kupon_id, $total_diskon]);
+        // Generate UUID (Contoh hasil: INV-8F3A9C2B)
+        $uuid = 'INV-' . strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 8));
+
+        // ✅ Simpan transaksi BESERTA DATA KUPON dan UUID
+        execute("INSERT INTO transaksi (uuid, pelanggan_id, total_harga, status, ip_pelanggan, user_agent_pelanggan, fbc, fbp, kupon_id, total_diskon) 
+                 VALUES (?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?)", 
+                [$uuid, $customer_id, $total_harga, $_SERVER['REMOTE_ADDR'] ?? '', $_SERVER['HTTP_USER_AGENT'] ?? '', $fbc, $fbp, $kupon_id, $total_diskon]);
         
         $transaksi_id = db()->insert_id;
 
@@ -288,7 +291,7 @@ if (isPost()) {
         // Hancurkan cookie _fbc di browser pembeli
         setcookie('_fbc', '', time() - 3600, '/', '.edumuslim.my.id', true, false);
 
-        redirect("invoice.php?id=$transaksi_id");
+        redirect("invoice.php?uuid=$uuid");
     }
 }
 
