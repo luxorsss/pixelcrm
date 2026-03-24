@@ -48,6 +48,7 @@ function getAllTransaksi($page = 1, $limit = RECORDS_PER_PAGE, $filters = []) {
     $sql = "
         SELECT 
             t.id,
+            t.uuid,
             t.pelanggan_id,
             t.total_harga,
             t.status,
@@ -348,14 +349,20 @@ function createTransaksi($data) {
         $tanggal = $data['tanggal_transaksi'] ?? date('Y-m-d H:i:s');
         $status = in_array($data['status'] ?? '', ['pending', 'diproses', 'selesai', 'batal']) 
                   ? $data['status'] : 'pending';
-		
-		// Tentukan waktu_selesai
+        
+        // Tentukan waktu_selesai
         $waktu_selesai = ($status === 'selesai') ? $tanggal : null;
         
-        if (!execute("INSERT INTO transaksi (pelanggan_id, total_harga, status, tanggal_transaksi, waktu_selesai) VALUES (?, ?, ?, ?, ?)", 
-                     [$pelanggan_id, $data['total_harga'], $status, $tanggal, $waktu_selesai])) {
+        // --- TAMBAHAN KODE: Generate UUID ---
+        $uuid = 'INV-' . strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 8));
+        // ------------------------------------
+        
+        // --- PERBAIKAN KODE: Masukkan UUID ke dalam Query Insert ---
+        if (!execute("INSERT INTO transaksi (uuid, pelanggan_id, total_harga, status, tanggal_transaksi, waktu_selesai) VALUES (?, ?, ?, ?, ?, ?)", 
+                     [$uuid, $pelanggan_id, $data['total_harga'], $status, $tanggal, $waktu_selesai])) {
             throw new Exception("Gagal membuat transaksi");
         }
+        // -----------------------------------------------------------
         
         $transaksi_id = db()->insert_id;
         
@@ -364,11 +371,11 @@ function createTransaksi($data) {
             if (empty($item['produk_id']) || empty($item['harga'])) {
                 throw new Exception("Data item transaksi tidak valid");
             }
-			
-			// --- LOGIKA TAMBAHAN: Ambil data profit dari tabel produk ---
-			$produk = fetchRow("SELECT profit FROM produk WHERE id = ?", [$item['produk_id']]);
-			$profit_per_item = $produk ? $produk['profit'] : 0;
-			// ----------------------------------------------------------
+            
+            // --- LOGIKA TAMBAHAN: Ambil data profit dari tabel produk ---
+            $produk = fetchRow("SELECT profit FROM produk WHERE id = ?", [$item['produk_id']]);
+            $profit_per_item = $produk ? $produk['profit'] : 0;
+            // ----------------------------------------------------------
             
             if (!execute("INSERT INTO detail_transaksi (transaksi_id, produk_id, harga, profit) VALUES (?, ?, ?, ?)",
                          [$transaksi_id, $item['produk_id'], $item['harga'], $profit_per_item])) {
