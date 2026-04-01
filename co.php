@@ -311,22 +311,25 @@ $page_title = 'Checkout - ' . $produk['nama'];
     <link rel="preload" href="https://connect.facebook.net/en_US/fbevents.js" as="script">
     <!-- Minified CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Inline critical CSS */
         body{background:#f2f5fa;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;min-height:100vh}
         .checkout-container{max-width:500px;margin:2rem auto;padding:0 1rem}
         .card{border:none;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,0.1);background:white}
-        .card-header{background:linear-gradient(135deg,#1976d2,#1565c0);color:white;border-radius:15px 15px 0 0!important;padding:1.5rem}
+        .card-header{background:linear-gradient(135deg,#ffbc3b,#FFA200);color:white;border-radius:15px 15px 0 0!important;padding:1.5rem}
         .form-control,.form-check-input{border-radius:10px}
-        .btn-primary{background:linear-gradient(135deg,#1976d2,#1565c0);border:none;border-radius:10px;padding:12px 30px}
-        .btn-primary:hover{background:linear-gradient(135deg,#1565c0,#0d47a1)}
+        .btn-primary{background:linear-gradient(135deg,#ffbc3b,#FFA200);color:#ffffff;font-weight:bold;border:none;border-radius:10px;padding:12px 30px;transition:all 0.3s ease;box-shadow:0 4px 15px rgba(255,162,0,0.3)}
+        .btn-primary:hover{background:linear-gradient(135deg,#FFA200,#e69200);color:#ffffff;box-shadow:0 6px 20px rgba(255,162,0,0.4);transform:translateY(-2px)}
         .product-info{background:#f8f9fa;border-radius:10px;padding:1rem;margin-bottom:1rem}
         .bundle-item{border:3px dashed #ff2400;border-radius:10px;padding:1rem;margin-bottom:0.5rem;background-color: #fffbe2;transition: background-color 0.2s, border-color 0.2s}
-        .bundle-item.selected{border-color:#1976d2;background:#f3f8ff}
+        .bundle-item.selected{border-color:#FFA200;background:#fffaf0}
         .price-original{text-decoration:line-through;color:#666}
         .price-discount{color:#d32f2f;font-weight:bold}
-        .summary-box{background:#f8f9fa;border:2px solid #1976d2;border-radius:10px;padding:1rem}
+        .summary-box{background:#f8f9fa;border:2px solid #FFA200;border-radius:10px;padding:1rem}
         .loading{opacity:0.7;pointer-events:none}
+		/* Mengubah semua teks biru bawaan Bootstrap menjadi warna brand Edu Muslim */
+		.text-primary { color: #e69200 !important; }
     </style>
 </head>
 <body>
