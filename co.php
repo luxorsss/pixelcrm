@@ -1,8 +1,12 @@
 <?php
-// Agar session & cookie bisa diakses di semua subdomain
-ini_set('session.cookie_domain', '.edumuslim.my.id');
-session_set_cookie_params(0, '/', '.edumuslim.my.id');
-session_start();
+// Mengambil nama domain yang sedang diakses secara otomatis
+$current_host = $_SERVER['HTTP_HOST'];
+$cookie_domain = '.' . preg_replace('/^www\./', '', $current_host);
+
+// Mengatur session agar mengikuti domain aktif
+ini_set('session.cookie_domain', $cookie_domain);
+session_set_cookie_params(0, '/', $cookie_domain);
+session_start();    
 
 /**
  * Checkout Page - Fixed fbclid Persistence (Cookie + Session)
@@ -23,7 +27,7 @@ if (isset($_GET['fbclid']) && !empty($_GET['fbclid'])) {
         setcookie('_fbc', $fbclid, [
             'expires' => time() + 30*24*60*60,
             'path' => '/',
-            'domain' => '.edumuslim.my.id',
+            'domain' => $cookie_domain,
             'secure' => true,        // Wajib true jika HTTPS (harus aktif!)
             'httponly' => false,     // false agar JS bisa baca untuk Pixel
             'samesite' => 'None'     // Wajib untuk cross-site (iklan → LP → checkout)
