@@ -560,6 +560,7 @@ function setupAutoFill() {
 function setupPhoneValidation() {
     const nomorWaInput = document.getElementById('nomor_wa');
     const namaInput = document.getElementById('nama');
+    if (!nomorWaInput || !namaInput) return;
     
     nomorWaInput.addEventListener('blur', function() {
         let phone = this.value.trim();
@@ -568,26 +569,26 @@ function setupPhoneValidation() {
                 phone = '62' + phone.substring(1);
                 this.value = phone;
             }
-            // Tetap lakukan fetch API untuk memastikan data terbaru dari server
-            fetch('api/get_customer.php?phone=' + encodeURIComponent(phone))
+            
+            // Mengambil data terbaru dari server (tanpa cache)
+            fetch('api/get_customer.php?phone=' + encodeURIComponent(phone), { cache: 'no-store' })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success && data.customer) {
-                        // 1. Auto-fill Nama
-                        if(!namaInput.value || namaInput.value == "Nama lengkap Anda") {
+                        // CARA SOPAN: Cek apakah kolom nama masih kosong
+                        if (namaInput.value.trim() === '') {
+                            // Jika kosong, baru isikan dengan data dari database
                             namaInput.value = data.customer.nama;
-                            localStorage.setItem('customer_nama', data.customer.nama);
-                        }
-                        
-                        // 2. Auto-fill Email (TAMBAHAN BARU)
-                        const emailInput = document.getElementById('email');
-                        if(emailInput && data.customer.email && !emailInput.value) {
-                            emailInput.value = data.customer.email;
-                            localStorage.setItem('customer_email', data.customer.email);
+                            namaInput.dispatchEvent(new Event('change'));
                         }
                     }
-                });
+                })
+                .catch(error => console.log('Customer lookup failed'));
         }
+    });
+    
+    nomorWaInput.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
     });
 }
 
