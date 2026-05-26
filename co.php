@@ -562,13 +562,10 @@ function setupPhoneValidation() {
     const namaInput = document.getElementById('nama');
     if (!nomorWaInput || !namaInput) return;
 
-    // ===================================================================
-    // LALU-LINTAS 1: ISI OTOMATIS SAAT HALAMAN BARU DIBUKA / DI-REFRESH
-    // ===================================================================
+    // 1. AMBIL DATA SAAT HALAMAN DIBUKA / DI-REFRESH
     const savedPhone = localStorage.getItem('crm_customer_phone');
     const savedName = localStorage.getItem('crm_customer_name');
     
-    // Jika ada data lama di memori browser, langsung masukkan ke kolom input
     if (savedPhone && !nomorWaInput.value) {
         nomorWaInput.value = savedPhone;
     }
@@ -576,15 +573,32 @@ function setupPhoneValidation() {
         namaInput.value = savedName;
     }
 
-    // ===================================================================
-    // LALU-LINTAS 2: SIMPAN SETIAP PERUBAHAN DATA KE MEMORI BROWSER
-    // ===================================================================
-    
-    // Simpan jika pembeli mengubah atau mengetik namanya sendiri secara manual
+    // 2. JIKA PEMBELI MENGETIK/MENGEDIT NAMANYA SECARA MANUAL
     namaInput.addEventListener('input', function() {
-        localStorage.setItem('crm_customer_name', this.value.trim());
+        const currentName = this.value.trim();
+        localStorage.setItem('crm_customer_name', currentName);
+        
+        if (currentName !== '') {
+            // Tandai bahwa pembeli sengaja mengetik namanya sendiri
+            localStorage.setItem('crm_name_is_manual', 'true');
+        } else {
+            // Jika kolom nama dikosongkan total, hapus tanda manual agar bisa di-auto-fill lagi
+            localStorage.removeItem('crm_name_is_manual');
+        }
     });
 
+    // 3. JIKA PEMBELI MENGUBAH NOMOR WA
+    nomorWaInput.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        localStorage.setItem('crm_customer_phone', this.value.trim());
+        
+        // Setiap nomor WA berubah, hapus semua tanda dan nama lama agar siap menerima data baru
+        localStorage.removeItem('crm_customer_name');
+        localStorage.removeItem('crm_name_is_manual');
+        namaInput.value = ''; 
+    });
+
+    // 4. JIKA KURSOR KELUAR DARI KOLOM NOMOR WA (PROSES AUTO-FILL)
     nomorWaInput.addEventListener('blur', function() {
         let phone = this.value.trim();
         if (phone.length >= 5) {
@@ -593,19 +607,24 @@ function setupPhoneValidation() {
                 this.value = phone;
             }
             
-            // Simpan nomor WA yang sudah rapi ke memori browser
             localStorage.setItem('crm_customer_phone', phone);
 
-            // Cek ke database (fitur auto-fill pintar yang kemarin)
+            // Cek apakah pembeli sudah pernah mengedit namanya secara manual sebelum ini
+            const isManual = localStorage.getItem('crm_name_is_manual');
+
+            // JIKA SUDAH DIEDIT MANUAL, JANGAN TANYA KE DATABASE (SISTEM MENGALAH)
+            if (isManual === 'true') {
+                return; 
+            }
+
+            // Jika belum diedit manual, silakan bantu carikan di database
             fetch('api/get_customer.php?phone=' + encodeURIComponent(phone), { cache: 'no-store' })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success && data.customer) {
-                        // Cara sopan: isi jika kolom nama masih kosong
+                        // Kunci pengaman ganda: pastikan saat data datang, kolom nama memang masih kosong
                         if (namaInput.value.trim() === '') {
                             namaInput.value = data.customer.nama;
-                            
-                            // Jangan lupa catat juga nama hasil auto-fill database ini ke memori browser
                             localStorage.setItem('crm_customer_name', data.customer.nama);
                             namaInput.dispatchEvent(new Event('change'));
                         }
@@ -613,17 +632,6 @@ function setupPhoneValidation() {
                 })
                 .catch(error => console.log('Customer lookup failed'));
         }
-    });
-
-    nomorWaInput.addEventListener('input', function() {
-        this.value = this.value.replace(/[^0-9]/g, '');
-        
-        // Simpan nomor yang sedang diketik secara real-time
-        localStorage.setItem('crm_customer_phone', this.value.trim());
-        
-        // LOGIKA BARU: Karena nomornya diubah, langsung hapus ingatan tentang nama lama!
-        localStorage.removeItem('crm_customer_name');
-        namaInput.value = ''; // Kosongkan juga form nama di layar biar tidak membingungkan
     });
 }
 
