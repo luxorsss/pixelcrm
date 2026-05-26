@@ -561,7 +561,30 @@ function setupPhoneValidation() {
     const nomorWaInput = document.getElementById('nomor_wa');
     const namaInput = document.getElementById('nama');
     if (!nomorWaInput || !namaInput) return;
+
+    // ===================================================================
+    // LALU-LINTAS 1: ISI OTOMATIS SAAT HALAMAN BARU DIBUKA / DI-REFRESH
+    // ===================================================================
+    const savedPhone = localStorage.getItem('crm_customer_phone');
+    const savedName = localStorage.getItem('crm_customer_name');
     
+    // Jika ada data lama di memori browser, langsung masukkan ke kolom input
+    if (savedPhone && !nomorWaInput.value) {
+        nomorWaInput.value = savedPhone;
+    }
+    if (savedName && !namaInput.value) {
+        namaInput.value = savedName;
+    }
+
+    // ===================================================================
+    // LALU-LINTAS 2: SIMPAN SETIAP PERUBAHAN DATA KE MEMORI BROWSER
+    // ===================================================================
+    
+    // Simpan jika pembeli mengubah atau mengetik namanya sendiri secara manual
+    namaInput.addEventListener('input', function() {
+        localStorage.setItem('crm_customer_name', this.value.trim());
+    });
+
     nomorWaInput.addEventListener('blur', function() {
         let phone = this.value.trim();
         if (phone.length >= 5) {
@@ -570,15 +593,20 @@ function setupPhoneValidation() {
                 this.value = phone;
             }
             
-            // Mengambil data terbaru dari server (tanpa cache)
+            // Simpan nomor WA yang sudah rapi ke memori browser
+            localStorage.setItem('crm_customer_phone', phone);
+
+            // Cek ke database (fitur auto-fill pintar yang kemarin)
             fetch('api/get_customer.php?phone=' + encodeURIComponent(phone), { cache: 'no-store' })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success && data.customer) {
-                        // CARA SOPAN: Cek apakah kolom nama masih kosong
+                        // Cara sopan: isi jika kolom nama masih kosong
                         if (namaInput.value.trim() === '') {
-                            // Jika kosong, baru isikan dengan data dari database
                             namaInput.value = data.customer.nama;
+                            
+                            // Jangan lupa catat juga nama hasil auto-fill database ini ke memori browser
+                            localStorage.setItem('crm_customer_name', data.customer.nama);
                             namaInput.dispatchEvent(new Event('change'));
                         }
                     }
@@ -586,9 +614,11 @@ function setupPhoneValidation() {
                 .catch(error => console.log('Customer lookup failed'));
         }
     });
-    
+
     nomorWaInput.addEventListener('input', function() {
         this.value = this.value.replace(/[^0-9]/g, '');
+        // Simpan ketikan nomor wa secara real-time ke memori browser
+        localStorage.setItem('crm_customer_phone', this.value.trim());
     });
 }
 
