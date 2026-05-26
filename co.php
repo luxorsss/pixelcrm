@@ -617,8 +617,13 @@ function setupPhoneValidation() {
 
     nomorWaInput.addEventListener('input', function() {
         this.value = this.value.replace(/[^0-9]/g, '');
-        // Simpan ketikan nomor wa secara real-time ke memori browser
+        
+        // Simpan nomor yang sedang diketik secara real-time
         localStorage.setItem('crm_customer_phone', this.value.trim());
+        
+        // LOGIKA BARU: Karena nomornya diubah, langsung hapus ingatan tentang nama lama!
+        localStorage.removeItem('crm_customer_name');
+        namaInput.value = ''; // Kosongkan juga form nama di layar biar tidak membingungkan
     });
 }
 
