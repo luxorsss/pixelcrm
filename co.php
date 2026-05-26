@@ -3,11 +3,6 @@
 $current_host = $_SERVER['HTTP_HOST'];
 $cookie_domain = '.' . preg_replace('/^www\./', '', $current_host);
 
-// Mengatur session agar mengikuti domain aktif
-ini_set('session.cookie_domain', $cookie_domain);
-session_set_cookie_params(0, '/', $cookie_domain);
-session_start();    
-
 /**
  * Checkout Page - Fixed fbclid Persistence (Cookie + Session)
  */
