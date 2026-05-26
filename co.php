@@ -579,23 +579,26 @@ function setupPhoneValidation() {
         localStorage.setItem('crm_customer_name', currentName);
         
         if (currentName !== '') {
-            // Tandai bahwa pembeli sengaja mengetik namanya sendiri
+            // Tandai stempel manual agar sistem tahu ini ketikan user asli
             localStorage.setItem('crm_name_is_manual', 'true');
         } else {
-            // Jika kolom nama dikosongkan total, hapus tanda manual agar bisa di-auto-fill lagi
             localStorage.removeItem('crm_name_is_manual');
         }
     });
 
-    // 3. JIKA PEMBELI MENGUBAH NOMOR WA
+    // 3. JIKA PEMBELI MENGUBAH / MENGETIK NOMOR WA
     nomorWaInput.addEventListener('input', function() {
         this.value = this.value.replace(/[^0-9]/g, '');
         localStorage.setItem('crm_customer_phone', this.value.trim());
         
-        // Setiap nomor WA berubah, hapus semua tanda dan nama lama agar siap menerima data baru
-        localStorage.removeItem('crm_customer_name');
-        localStorage.removeItem('crm_name_is_manual');
-        namaInput.value = ''; 
+        // Cek dulu, apakah nama yang ada di layar saat ini adalah ketikan manual pembeli?
+        const isManual = localStorage.getItem('crm_name_is_manual');
+        
+        // JIKA BUKAN KETIKAN MANUAL (alias hasil auto-fill database lama), barulah boleh dihapus
+        if (isManual !== 'true') {
+            localStorage.removeItem('crm_customer_name');
+            namaInput.value = ''; 
+        }
     });
 
     // 4. JIKA KURSOR KELUAR DARI KOLOM NOMOR WA (PROSES AUTO-FILL)
@@ -609,20 +612,19 @@ function setupPhoneValidation() {
             
             localStorage.setItem('crm_customer_phone', phone);
 
-            // Cek apakah pembeli sudah pernah mengedit namanya secara manual sebelum ini
             const isManual = localStorage.getItem('crm_name_is_manual');
 
-            // JIKA SUDAH DIEDIT MANUAL, JANGAN TANYA KE DATABASE (SISTEM MENGALAH)
+            // Jika pembeli sudah mengetik namanya sendiri secara manual, 
+            // setop proses database agar ketikan mereka tidak tertimpa
             if (isManual === 'true') {
                 return; 
             }
 
-            // Jika belum diedit manual, silakan bantu carikan di database
+            // Jika kolom nama kosong, silakan bantu carikan di database
             fetch('api/get_customer.php?phone=' + encodeURIComponent(phone), { cache: 'no-store' })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success && data.customer) {
-                        // Kunci pengaman ganda: pastikan saat data datang, kolom nama memang masih kosong
                         if (namaInput.value.trim() === '') {
                             namaInput.value = data.customer.nama;
                             localStorage.setItem('crm_customer_name', data.customer.nama);
