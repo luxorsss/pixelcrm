@@ -104,7 +104,7 @@ $bundling = fetchAll("
 if (isPost()) {
     $nama = trim(post('nama'));
     $nomor_wa = trim(post('nomor_wa'));
-    $email = trim(post('email')); // <--- TANGKAP EMAIL
+    $email = trim(post('email') ?? '');
     $bundling_ids = post('bundling_ids', []);
     
     // === AMBIL fbc dari COOKIE dulu, baru SESSION (lebih andal) ===
