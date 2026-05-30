@@ -284,7 +284,6 @@ if (isPost()) {
         }
 
         // ✅ BERSIHKAN SESSION & COOKIE SETELAH CHECKOUT SUKSES
-        // Agar jika besok dia beli lagi lewat link WA organik, tidak terhitung sebagai konversi iklan lama
         unset($_SESSION['fbclid_final']);
         
         // Hancurkan cookie _fbc di browser pembeli
@@ -294,7 +293,7 @@ if (isPost()) {
     }
 }
 
-// Tangkap kupon dari URL (contoh: co.php?id=1&kupon=PROMO20)
+// Tangkap kupon dari URL
 $kupon_dari_url = isset($_GET['kupon']) ? clean($_GET['kupon']) : '';
 
 $page_title = 'Checkout - ' . $produk['nama'];
@@ -308,27 +307,331 @@ $page_title = 'Checkout - ' . $produk['nama'];
 	<link rel="icon" type="image/x-icon" href="favicon.ico">
 	<!-- Preload critical resources -->
     <link rel="preload" href="https://connect.facebook.net/en_US/fbevents.js" as="script">
+    <!-- Google Fonts: Plus Jakarta Sans for Premium Modern look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Minified CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        /* Inline critical CSS */
-        body{background:#f2f5fa;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;min-height:100vh}
-        .checkout-container{max-width:500px;margin:2rem auto;padding:0 1rem}
-        .card{border:none;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,0.1);background:white}
-        .card-header{background:linear-gradient(135deg,#ffbc3b,#FFA200);color:white;border-radius:15px 15px 0 0!important;padding:1.5rem}
-        .form-control,.form-check-input{border-radius:10px}
-        .btn-primary{background:linear-gradient(135deg,#ffbc3b,#FFA200);color:#ffffff;font-weight:bold;border:none;border-radius:10px;padding:12px 30px;transition:all 0.3s ease;box-shadow:0 4px 15px rgba(255,162,0,0.3)}
-        .btn-primary:hover{background:linear-gradient(135deg,#FFA200,#e69200);color:#ffffff;box-shadow:0 6px 20px rgba(255,162,0,0.4);transform:translateY(-2px)}
-        .product-info{background:#f8f9fa;border-radius:10px;padding:1rem;margin-bottom:1rem}
-        .bundle-item{border:3px dashed #ff2400;border-radius:10px;padding:1rem;margin-bottom:0.5rem;background-color: #fffbe2;transition: background-color 0.2s, border-color 0.2s}
-        .bundle-item.selected{border-color:#FFA200;background:#fffaf0}
-        .price-original{text-decoration:line-through;color:#666}
-        .price-discount{color:#d32f2f;font-weight:bold}
-        .summary-box{background:#f8f9fa;border:2px solid #FFA200;border-radius:10px;padding:1rem}
-        .loading{opacity:0.7;pointer-events:none}
-		/* Mengubah semua teks biru bawaan Bootstrap menjadi warna brand Edu Muslim */
-		.text-primary { color: #e69200 !important; }
+        :root {
+            --brand-primary: #054A3B;     /* Deep Emerald Green - Islamic/Premium */
+            --brand-primary-light: #0A6B56;
+            --brand-accent: #D4AF37;      /* Muted Gold */
+            --brand-accent-hover: #C5A028;
+            --bg-color: #F8F9F7;          /* Soft warm off-white */
+            --card-bg: #FFFFFF;
+            --text-main: #1A201E;
+            --text-muted: #6B726F;
+            --border-color: #E6EAE8;
+            --success-bg: #F0FDF4;
+            --success-text: #166534;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 2rem 1rem;
+            /* Subtle texture for depth */
+            background-image: radial-gradient(var(--border-color) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .checkout-container {
+            width: 100%;
+            max-width: 540px;
+            animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .card {
+            border: none;
+            border-radius: 20px;
+            background: var(--card-bg);
+            box-shadow: 0 20px 40px rgba(5, 74, 59, 0.06), 0 1px 3px rgba(0,0,0,0.02);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: var(--brand-primary);
+            color: white;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            border-bottom: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle Islamic Geometric vibe via CSS overlay */
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.05) 10%, transparent 10%),
+                        radial-gradient(circle, rgba(255, 255, 255, 0.03) 10%, transparent 10%);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+            transform: rotate(45deg);
+            pointer-events: none;
+        }
+
+        .card-header h4 {
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            position: relative;
+            z-index: 1;
+            font-size: 1.25rem;
+        }
+        
+        .card-header h4 i {
+            color: var(--brand-accent);
+        }
+
+        .card-body {
+            padding: 2rem 2.5rem;
+        }
+
+        @media (max-width: 576px) {
+            .card-body { padding: 1.5rem; }
+            body { padding: 1rem 0.5rem; }
+        }
+
+        /* Form Styling */
+        h6.section-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+        }
+        h6.section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+            margin-left: 1rem;
+        }
+
+        .form-floating > .form-control {
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            font-family: inherit;
+            color: var(--text-main);
+            transition: all 0.25s ease;
+            box-shadow: none;
+        }
+        .form-floating > .form-control:focus {
+            border-color: var(--brand-primary-light);
+            box-shadow: 0 0 0 4px rgba(10, 107, 86, 0.1);
+        }
+        .form-floating > label {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Product Info Box */
+        .product-info {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        .product-info h5 {
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 1.35rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+        .product-price-badge {
+            display: inline-block;
+            background: var(--success-bg);
+            color: var(--success-text);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        /* Bundling Cards */
+        .bundle-item {
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            background-color: var(--card-bg);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .bundle-item:hover {
+            border-color: var(--brand-primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(5, 74, 59, 0.04);
+        }
+
+        .bundle-item.selected {
+            border-color: var(--brand-primary);
+            background: rgba(5, 74, 59, 0.02);
+            box-shadow: 0 4px 12px rgba(5, 74, 59, 0.08);
+        }
+
+        .bundle-item.selected::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--brand-primary);
+        }
+
+        .form-check-input {
+            width: 1.25em;
+            height: 1.25em;
+            margin-top: 0.15em;
+            border-color: #cbd5e1;
+            cursor: pointer;
+        }
+        .form-check-input:checked {
+            background-color: var(--brand-primary);
+            border-color: var(--brand-primary);
+        }
+
+        .price-original {
+            text-decoration: line-through;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .price-discount {
+            color: var(--brand-primary);
+            font-weight: 700;
+            font-size: 1.05rem;
+            display: block;
+            line-height: 1.2;
+        }
+        
+        .bundle-description-container {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-top: 0.5rem;
+        }
+        .btn-toggle-desc {
+            color: var(--brand-primary-light);
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .btn-toggle-desc:hover { color: var(--brand-primary); }
+
+        /* Order Summary / Receipt */
+        .summary-box {
+            background: #FAFAFA;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+        .summary-item {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+        .summary-bundle-item {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .summary-box hr {
+            border-color: var(--border-color);
+            border-style: dashed;
+            opacity: 1;
+            margin: 1.25rem 0;
+        }
+        .total-row {
+            font-size: 1.2rem;
+            color: var(--brand-primary);
+        }
+
+        /* Coupon Input */
+        .input-group .form-control {
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px 0 0 10px;
+            height: 48px;
+        }
+        .input-group .form-control:focus {
+            border-color: var(--brand-primary-light);
+            box-shadow: none;
+        }
+        .input-group .btn-secondary {
+            background: var(--text-main);
+            border: none;
+            border-radius: 0 10px 10px 0;
+            font-weight: 600;
+            padding: 0 1.5rem;
+            transition: background 0.2s;
+        }
+        .input-group .btn-secondary:hover {
+            background: var(--brand-primary);
+        }
+
+        /* CTA Button */
+        .btn-primary {
+            background: var(--brand-primary);
+            color: #ffffff;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            border: none;
+            border-radius: 12px;
+            padding: 16px 30px;
+            font-size: 1.1rem;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 8px 20px rgba(5, 74, 59, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary:hover {
+            background: var(--brand-primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(5, 74, 59, 0.3);
+        }
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+
+        /* Animations */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .stagger-1 { animation: fadeUp 0.6s 0.1s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+        .stagger-2 { animation: fadeUp 0.6s 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+        .stagger-3 { animation: fadeUp 0.6s 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+        .stagger-4 { animation: fadeUp 0.6s 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+        ::selection { background: var(--brand-primary-light); color: white; }
+
     </style>
 </head>
 <body>
@@ -336,129 +639,115 @@ $page_title = 'Checkout - ' . $produk['nama'];
 <div class="checkout-container">
     <div class="card">
         <div class="card-header">
-            <h4 class="mb-0"><i class="fas fa-shopping-cart me-2"></i>Checkout</h4>
+            <h4 class="mb-0"><i class="fas fa-lock me-2"></i>Secure Checkout</h4>
         </div>
-        <div class="card-body p-4">
+        <div class="card-body">
             
-            <div class="product-info">
+            <div class="product-info stagger-1">
                 <h5><?= clean($produk['nama']) ?></h5>
-                <h6 class="text-primary"><?= formatCurrency($produk['harga']) ?></h6>
+                <div class="product-price-badge"><?= formatCurrency($produk['harga']) ?></div>
             </div>
 
             <?php $msg = getMessage(); if ($msg): ?>
-                <div class="alert alert-<?= $msg[1] === 'error' ? 'danger' : $msg[1] ?> alert-dismissible fade show">
+                <div class="alert alert-<?= $msg[1] === 'error' ? 'danger' : 'success' ?> alert-dismissible fade show" style="border-radius: 12px;">
                     <?= clean($msg[0]) ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             <?php endif; ?>
 
             <form method="POST" id="checkoutForm">
-                <h6 class="mb-3">Informasi Pembeli</h6>
+                
+                <div class="stagger-2">
+                    <h6 class="section-title">Detail Informasi</h6>
 
-				<div class="mb-3">
-					<label class="form-label">Nama Lengkap *</label>
-					<input type="text" name="nama" id="nama" class="form-control" 
-						   placeholder="Nama lengkap Anda" value="<?= clean(post('nama')) ?>" required>
-				</div>
+                    <div class="form-floating mb-3">
+                        <input type="text" name="nama" id="nama" class="form-control" 
+                               placeholder="Nama lengkap Anda" value="<?= clean(post('nama')) ?>" required>
+                        <label for="nama">Nama Lengkap *</label>
+                    </div>
 
-				<div class="mb-3">
-					<label class="form-label">Nomor WhatsApp *</label>
-					<input type="text" name="nomor_wa" id="nomor_wa" class="form-control" 
-						   placeholder="08123456789" value="<?= clean(post('nomor_wa')) ?>" required>
-				</div>
+                    <div class="form-floating mb-3">
+                        <input type="tel" name="nomor_wa" id="nomor_wa" class="form-control" 
+                               placeholder="08123456789" value="<?= clean(post('nomor_wa')) ?>" required>
+                        <label for="nomor_wa">Nomor WhatsApp *</label>
+                    </div>
 
-                <?php if (isset($produk['show_email']) && $produk['show_email'] == 1): ?>
-                <div class="mb-3">
-                    <label class="form-label">Email *</label>
-                    <input type="email" name="email" id="email" class="form-control" 
-                           placeholder="alamat@email.com" value="<?= clean(post('email')) ?>" required>
+                    <?php if (isset($produk['show_email']) && $produk['show_email'] == 1): ?>
+                    <div class="form-floating mb-3">
+                        <input type="email" name="email" id="email" class="form-control" 
+                               placeholder="alamat@email.com" value="<?= clean(post('email')) ?>" required>
+                        <label for="email">Alamat Email *</label>
+                    </div>
+                    <?php endif; ?>
                 </div>
-                <?php endif; ?>
 
 				<?php if (!empty($bundling)): ?>
-				<h6 class="mb-3 mt-4">Produk Tambahan (Bundling)</h6>
-				<div id="bundlingContainer">
-					<?php foreach ($bundling as $bundle): 
-						$harga_diskon = $bundle['harga'] - $bundle['diskon'];
-					?>
-					<div class="bundle-item" data-bundle-id="<?= $bundle['id'] ?>">
-						<div class="form-check">
-							<input class="form-check-input bundle-checkbox" type="checkbox" 
-								   name="bundling_ids[]" value="<?= $bundle['id'] ?>" 
-								   id="bundle_<?= $bundle['id'] ?>"
-								   data-price="<?= $harga_diskon ?>">
-							<label class="form-check-label w-100" for="bundle_<?= $bundle['id'] ?>">
-								<div class="d-flex justify-content-between align-items-start">
-									<div style="max-width: 70%;">
-										<strong><?= clean($bundle['nama']) ?></strong>
+                <div class="stagger-3 mt-4">
+                    <h6 class="section-title">Tingkatkan Pesanan (Opsional)</h6>
+                    <div id="bundlingContainer">
+                        <?php foreach ($bundling as $bundle): 
+                            $harga_diskon = $bundle['harga'] - $bundle['diskon'];
+                        ?>
+                        <!-- Entire div is clickable via JS logic / wrapping label -->
+                        <label class="bundle-item d-block m-0 mb-3" for="bundle_<?= $bundle['id'] ?>">
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="form-check m-0 pt-1">
+                                    <input class="form-check-input bundle-checkbox" type="checkbox" 
+                                           name="bundling_ids[]" value="<?= $bundle['id'] ?>" 
+                                           id="bundle_<?= $bundle['id'] ?>"
+                                           data-price="<?= $harga_diskon ?>">
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                        <strong style="color: var(--text-main); font-size: 0.95rem; line-height: 1.3; max-width: 65%;">
+                                            <?= clean($bundle['nama']) ?>
+                                        </strong>
+                                        <div class="text-end" style="min-width: 80px;">
+                                            <span class="price-original"><?= formatCurrency($bundle['harga']) ?></span><br>
+                                            <span class="price-discount"><?= formatCurrency($harga_diskon) ?></span>
+                                        </div>
+                                    </div>
 
-										<div class="bundle-description-container small text-muted">
-											<?php 
-											$desc = clean($bundle['deskripsi_bundling']);
-											if (strlen($desc) > 80): ?>
-												<span class="desc-short"><?= substr($desc, 0, 80) ?>...</span>
-												<span class="desc-full d-none"><?= nl2br($desc) ?></span>
-												<a href="javascript:void(0)" class="btn-toggle-desc" style="text-decoration:none; font-size:11px;">Selengkapnya</a>
-											<?php else: ?>
-												<?= nl2br($desc) ?>
-											<?php endif; ?>
-										</div>
-									</div>
-									<div class="text-end">
-										<span class="price-original" style="font-size: 0.8rem;"><?= formatCurrency($bundle['harga']) ?></span><br>
-										<span class="price-discount"><?= formatCurrency($harga_diskon) ?></span>
-									</div>
-								</div>
-							</label>
-						</div>
-					</div>
-					<?php endforeach; ?>
-				</div>
+                                    <div class="bundle-description-container text-muted">
+                                        <?php 
+                                        $desc = clean($bundle['deskripsi_bundling']);
+                                        if (strlen($desc) > 80): ?>
+                                            <span class="desc-short"><?= substr($desc, 0, 80) ?>...</span>
+                                            <span class="desc-full d-none"><?= nl2br($desc) ?></span>
+                                            <a href="javascript:void(0)" class="btn-toggle-desc ms-1" style="text-decoration:none;">Selengkapnya</a>
+                                        <?php else: ?>
+                                            <?= nl2br($desc) ?>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
 				<?php endif; ?>
 
-                <h6 class="mb-3 mt-4">Ringkasan Pesanan</h6>
-                <div class="summary-box" id="orderSummary">
-                    <div class="summary-item d-flex justify-content-between mb-2">
-                        <span><?= clean($produk['nama']) ?></span>
-                        <span><?= formatCurrency($produk['harga']) ?></span>
-                    </div>
-                    
-                    <?php foreach ($bundling as $bundle): 
-                        $harga_diskon = $bundle['harga'] - $bundle['diskon'];
-                        $is_checked = false;
-                        if ($is_checked): ?>
-                    <div class="summary-bundle-item d-flex justify-content-between mb-2" 
-                         data-bundle-id="<?= $bundle['id'] ?>" data-price="<?= $harga_diskon ?>">
-                        <span><?= clean($bundle['nama']) ?></span>
-                        <span><?= formatCurrency($harga_diskon) ?></span>
-                    </div>
-                    <?php endif; endforeach; ?>
-                    
-                    <hr>
-                    <div class="d-flex justify-content-between fw-bold">
-                        <span>Total</span>
-                        <span id="totalAmount"><?= formatCurrency($produk['harga']) ?></span>
-                    </div>
-                </div>
-
                 <?php if ($produk['show_kupon'] == 1): ?>
-                <div class="mt-4 mb-3">
-                    <label class="form-label fw-bold"><i class="fas fa-tag"></i> Kode Kupon (Opsional)</label>
+                <div class="stagger-4 mt-4">
+                    <h6 class="section-title">Kode Promo</h6>
                     <div id="form-kupon-container">
                         <div class="input-group">
-                            <input type="text" id="kode_promo" class="form-control text-uppercase" placeholder="Masukkan kode promo..." value="<?= $kupon_dari_url ?>">
+                            <input type="text" id="kode_promo" class="form-control text-uppercase" placeholder="Masukkan kupon..." value="<?= $kupon_dari_url ?>">
                             <button type="button" class="btn btn-secondary" id="btn-terapkan-kupon">Terapkan</button>
                         </div>
-                        <div id="pesan_kupon" class="mt-2" style="font-size: 0.9rem;"></div>
+                        <div id="pesan_kupon" class="mt-2" style="font-size: 0.85rem; padding-left: 5px;"></div>
                     </div>
                 </div>
-
                 <input type="hidden" name="kupon_id" id="input_kupon_id" value="">
                 <input type="hidden" name="total_diskon" id="input_total_diskon" value="0">
                 <?php endif; ?>
+
+                <div class="summary-box stagger-4" id="orderSummary">
+                    <!-- Dinamis via JS -->
+                </div>
                 
-                <button type="submit" class="btn btn-primary w-100 mt-3" id="checkoutBtn">
-                    <i class="fas fa-credit-card me-2"></i>Proses Checkout
+                <button type="submit" class="btn btn-primary w-100 mt-4 stagger-4" id="checkoutBtn">
+                    Selesaikan Pembayaran <i class="fas fa-arrow-right ms-2"></i>
                 </button>
             </form>
         </div>
@@ -478,7 +767,6 @@ $page_title = 'Checkout - ' . $produk['nama'];
     
     // ✅ Ambil fbc dari COOKIE (standar Meta), lalu fallback ke session PHP
     <?php
-    // Baca dari cookie (lebih andal di JS)
     $fbc_js = $_COOKIE['_fbc'] ?? $_SESSION['fbclid_final'] ?? null;
     $fbp_js = $_COOKIE['_fbp'] ?? null;
     ?>
@@ -508,6 +796,7 @@ $page_title = 'Checkout - ' . $produk['nama'];
 <script>
 document.addEventListener('click', function(e) {
     if (e.target && e.target.classList.contains('btn-toggle-desc')) {
+        e.preventDefault();
         const container = e.target.closest('.bundle-description-container');
         const shortSpan = container.querySelector('.desc-short');
         const fullSpan = container.querySelector('.desc-full');
@@ -524,34 +813,30 @@ document.addEventListener('click', function(e) {
     }
 });
 
-function formatCurrencyJS(t){return"Rp "+t.toLocaleString("id-ID")}
+function formatCurrencyJS(t){
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(t);
+}
 
 // Logika Auto-fill dari LocalStorage
 function setupAutoFill() {
     const namaInput = document.getElementById('nama');
     const nomorWaInput = document.getElementById('nomor_wa');
-    const emailInput = document.getElementById('email'); // TANGKAP ID EMAIL
+    const emailInput = document.getElementById('email'); 
 
-    // Ambil dari cache browser jika ada
     const cachedNama = localStorage.getItem('customer_nama');
     const cachedWA = localStorage.getItem('customer_wa');
-    const cachedEmail = localStorage.getItem('customer_email'); // AMBIL CACHE EMAIL
+    const cachedEmail = localStorage.getItem('customer_email'); 
 
     if (namaInput && cachedNama && !namaInput.value) namaInput.value = cachedNama;
     if (nomorWaInput && cachedWA && !nomorWaInput.value) nomorWaInput.value = cachedWA;
-    
-    // Set value email jika formnya ada (tidak disembunyikan) dan cache-nya ada
     if (emailInput && cachedEmail && !emailInput.value) emailInput.value = cachedEmail;
 
-    // Simpan ke cache saat user mengetik (agar tetap bisa diedit)
     if (namaInput) {
         namaInput.addEventListener('input', () => localStorage.setItem('customer_nama', namaInput.value));
     }
     if (nomorWaInput) {
         nomorWaInput.addEventListener('input', () => localStorage.setItem('customer_wa', nomorWaInput.value));
     }
-    
-    // Simpan email ke cache saat user mengetik
     if (emailInput) {
         emailInput.addEventListener('input', () => localStorage.setItem('customer_email', emailInput.value));
     }
@@ -562,46 +847,32 @@ function setupPhoneValidation() {
     const namaInput = document.getElementById('nama');
     if (!nomorWaInput || !namaInput) return;
 
-    // 1. AMBIL DATA SAAT HALAMAN DIBUKA / DI-REFRESH
     const savedPhone = localStorage.getItem('crm_customer_phone');
     const savedName = localStorage.getItem('crm_customer_name');
     
-    if (savedPhone && !nomorWaInput.value) {
-        nomorWaInput.value = savedPhone;
-    }
-    if (savedName && !namaInput.value) {
-        namaInput.value = savedName;
-    }
+    if (savedPhone && !nomorWaInput.value) nomorWaInput.value = savedPhone;
+    if (savedName && !namaInput.value) namaInput.value = savedName;
 
-    // 2. JIKA PEMBELI MENGETIK/MENGEDIT NAMANYA SECARA MANUAL
     namaInput.addEventListener('input', function() {
         const currentName = this.value.trim();
         localStorage.setItem('crm_customer_name', currentName);
-        
         if (currentName !== '') {
-            // Tandai stempel manual agar sistem tahu ini ketikan user asli
             localStorage.setItem('crm_name_is_manual', 'true');
         } else {
             localStorage.removeItem('crm_name_is_manual');
         }
     });
 
-    // 3. JIKA PEMBELI MENGUBAH / MENGETIK NOMOR WA
     nomorWaInput.addEventListener('input', function() {
         this.value = this.value.replace(/[^0-9]/g, '');
         localStorage.setItem('crm_customer_phone', this.value.trim());
-        
-        // Cek dulu, apakah nama yang ada di layar saat ini adalah ketikan manual pembeli?
         const isManual = localStorage.getItem('crm_name_is_manual');
-        
-        // JIKA BUKAN KETIKAN MANUAL (alias hasil auto-fill database lama), barulah boleh dihapus
         if (isManual !== 'true') {
             localStorage.removeItem('crm_customer_name');
             namaInput.value = ''; 
         }
     });
 
-    // 4. JIKA KURSOR KELUAR DARI KOLOM NOMOR WA (PROSES AUTO-FILL)
     nomorWaInput.addEventListener('blur', function() {
         let phone = this.value.trim();
         if (phone.length >= 5) {
@@ -609,18 +880,10 @@ function setupPhoneValidation() {
                 phone = '62' + phone.substring(1);
                 this.value = phone;
             }
-            
             localStorage.setItem('crm_customer_phone', phone);
-
             const isManual = localStorage.getItem('crm_name_is_manual');
+            if (isManual === 'true') return; 
 
-            // Jika pembeli sudah mengetik namanya sendiri secara manual, 
-            // setop proses database agar ketikan mereka tidak tertimpa
-            if (isManual === 'true') {
-                return; 
-            }
-
-            // Jika kolom nama kosong, silakan bantu carikan di database
             fetch('api/get_customer.php?phone=' + encodeURIComponent(phone), { cache: 'no-store' })
                 .then(response => response.json())
                 .then(data => {
@@ -637,7 +900,6 @@ function setupPhoneValidation() {
     });
 }
 
-// Variabel global untuk menyimpan nilai diskon yang sedang aktif
 let aktifDiskonKupon = 0;
 
 function updateTotal() {
@@ -648,33 +910,34 @@ function updateTotal() {
     
     // Baris Produk Utama
     const mainItem = document.createElement('div');
-    mainItem.className = 'summary-item d-flex justify-content-between mb-2';
+    mainItem.className = 'summary-item d-flex justify-content-between mb-3';
     mainItem.innerHTML = `<span><?= clean($produk['nama']) ?></span><span><?= formatCurrency($produk['harga']) ?></span>`;
     orderSummary.appendChild(mainItem);
     
     // Baris Bundling
     document.querySelectorAll('.bundle-checkbox').forEach(checkbox => {
+        const bundleItem = checkbox.closest('.bundle-item');
         if (checkbox.checked) {
             const bundleItemEl = document.createElement('div');
-            bundleItemEl.className = 'summary-bundle-item d-flex justify-content-between mb-2 text-success';
+            bundleItemEl.className = 'summary-bundle-item d-flex justify-content-between mb-2';
             const price = parseFloat(checkbox.dataset.price);
             total += price;
-            const bundleLabel = checkbox.closest('.bundle-item').querySelector('strong').textContent;
-            bundleItemEl.innerHTML = `<span><i class="fas fa-plus-circle"></i> ${bundleLabel}</span><span>${formatCurrencyJS(price)}</span>`;
+            const bundleLabel = bundleItem.querySelector('strong').textContent.trim();
+            bundleItemEl.innerHTML = `<span style="color: var(--brand-primary);"><i class="fas fa-plus-circle me-1"></i> ${bundleLabel}</span><span style="color: var(--brand-primary); font-weight: 500;">${formatCurrencyJS(price)}</span>`;
             orderSummary.appendChild(bundleItemEl);
+            bundleItem.classList.add('selected');
+        } else {
+            bundleItem.classList.remove('selected');
         }
-        const bundleItem = checkbox.closest('.bundle-item');
-        if (bundleItem) bundleItem.classList.toggle('selected', checkbox.checked);
     });
 
     // Baris Diskon Kupon (Jika Ada)
     if (aktifDiskonKupon > 0) {
         const diskonEl = document.createElement('div');
         diskonEl.className = 'summary-item d-flex justify-content-between mb-2 text-danger fw-bold';
-        diskonEl.innerHTML = `<span><i class="fas fa-tag"></i> Diskon Kupon</span><span>- ${formatCurrencyJS(aktifDiskonKupon)}</span>`;
+        diskonEl.innerHTML = `<span><i class="fas fa-tag me-1"></i> Diskon</span><span>- ${formatCurrencyJS(aktifDiskonKupon)}</span>`;
         orderSummary.appendChild(diskonEl);
         
-        // Kurangi total harga, pastikan tidak minus
         total -= aktifDiskonKupon;
         if (total < 0) total = 0;
     }
@@ -684,29 +947,26 @@ function updateTotal() {
     
     // Baris Total Akhir
     const totalRow = document.createElement('div');
-    totalRow.className = 'd-flex justify-content-between fw-bold h5 mb-0 text-primary';
-    totalRow.innerHTML = `<span>Total Bayar</span><span id="totalAmount">${formatCurrencyJS(total)}</span>`;
+    totalRow.className = 'd-flex justify-content-between fw-bold total-row align-items-center mb-0';
+    totalRow.innerHTML = `<span style="color: var(--text-main); font-size: 1rem;">Total Pembayaran</span><span id="totalAmount">${formatCurrencyJS(total)}</span>`;
     orderSummary.appendChild(totalRow);
 }
 
-// Logika API Pengecekan Kupon (Letakkan setelah fungsi updateTotal)
 function setupKupon() {
     const btnKupon = document.getElementById('btn-terapkan-kupon');
-    const formKuponContainer = document.getElementById('form-kupon-container');
     const inputKode = document.getElementById('kode_promo');
 
-    // 2. Logika Cek Kupon (Fetch ke API)
     if(btnKupon) {
         btnKupon.addEventListener('click', function() {
             const kode = inputKode.value.trim();
             const pesan = document.getElementById('pesan_kupon');
             
             if(kode === '') {
-                pesan.innerHTML = '<span class="text-danger">Masukkan kode promo dulu.</span>';
+                pesan.innerHTML = '<span class="text-danger"><i class="fas fa-exclamation-circle"></i> Masukkan kode promo.</span>';
                 return;
             }
 
-            pesan.innerHTML = '<span class="text-info"><i class="fas fa-spinner fa-spin"></i> Mengecek...</span>';
+            pesan.innerHTML = '<span style="color: var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Memeriksa kode...</span>';
             
             const formData = new FormData();
             formData.append('kode_kupon', kode);
@@ -720,13 +980,13 @@ function setupKupon() {
             .then(response => response.json())
             .then(data => {
                 if(data.status === 'success') {
-                    pesan.innerHTML = `<span class="text-success fw-bold"><i class="fas fa-check"></i> ${data.message}</span>`;
+                    pesan.innerHTML = `<span style="color: var(--success-text); font-weight: 600;"><i class="fas fa-check-circle"></i> ${data.message}</span>`;
                     aktifDiskonKupon = parseFloat(data.potongan);
                     document.getElementById('input_kupon_id').value = data.kupon_id;
                     document.getElementById('input_total_diskon').value = data.potongan;
                     updateTotal();
                 } else {
-                    pesan.innerHTML = `<span class="text-danger fw-bold"><i class="fas fa-times"></i> ${data.message}</span>`;
+                    pesan.innerHTML = `<span class="text-danger fw-bold"><i class="fas fa-times-circle"></i> ${data.message}</span>`;
                     aktifDiskonKupon = 0;
                     document.getElementById('input_kupon_id').value = '';
                     document.getElementById('input_total_diskon').value = '0';
@@ -739,12 +999,10 @@ function setupKupon() {
         });
     }
 
-    // 3. AUTO-APPLY KUPON DARI URL
     <?php if (!empty($kupon_dari_url)): ?>
-        // Tunggu setengah detik agar halaman selesai merender, lalu klik tombol terapkan otomatis
         setTimeout(function() {
             if(btnKupon) btnKupon.click();
-        }, 500);
+        }, 600);
     <?php endif; ?>
 }
 
@@ -757,7 +1015,8 @@ function setupEventListeners() {
         checkoutForm.addEventListener('submit', function() {
             const checkoutBtn = document.getElementById('checkoutBtn');
             if (checkoutBtn) {
-                checkoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Memproses...';
+                checkoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Memproses Pesanan...';
+                checkoutBtn.style.opacity = '0.8';
                 checkoutBtn.disabled = true;
             }
         });
@@ -765,7 +1024,7 @@ function setupEventListeners() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    setupAutoFill(); // Jalankan auto-fill saat load
+    setupAutoFill();
     setupPhoneValidation();
     setupEventListeners();
     updateTotal();
