@@ -305,30 +305,228 @@ $page_title = 'Checkout - ' . $produk['nama'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $page_title ?></title>
-	<link rel="icon" type="image/x-icon" href="favicon.ico">
-	<!-- Preload critical resources -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="preload" href="https://connect.facebook.net/en_US/fbevents.js" as="script">
-    <!-- Minified CSS -->
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        /* Inline critical CSS */
-        body{background:#f2f5fa;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;min-height:100vh}
-        .checkout-container{max-width:500px;margin:2rem auto;padding:0 1rem}
-        .card{border:none;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,0.1);background:white}
-        .card-header{background:linear-gradient(135deg,#ffbc3b,#FFA200);color:white;border-radius:15px 15px 0 0!important;padding:1.5rem}
-        .form-control,.form-check-input{border-radius:10px}
-        .btn-primary{background:linear-gradient(135deg,#ffbc3b,#FFA200);color:#ffffff;font-weight:bold;border:none;border-radius:10px;padding:12px 30px;transition:all 0.3s ease;box-shadow:0 4px 15px rgba(255,162,0,0.3)}
-        .btn-primary:hover{background:linear-gradient(135deg,#FFA200,#e69200);color:#ffffff;box-shadow:0 6px 20px rgba(255,162,0,0.4);transform:translateY(-2px)}
-        .product-info{background:#f8f9fa;border-radius:10px;padding:1rem;margin-bottom:1rem}
-        .bundle-item{border:3px dashed #ff2400;border-radius:10px;padding:1rem;margin-bottom:0.5rem;background-color: #fffbe2;transition: background-color 0.2s, border-color 0.2s}
-        .bundle-item.selected{border-color:#FFA200;background:#fffaf0}
-        .price-original{text-decoration:line-through;color:#666}
-        .price-discount{color:#d32f2f;font-weight:bold}
-        .summary-box{background:#f8f9fa;border:2px solid #FFA200;border-radius:10px;padding:1rem}
-        .loading{opacity:0.7;pointer-events:none}
-		/* Mengubah semua teks biru bawaan Bootstrap menjadi warna brand Edu Muslim */
-		.text-primary { color: #e69200 !important; }
+        :root {
+            --brand-color: #FFA200;
+            --brand-hover: #e69200;
+            --bg-body: #F7F7F9;
+            --bg-surface: #FFFFFF;
+            --text-main: #111827;
+            --text-muted: #6B7280;
+            --border-light: #E5E7EB;
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.05);
+        }
+
+        body {
+            background-color: var(--bg-body);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-main);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .checkout-container {
+            max-width: 540px;
+            margin: 3rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Modern Card Styling */
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid rgba(0,0,0,0.04);
+            border-radius: 24px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0,0,0,0.02);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid var(--border-light);
+            padding: 2rem 2rem 1.5rem;
+            text-align: center;
+        }
+
+        .card-header h4 {
+            font-weight: 800;
+            font-size: 1.25rem;
+            letter-spacing: -0.02em;
+            color: var(--text-main);
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        /* Product Highlight */
+        .product-info {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .product-info h5 {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .product-info h6 {
+            font-weight: 800;
+            font-size: 2rem;
+            color: var(--text-main);
+            letter-spacing: -0.03em;
+        }
+
+        /* Form Inputs - Clean & Sleek */
+        .form-label {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            background-color: #F9FAFB;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            padding: 0.875rem 1.25rem;
+            font-weight: 500;
+            transition: all 0.25s var(--ease-out);
+            box-shadow: none !important;
+        }
+
+        .form-control:focus {
+            background-color: var(--bg-surface);
+            border-color: var(--brand-color);
+            box-shadow: 0 0 0 4px rgba(255, 162, 0, 0.15) !important;
+        }
+
+        .form-control::placeholder {
+            color: #9CA3AF;
+            font-weight: 400;
+        }
+
+        /* Bundling Cards - The Emil Kowalski Approach */
+        .bundle-item {
+            background-color: #F9FAFB;
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s var(--ease-spring);
+            position: relative;
+        }
+
+        .bundle-item:hover {
+            border-color: #D1D5DB;
+        }
+
+        .bundle-item.selected {
+            background-color: #FFFDF8;
+            border-color: var(--brand-color);
+            box-shadow: 0 4px 12px rgba(255, 162, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .form-check-input {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-top: 0.2rem;
+            border-color: #D1D5DB;
+            transition: all 0.2s var(--ease-out);
+        }
+
+        .form-check-input:checked {
+            background-color: var(--brand-color);
+            border-color: var(--brand-color);
+        }
+
+        /* Order Summary */
+        .summary-box {
+            background: #F9FAFB;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .summary-item {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .summary-box hr {
+            border-color: var(--border-light);
+            margin: 1rem 0;
+        }
+
+        .total-row {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        /* Primary Button */
+        .btn-primary {
+            background: var(--text-main);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 1.125rem;
+            font-weight: 700;
+            font-size: 1.05rem;
+            letter-spacing: 0.02em;
+            transition: all 0.3s var(--ease-spring);
+            width: 100%;
+            margin-top: 2rem;
+        }
+
+        .btn-primary:hover {
+            background: #000000;
+            transform: scale(0.99);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.97);
+        }
+
+        /* Coupon Section */
+        #form-kupon-container .input-group {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        
+        #btn-terapkan-kupon {
+            background: var(--brand-color);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 0 1.25rem;
+            transition: background 0.2s;
+        }
+
+        #btn-terapkan-kupon:hover {
+            background: var(--brand-hover);
+        }
+
+        /* Utilities */
+        .text-brand { color: var(--brand-color); }
+        h6.section-title { font-weight: 700; font-size: 1rem; margin-bottom: 1.25rem; color: var(--text-main); }
     </style>
 </head>
 <body>
@@ -336,129 +534,106 @@ $page_title = 'Checkout - ' . $produk['nama'];
 <div class="checkout-container">
     <div class="card">
         <div class="card-header">
-            <h4 class="mb-0"><i class="fas fa-shopping-cart me-2"></i>Checkout</h4>
+            <h4><i class="fas fa-lock me-2" style="color: #10B981; font-size: 0.9rem;"></i> Checkout Aman</h4>
         </div>
-        <div class="card-body p-4">
+        <div class="card-body">
             
             <div class="product-info">
                 <h5><?= clean($produk['nama']) ?></h5>
-                <h6 class="text-primary"><?= formatCurrency($produk['harga']) ?></h6>
+                <h6><?= formatCurrency($produk['harga']) ?></h6>
             </div>
 
             <?php $msg = getMessage(); if ($msg): ?>
-                <div class="alert alert-<?= $msg[1] === 'error' ? 'danger' : $msg[1] ?> alert-dismissible fade show">
+                <div class="alert alert-<?= $msg[1] === 'error' ? 'danger' : $msg[1] ?> alert-dismissible fade show" style="border-radius: 12px;">
                     <?= clean($msg[0]) ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             <?php endif; ?>
 
             <form method="POST" id="checkoutForm">
-                <h6 class="mb-3">Informasi Pembeli</h6>
+                <h6 class="section-title">Informasi Pembeli</h6>
 
-				<div class="mb-3">
-					<label class="form-label">Nama Lengkap *</label>
-					<input type="text" name="nama" id="nama" class="form-control" 
-						   placeholder="Nama lengkap Anda" value="<?= clean(post('nama')) ?>" required>
-				</div>
+                <div class="mb-3">
+                    <label class="form-label">Nama Lengkap</label>
+                    <input type="text" name="nama" id="nama" class="form-control" 
+                           placeholder="Contoh: Budi Santoso" value="<?= clean(post('nama')) ?>" required>
+                </div>
 
-				<div class="mb-3">
-					<label class="form-label">Nomor WhatsApp *</label>
-					<input type="text" name="nomor_wa" id="nomor_wa" class="form-control" 
-						   placeholder="08123456789" value="<?= clean(post('nomor_wa')) ?>" required>
-				</div>
+                <div class="mb-3">
+                    <label class="form-label">Nomor WhatsApp</label>
+                    <input type="text" name="nomor_wa" id="nomor_wa" class="form-control" 
+                           placeholder="08123456789" value="<?= clean(post('nomor_wa')) ?>" required>
+                </div>
 
                 <?php if (isset($produk['show_email']) && $produk['show_email'] == 1): ?>
-                <div class="mb-3">
-                    <label class="form-label">Email *</label>
+                <div class="mb-4">
+                    <label class="form-label">Email</label>
                     <input type="email" name="email" id="email" class="form-control" 
-                           placeholder="alamat@email.com" value="<?= clean(post('email')) ?>" required>
+                           placeholder="budi@email.com" value="<?= clean(post('email')) ?>" required>
                 </div>
                 <?php endif; ?>
 
-				<?php if (!empty($bundling)): ?>
-				<h6 class="mb-3 mt-4">Produk Tambahan (Bundling)</h6>
-				<div id="bundlingContainer">
-					<?php foreach ($bundling as $bundle): 
-						$harga_diskon = $bundle['harga'] - $bundle['diskon'];
-					?>
-					<div class="bundle-item" data-bundle-id="<?= $bundle['id'] ?>">
-						<div class="form-check">
-							<input class="form-check-input bundle-checkbox" type="checkbox" 
-								   name="bundling_ids[]" value="<?= $bundle['id'] ?>" 
-								   id="bundle_<?= $bundle['id'] ?>"
-								   data-price="<?= $harga_diskon ?>">
-							<label class="form-check-label w-100" for="bundle_<?= $bundle['id'] ?>">
-								<div class="d-flex justify-content-between align-items-start">
-									<div style="max-width: 70%;">
-										<strong><?= clean($bundle['nama']) ?></strong>
-
-										<div class="bundle-description-container small text-muted">
-											<?php 
-											$desc = clean($bundle['deskripsi_bundling']);
-											if (strlen($desc) > 80): ?>
-												<span class="desc-short"><?= substr($desc, 0, 80) ?>...</span>
-												<span class="desc-full d-none"><?= nl2br($desc) ?></span>
-												<a href="javascript:void(0)" class="btn-toggle-desc" style="text-decoration:none; font-size:11px;">Selengkapnya</a>
-											<?php else: ?>
-												<?= nl2br($desc) ?>
-											<?php endif; ?>
-										</div>
-									</div>
-									<div class="text-end">
-										<span class="price-original" style="font-size: 0.8rem;"><?= formatCurrency($bundle['harga']) ?></span><br>
-										<span class="price-discount"><?= formatCurrency($harga_diskon) ?></span>
-									</div>
-								</div>
-							</label>
-						</div>
-					</div>
-					<?php endforeach; ?>
-				</div>
-				<?php endif; ?>
-
-                <h6 class="mb-3 mt-4">Ringkasan Pesanan</h6>
-                <div class="summary-box" id="orderSummary">
-                    <div class="summary-item d-flex justify-content-between mb-2">
-                        <span><?= clean($produk['nama']) ?></span>
-                        <span><?= formatCurrency($produk['harga']) ?></span>
-                    </div>
-                    
+                <?php if (!empty($bundling)): ?>
+                <h6 class="section-title mt-4">Penawaran Spesial</h6>
+                <div id="bundlingContainer">
                     <?php foreach ($bundling as $bundle): 
                         $harga_diskon = $bundle['harga'] - $bundle['diskon'];
-                        $is_checked = false;
-                        if ($is_checked): ?>
-                    <div class="summary-bundle-item d-flex justify-content-between mb-2" 
-                         data-bundle-id="<?= $bundle['id'] ?>" data-price="<?= $harga_diskon ?>">
-                        <span><?= clean($bundle['nama']) ?></span>
-                        <span><?= formatCurrency($harga_diskon) ?></span>
-                    </div>
-                    <?php endif; endforeach; ?>
-                    
-                    <hr>
-                    <div class="d-flex justify-content-between fw-bold">
-                        <span>Total</span>
-                        <span id="totalAmount"><?= formatCurrency($produk['harga']) ?></span>
-                    </div>
+                    ?>
+                    <label class="bundle-item d-block" data-bundle-id="<?= $bundle['id'] ?>">
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="form-check m-0">
+                                <input class="form-check-input bundle-checkbox" type="checkbox" 
+                                       name="bundling_ids[]" value="<?= $bundle['id'] ?>" 
+                                       id="bundle_<?= $bundle['id'] ?>"
+                                       data-price="<?= $harga_diskon ?>">
+                            </div>
+                            <div class="w-100">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <strong style="font-size: 0.95rem;"><?= clean($bundle['nama']) ?></strong>
+                                    <div class="text-end ms-2">
+                                        <div class="price-discount text-brand fw-bold" style="font-size: 0.95rem;"><?= formatCurrency($harga_diskon) ?></div>
+                                        <div class="price-original text-decoration-line-through text-muted" style="font-size: 0.75rem;"><?= formatCurrency($bundle['harga']) ?></div>
+                                    </div>
+                                </div>
+                                <div class="bundle-description-container mt-1 text-muted" style="font-size: 0.85rem; line-height: 1.4;">
+                                    <?php 
+                                    $desc = clean($bundle['deskripsi_bundling']);
+                                    if (strlen($desc) > 80): ?>
+                                        <span class="desc-short"><?= substr($desc, 0, 80) ?>...</span>
+                                        <span class="desc-full d-none"><?= nl2br($desc) ?></span>
+                                        <a href="javascript:void(0)" class="btn-toggle-desc text-brand fw-bold ms-1" style="text-decoration:none;">Selengkapnya</a>
+                                    <?php else: ?>
+                                        <?= nl2br($desc) ?>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                    <?php endforeach; ?>
                 </div>
+                <?php endif; ?>
 
                 <?php if ($produk['show_kupon'] == 1): ?>
-                <div class="mt-4 mb-3">
-                    <label class="form-label fw-bold"><i class="fas fa-tag"></i> Kode Kupon (Opsional)</label>
+                <h6 class="section-title mt-4">Kode Kupon</h6>
+                <div class="mb-3">
                     <div id="form-kupon-container">
                         <div class="input-group">
-                            <input type="text" id="kode_promo" class="form-control text-uppercase" placeholder="Masukkan kode promo..." value="<?= $kupon_dari_url ?>">
-                            <button type="button" class="btn btn-secondary" id="btn-terapkan-kupon">Terapkan</button>
+                            <input type="text" id="kode_promo" class="form-control text-uppercase" placeholder="Masukkan kode promo..." value="<?= $kupon_dari_url ?>" style="border-radius: 12px 0 0 12px;">
+                            <button type="button" class="btn" id="btn-terapkan-kupon" style="border-radius: 0 12px 12px 0;">Gunakan</button>
                         </div>
-                        <div id="pesan_kupon" class="mt-2" style="font-size: 0.9rem;"></div>
+                        <div id="pesan_kupon" class="mt-2" style="font-size: 0.85rem; font-weight: 500;"></div>
                     </div>
                 </div>
 
                 <input type="hidden" name="kupon_id" id="input_kupon_id" value="">
                 <input type="hidden" name="total_diskon" id="input_total_diskon" value="0">
                 <?php endif; ?>
+
+                <div class="summary-box" id="orderSummary">
+                    </div>
                 
-                <button type="submit" class="btn btn-primary w-100 mt-3" id="checkoutBtn">
-                    <i class="fas fa-credit-card me-2"></i>Proses Checkout
+                <button type="submit" class="btn btn-primary" id="checkoutBtn">
+                    Selesaikan Pembayaran <i class="fas fa-arrow-right ms-2"></i>
                 </button>
             </form>
         </div>
@@ -744,7 +919,7 @@ function setupKupon() {
         // Tunggu setengah detik agar halaman selesai merender, lalu klik tombol terapkan otomatis
         setTimeout(function() {
             if(btnKupon) btnKupon.click();
-        }, 500);
+        }, 200);
     <?php endif; ?>
 }
 

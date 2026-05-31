@@ -273,110 +273,282 @@ $bank_logos = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $page_title ?></title>
-	  <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <!-- Preload critical resources -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
     <link rel="preload" href="https://connect.facebook.net/en_US/fbevents.js" as="script">
-    <!-- Minified CSS -->
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        /* Inline critical CSS for faster render */
-        body{background:#f8f9fa;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;min-height:100vh}
-        .invoice-container{max-width:500px;margin:2rem auto;padding:0 1rem}
-        .card{border:none;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.08);background:white;margin-bottom:1rem}
-        .card-header{border-radius:8px 8px 0 0!important;padding:1.5rem;border-bottom:1px solid #e9ecef}
-        .status-pending{background:#fff3cd;color:#856404;border-left:4px solid #ffc107}
-        .status-selesai{background:#d1edff;color:#0c5460;border-left:4px solid #0dcaf0}
-        .status-batal{background:#f8d7da;color:#721c24;border-left:4px solid #dc3545}
-        .bank-item{border:1px solid #e9ecef;border-radius:8px;padding:1rem;margin-bottom:0.5rem;background:#f8f9fa}
-        .bank-logo{width:50px;height:30px;object-fit:contain;background:white;padding:5px;border-radius:4px;border:1px solid #e9ecef}
-        .countdown-timer{background:#fff3cd;color:#856404;border-radius:8px;padding:1rem;text-align:center;margin-bottom:1rem;border:1px solid #ffeaa7}
-        .btn-wa{background:#25d366;border:none;color:white;border-radius:8px;padding:12px 24px}
-        .btn-wa:hover{background:#20b958;color:white}
-        .btn-copy{background:#6c757d;border:1px solid #6c757d;color:white;border-radius:6px;padding:6px 12px;font-size:0.875rem}
-        .btn-copy:hover{background:#5a6268;border-color:#5a6268;color:white}
-        .text-success-custom{color:#0c5460!important}
-        .border-success-custom{border-color:#0dcaf0!important}
-        .alert-success-custom{background-color:#d1edff;border-color:#0dcaf0;color:#0c5460}
-        .qris-item{border:2px solid #e91e63;background:linear-gradient(135deg,#fce4ec 0%,#f8f9fa 100%)}
-        .btn-qr{background:#e91e63;border:1px solid #e91e63;color:white;border-radius:6px;padding:6px 12px;font-size:0.875rem}
-        .btn-qr:hover{background:#c2185b;border-color:#c2185b;color:white}
-        .btn-download-qr{background-color:#007bff;border:1px solid #007bff;color:white;border-radius:6px}
-        .btn-download-qr:hover{background-color:#0056b3;border-color:#0056b3;color:white}
+        :root {
+            --brand-color: #FFA200;
+            --brand-hover: #e69200;
+            --bg-body: #F7F7F9;
+            --bg-surface: #FFFFFF;
+            --text-main: #111827;
+            --text-muted: #6B7280;
+            --border-light: #E5E7EB;
+            
+            /* Status Colors */
+            --status-pending-bg: #FEF3C7;
+            --status-pending-text: #D97706;
+            --status-success-bg: #ECFDF5;
+            --status-success-text: #059669;
+            --status-danger-bg: #FEF2F2;
+            --status-danger-text: #DC2626;
+            --status-process-bg: #EFF6FF;
+            --status-process-text: #2563EB;
+
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.05);
+        }
+
+        body {
+            background-color: var(--bg-body);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-main);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .invoice-container {
+            max-width: 540px;
+            margin: 3rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Modern Cards */
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid rgba(0,0,0,0.04);
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.03), 0 2px 8px rgba(0,0,0,0.02);
+            margin-bottom: 1.25rem;
+            overflow: hidden;
+        }
+
+        .card-body {
+            padding: 1.75rem;
+        }
+
+        /* Typography Hierarchy */
+        .section-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-main);
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title i {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Header / Status Banner */
+        .invoice-header {
+            padding: 2rem 1.75rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .invoice-title {
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-weight: 700;
+            font-size: 0.875rem;
+            letter-spacing: 0.01em;
+        }
+
+        .status-pending { background: var(--status-pending-bg); color: var(--status-pending-text); }
+        .status-selesai { background: var(--status-success-bg); color: var(--status-success-text); }
+        .status-batal { background: var(--status-danger-bg); color: var(--status-danger-text); }
+        .status-diproses { background: var(--status-process-bg); color: var(--status-process-text); }
+
+        /* Countdown Widget */
+        .countdown-timer {
+            background: var(--status-pending-bg);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 16px;
+            padding: 1.25rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .countdown-timer h6 { color: var(--status-pending-text); font-weight: 700; font-size: 0.9rem;}
+        #countdown { font-size: 1.75rem; font-weight: 800; color: var(--status-pending-text); letter-spacing: 1px; margin: 0.25rem 0;}
+
+        /* Bank Items (Fintech Style) */
+        .bank-item {
+            background: #F9FAFB;
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s var(--ease-out);
+        }
+
+        .bank-item:hover {
+            border-color: #D1D5DB;
+            background: var(--bg-surface);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .qris-item {
+            background: linear-gradient(145deg, #FFF0F2 0%, #FFFFFF 100%);
+            border-color: #FECDD3;
+        }
+
+        .bank-logo {
+            width: 56px;
+            height: 36px;
+            object-fit: contain;
+            background: white;
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+            flex-shrink: 0;
+        }
+
+        .bank-details {
+            flex-grow: 1;
+            padding: 0 1rem;
+        }
+        
+        .bank-name { font-weight: 700; font-size: 0.95rem; color: var(--text-main); }
+        .bank-owner { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.25rem; }
+        .bank-number { font-weight: 700; font-size: 1.05rem; color: var(--text-main); letter-spacing: 0.02em; }
+        
+        /* Buttons */
+        .btn-action {
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s var(--ease-spring);
+        }
+
+        .btn-copy { background: #E5E7EB; color: #374151; border: none; }
+        .btn-copy:hover { background: #D1D5DB; transform: translateY(-1px); }
+        .btn-copy:active { transform: translateY(1px); }
+
+        .btn-qr { background: #E11D48; color: white; border: none; }
+        .btn-qr:hover { background: #BE123C; color: white; transform: translateY(-1px); }
+
+        .btn-wa {
+            background: #10B981;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 1.125rem;
+            font-weight: 700;
+            font-size: 1.05rem;
+            width: 100%;
+            transition: all 0.3s var(--ease-spring);
+        }
+        .btn-wa:hover { background: #059669; transform: scale(0.99); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.2); color:white;}
+        
+        /* Modal QRIS Tuning */
+        .modal-content { border-radius: 24px; border: none; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .modal-header { padding: 1.5rem 1.5rem 1rem; border: none; }
+        .modal-header.qris-header { background: #FFFFFF; color: var(--text-main); border-bottom: 1px solid var(--border-light); }
+        .modal-title { font-weight: 800; }
+        
+        /* Utility */
+        .order-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 0.75rem 0; border-bottom: 1px dashed var(--border-light); }
+        .order-row:last-child { border-bottom: none; }
+        .total-row { font-size: 1.25rem; font-weight: 800; color: var(--brand-color); }
+        
+        /* Smooth Alerts */
+        .alert-custom { border-radius: 12px; font-weight: 500; font-size: 0.9rem; padding: 1rem; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
 
 <div class="invoice-container">
+    
     <div class="card">
-        <div class="card-header status-<?= $transaksi['status'] ?>">
-            <div class="row align-items-center">
-                <div class="col">
-                    <h4 class="mb-0"><i class="fas fa-file-invoice me-2"></i>Invoice #<?= $invoice_display ?></h4>
-                    <p class="mb-0 opacity-75">
-                        <?php
-                        $status_text = [
-                            'pending' => 'Menunggu Pembayaran',
-                            'diproses' => 'Sedang Diproses', 
-                            'selesai' => 'Pembayaran Selesai',
-                            'batal' => 'Dibatalkan'
-                        ];
-                        echo $status_text[$transaksi['status']] ?? $transaksi['status'];
-                        ?>
-                    </p>
-                </div>
-                <div class="col-auto">
-                    <span class="badge bg-light text-dark border">
-                        <?= formatDate($transaksi['tanggal_transaksi']) ?>
-                    </span>
-                </div>
+        <div class="invoice-header">
+            <div class="text-muted small fw-bold mb-2"><?= formatDate($transaksi['tanggal_transaksi']) ?></div>
+            <h1 class="invoice-title">#<?= $invoice_display ?></h1>
+            <div class="mt-3">
+                <?php
+                $status_class = 'status-pending';
+                $status_text = 'Menunggu Pembayaran';
+                
+                if ($transaksi['status'] === 'diproses') { $status_class = 'status-diproses'; $status_text = 'Sedang Diproses'; }
+                elseif ($transaksi['status'] === 'selesai') { $status_class = 'status-selesai'; $status_text = 'Pembayaran Selesai'; }
+                elseif ($transaksi['status'] === 'batal') { $status_class = 'status-batal'; $status_text = 'Dibatalkan'; }
+                ?>
+                <span class="status-badge <?= $status_class ?>">
+                    <i class="fas fa-circle me-2" style="font-size: 0.5rem;"></i> <?= $status_text ?>
+                </span>
             </div>
         </div>
     </div>
 
     <?php if ($transaksi['status'] === 'pending'): ?>
     <div class="countdown-timer">
-        <h6 class="mb-2"><i class="fas fa-clock me-2"></i>Batas Waktu Pembayaran</h6>
-        <div id="countdown" class="fs-5 fw-bold">23:59:45</div>
-        <small>Selesaikan pembayaran sebelum waktu habis</small>
+        <h6><i class="fas fa-hourglass-half me-1"></i> Selesaikan Pembayaran Dalam</h6>
+        <div id="countdown">--:--:--</div>
+        <div class="small opacity-75 fw-medium">Jangan sampai kehabisan waktu</div>
     </div>
     <?php endif; ?>
 
     <div class="card">
         <div class="card-body">
-            <h6 class="mb-3">Informasi Pembeli</h6>
-            <p><strong>Nama:</strong> <?= clean($transaksi['nama_customer']) ?></p>
-            <p><strong>WhatsApp:</strong> <?= clean($transaksi['nomor_wa']) ?></p>
-
+            <h6 class="section-title"><i class="fas fa-user-circle"></i> Info Pelanggan</h6>
+            <div class="mb-2"><span class="text-muted small d-block">Nama Lengkap</span> <span class="fw-bold"><?= clean($transaksi['nama_customer']) ?></span></div>
+            <div class="mb-2"><span class="text-muted small d-block">WhatsApp</span> <span class="fw-bold"><?= clean($transaksi['nomor_wa']) ?></span></div>
             <?php if (!empty($transaksi['email'])): ?>
-            <p class="mb-1"><strong>Email:</strong> <?= clean($transaksi['email']) ?></p>
+            <div><span class="text-muted small d-block">Email</span> <span class="fw-bold"><?= clean($transaksi['email']) ?></span></div>
             <?php endif; ?>
         </div>
     </div>
 
     <div class="card">
         <div class="card-body">
-            <h6 class="mb-3">Detail Pesanan</h6>
-            <?php foreach ($detail_produk as $produk): ?>
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <div>
-                    <strong><?= clean($produk['nama']) ?></strong>
-                    <?php if ($transaksi['status'] === 'selesai' && !empty($produk['link_akses'])): ?>
-                    <br><small class="text-success-custom">
-                        <i class="fas fa-link me-1"></i>
-                        <a href="<?= clean($produk['link_akses']) ?>" target="_blank" class="text-success-custom">
-                            Link Akses Produk
-                        </a>
-                    </small>
-                    <?php endif; ?>
-                </div>
-                <span class="fw-bold"><?= formatCurrency($produk['harga']) ?></span>
-            </div>
-            <?php endforeach; ?>
+            <h6 class="section-title"><i class="fas fa-shopping-bag"></i> Detail Pesanan</h6>
             
-            <hr>
-            <div class="d-flex justify-content-between align-items-center">
-                <h6 class="mb-0">Total Pembayaran</h6>
-                <h5 class="mb-0 text-primary"><?= formatCurrency($transaksi['total_harga']) ?></h5>
+            <div class="mb-3">
+                <?php foreach ($detail_produk as $produk): ?>
+                <div class="order-row">
+                    <div class="pe-3">
+                        <div class="fw-bold" style="font-size: 0.95rem;"><?= clean($produk['nama']) ?></div>
+                        <?php if ($transaksi['status'] === 'selesai' && !empty($produk['link_akses'])): ?>
+                        <div class="mt-1">
+                            <a href="<?= clean($produk['link_akses']) ?>" target="_blank" class="btn btn-sm btn-outline-success rounded-pill" style="font-size: 0.75rem; padding: 0.2rem 0.75rem;">
+                                <i class="fas fa-external-link-alt me-1"></i> Akses Produk
+                            </a>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="fw-bold text-end"><?= formatCurrency($produk['harga']) ?></div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-end pt-2" style="border-top: 2px solid var(--border-light);">
+                <span class="fw-bold text-muted">Total Bayar</span>
+                <span class="total-row"><?= formatCurrency($transaksi['total_harga']) ?></span>
             </div>
         </div>
     </div>
@@ -384,58 +556,52 @@ $bank_logos = [
     <?php if ($transaksi['status'] === 'pending' && !empty($rekening)): ?>
     <div class="card">
         <div class="card-body">
-            <h6 class="mb-3">Metode Pembayaran</h6>
-            <p class="text-muted small mb-3">Silakan transfer ke salah satu rekening berikut:</p>
+            <h6 class="section-title"><i class="fas fa-wallet"></i> Metode Pembayaran</h6>
+            <p class="text-muted small mb-4">Transfer tepat hingga 3 digit terakhir agar sistem dapat mengecek otomatis.</p>
             
             <?php foreach ($rekening as $bank): ?>
             <div class="bank-item <?= strtoupper($bank['nama_bank']) === 'QRIS' ? 'qris-item' : '' ?>">
-                <div class="d-flex align-items-center">
-                    <?php if (isset($bank_logos[strtoupper($bank['nama_bank'])])): ?>
-                    <img src="<?= $bank_logos[strtoupper($bank['nama_bank'])] ?>" alt="<?= $bank['nama_bank'] ?>" class="bank-logo me-3" loading="lazy">
-                    <?php else: ?>
-                    <div class="bank-logo me-3 d-flex align-items-center justify-content-center bg-primary text-white">
+                <?php if (isset($bank_logos[strtoupper($bank['nama_bank'])])): ?>
+                    <img src="<?= $bank_logos[strtoupper($bank['nama_bank'])] ?>" alt="<?= $bank['nama_bank'] ?>" class="bank-logo" loading="lazy">
+                <?php else: ?>
+                    <div class="bank-logo d-flex align-items-center justify-content-center bg-dark text-white fw-bold">
                         <?= strtoupper(substr($bank['nama_bank'], 0, 3)) ?>
                     </div>
-                    <?php endif; ?>
-                    
-                    <div class="flex-grow-1">
-                        <div class="fw-bold"><?= clean($bank['nama_bank']) ?></div>
-                        <div class="text-muted"><?= clean($bank['nama_pemilik']) ?></div>
-                        <?php if (strtoupper($bank['nama_bank']) !== 'QRIS'): ?>
-                        <div class="fw-bold text-primary"><?= clean($bank['nomor_rekening']) ?></div>
-                        <?php else: ?>
-                        <div class="fw-bold text-danger">Scan QR Code untuk bayar</div>
-                        <?php endif; ?>
-                    </div>
+                <?php endif; ?>
+                
+                <div class="bank-details">
+                    <div class="bank-name"><?= clean($bank['nama_bank']) ?></div>
+                    <div class="bank-owner">a.n <?= clean($bank['nama_pemilik']) ?></div>
                     
                     <?php if (strtoupper($bank['nama_bank']) !== 'QRIS'): ?>
-                    <button class="btn btn-copy btn-sm" onclick="copyToClipboard('<?= $bank['nomor_rekening'] ?>')">
-                        <i class="fas fa-copy"></i> Copy
-                    </button>
+                        <div class="bank-number"><?= clean($bank['nomor_rekening']) ?></div>
                     <?php else: ?>
-                        <?php 
-                        // Ambil string QRIS dari DB (sekarang tersimpan di qr_image)
-                        $qris_payload = $bank['qr_image']; 
-                        
-                        // Buat QRIS Dinamis
-                        $qris_dinamis = generateDynamicQRIS($qris_payload, $transaksi['total_harga']);
-                        
-                        // Generate URL Gambar via API (menggunakan QuickChart karena stabil dan cepat)
-                        $qr_url = "https://quickchart.io/qr?size=400&margin=2&text=" . urlencode($qris_dinamis);
-                        ?>
-                    <button class="btn btn-qr btn-sm" onclick="showQRISImage('<?= $qr_url ?>', '<?= clean($bank['nama_pemilik']) ?>', '<?= formatCurrency($transaksi['total_harga']) ?>')">
-                        <i class="fas fa-qrcode"></i> Lihat QR
-                    </button>
+                        <div class="text-danger fw-bold" style="font-size: 0.85rem;"><i class="fas fa-qrcode me-1"></i>Scan untuk bayar</div>
                     <?php endif; ?>
                 </div>
+                
+                <?php if (strtoupper($bank['nama_bank']) !== 'QRIS'): ?>
+                    <button class="btn-action btn-copy" onclick="copyToClipboard('<?= $bank['nomor_rekening'] ?>')">
+                        Salin
+                    </button>
+                <?php else: ?>
+                    <?php 
+                    $qris_payload = $bank['qr_image']; 
+                    $qris_dinamis = generateDynamicQRIS($qris_payload, $transaksi['total_harga']);
+                    $qr_url = "https://quickchart.io/qr?size=400&margin=2&text=" . urlencode($qris_dinamis);
+                    ?>
+                    <button class="btn-action btn-qr" onclick="showQRISImage('<?= $qr_url ?>', '<?= clean($bank['nama_pemilik']) ?>', '<?= formatCurrency($transaksi['total_harga']) ?>')">
+                        QRIS
+                    </button>
+                <?php endif; ?>
             </div>
             <?php endforeach; ?>
             
-            <div class="text-center mt-4">
-                <form method="POST" style="display: inline;">
+            <div class="mt-4 pt-2">
+                <form method="POST">
                     <input type="hidden" name="action" value="confirm_payment">
-                    <button type="submit" class="btn btn-wa btn-lg">
-                        <i class="fab fa-whatsapp me-2"></i>Konfirmasi Pembayaran
+                    <button type="submit" class="btn-wa">
+                        Konfirmasi ke WhatsApp <i class="fab fa-whatsapp ms-1"></i>
                     </button>
                 </form>
             </div>
@@ -444,17 +610,47 @@ $bank_logos = [
     <?php endif; ?>
 
     <?php if ($transaksi['status'] === 'selesai'): ?>
-    <div class="card border-success-custom">
-        <div class="card-body text-center">
-            <i class="fas fa-check-circle text-success-custom" style="font-size: 3rem;"></i>
-            <h5 class="text-success-custom mt-3">Pembayaran Berhasil!</h5>
-            <p class="text-muted">Terima kasih atas pembelian Anda. Akses produk sudah tersedia di atas.</p>
+    <div class="card" style="border-color: var(--status-success-text); border-width: 2px;">
+        <div class="card-body text-center py-5">
+            <div style="width: 80px; height: 80px; background: var(--status-success-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                <i class="fas fa-check text-success" style="font-size: 2.5rem; color: var(--status-success-text) !important;"></i>
+            </div>
+            <h4 class="fw-bold" style="color: var(--status-success-text);">Pembayaran Berhasil</h4>
+            <p class="text-muted mt-2 mb-0">Terima kasih! Pembayaran tagihan Anda telah kami terima. Silakan cek detail pesanan di atas untuk mengakses produk.</p>
         </div>
     </div>
     <?php endif; ?>
 </div>
 
-<!-- Meta Pixel AddPaymentInfo Event -->
+<div class="modal fade" id="qrisModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header qris-header pb-0">
+                <h6 class="modal-title m-0"><i class="fas fa-qrcode me-2 text-danger"></i> Bayar Pakai QRIS</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center pt-4">
+                <div class="bg-light p-3 rounded-4 d-inline-block mb-4" style="border: 2px dashed #E5E7EB;">
+                    <img id="qris-image" src="" alt="QRIS Code" class="img-fluid rounded-3" style="width: 220px; height: 220px;" loading="lazy">
+                </div>
+                
+                <p class="text-muted small mb-1">Merchant</p>
+                <h6 class="fw-bold mb-3" id="qris-merchant-name"></h6>
+                
+                <p class="text-muted small mb-1">Nominal Transfer</p>
+                <h4 class="fw-bold text-danger mb-4" id="qris-amount"></h4>
+
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-dark" id="downloadQRButton" style="border-radius: 12px; padding: 0.75rem; font-weight: 600;">
+                        <i class="fas fa-download me-2"></i>Simpan Gambar QR
+                    </button>
+                    <button type="button" class="btn btn-light text-muted" data-bs-dismiss="modal" style="border-radius: 12px; font-weight: 600;">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?php if (!empty($main_product['meta_pixel_id'])): ?>
 <script>
 !function(f,b,e,v,n,t,s)
@@ -474,30 +670,92 @@ fbq('track', 'AddPaymentInfo', {
     value: <?= $transaksi['total_harga'] ?>,
     currency: 'IDR'
 }, {
-    eventID: 'addpaymentinfo_<?= (int)$transaksi_id ?>' // ✅ tambahkan!
+    eventID: 'addpaymentinfo_<?= (int)$transaksi_id ?>' 
 });
 </script>
 <?php endif; ?>
 
-<!-- Minified JS with defer -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
 <script>
-// Inline critical JS
-function copyToClipboard(t){navigator.clipboard.writeText(t).then(function(){const e=document.createElement("div");e.className="position-fixed top-0 end-0 m-3 alert alert-success-custom alert-dismissible fade show",e.innerHTML='Nomor rekening berhasil disalin! <button type="button" class="btn-close" data-bs-dismiss="alert"></button>',document.body.appendChild(e),setTimeout(()=>{e.parentNode&&new bootstrap.Alert(e).close()},3e3)}).catch(function(){alert("Gagal menyalin: "+t)})}
+// Fungsi Salin Rekening yang lebih elegan
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        const toast = document.createElement("div");
+        toast.className = "position-fixed bottom-0 start-50 translate-middle-x mb-4 alert-custom bg-dark text-white text-center";
+        toast.style.zIndex = "9999";
+        toast.style.minWidth = "250px";
+        toast.innerHTML = '<i class="fas fa-check-circle text-success me-2"></i> Nomor rekening disalin!';
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transition = 'opacity 0.3s ease';
+            setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+        }, 2500);
+    }).catch(function() {
+        alert("Gagal menyalin: " + text);
+    });
+}
+
 <?php if ($transaksi['status'] === 'pending'): ?>
-function startCountdown(){const t=new Date("<?= $transaksi['tanggal_transaksi'] ?>").getTime(),e=t+864e5,n=document.getElementById("countdown");function o(){const t=(new Date).getTime(),o=e-t;if(o<0)return void(n.innerHTML="EXPIRED");const r=Math.floor(o%(864e5)/36e5),i=Math.floor(o%(36e5)/6e4),c=Math.floor(o%(6e4)/1e3);n.innerHTML=String(r).padStart(2,"0")+":"+String(i).padStart(2,"0")+":"+String(c).padStart(2,"0")}o(),setInterval(o,1e3)}startCountdown();
+// Countdown Timer logic
+function startCountdown(){
+    const targetDate = new Date("<?= $transaksi['tanggal_transaksi'] ?>").getTime();
+    const endDate = targetDate + 864e5; // +24 hours
+    const displayEl = document.getElementById("countdown");
+    
+    function update() {
+        const now = new Date().getTime();
+        const diff = endDate - now;
+        
+        if (diff < 0) {
+            displayEl.innerHTML = "EXPIRED";
+            return;
+        }
+        
+        const h = Math.floor(diff % (864e5) / 36e5);
+        const m = Math.floor(diff % (36e5) / 6e4);
+        const s = Math.floor(diff % (6e4) / 1e3);
+        
+        displayEl.innerHTML = String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+    }
+    update();
+    setInterval(update, 1000);
+}
+startCountdown();
 <?php endif; ?>
 
-function showQRISImage(t,e,n){if(!t||""===t.trim()||"null"===t)return void alert("Data QRIS belum lengkap. Silakan hubungi admin.");document.getElementById("qris-image").src=t,document.getElementById("qris-merchant-name").textContent=e,document.getElementById("qris-amount").textContent=n,document.getElementById("qris-amount-reminder").textContent=n;const o=new bootstrap.Modal(document.getElementById("qrisModal"));o.show(),document.getElementById("qris-image").onerror=function(){alert("Gagal memuat gambar QRIS dari server."),o.hide()},document.getElementById("downloadQRButton").onclick=function(){downloadQRImage(t)}}
+// Modal QRIS Controller
+function showQRISImage(url, merchantName, amount) {
+    if (!url || url.trim() === "" || url === "null") {
+        alert("Data QRIS belum lengkap. Silakan hubungi admin.");
+        return;
+    }
+    document.getElementById("qris-image").src = url;
+    document.getElementById("qris-merchant-name").textContent = merchantName;
+    document.getElementById("qris-amount").textContent = amount;
+    
+    const modal = new bootstrap.Modal(document.getElementById("qrisModal"));
+    modal.show();
+    
+    document.getElementById("qris-image").onerror = function() {
+        alert("Gagal memuat gambar QRIS dari server.");
+        modal.hide();
+    };
+    
+    document.getElementById("downloadQRButton").onclick = function() {
+        downloadQRImage(url);
+    };
+}
+
+// Download QRIS File
 function downloadQRImage(url) {
     const btn = document.getElementById("downloadQRButton");
     const originalText = btn.innerHTML;
     
-    // Ubah status tombol jadi loading agar user tahu sedang diproses
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Mendownload...';
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyiapkan...';
     btn.disabled = true;
 
-    // Ambil gambar dari API eksternal dan jadikan file lokal (blob)
     fetch(url)
         .then(response => response.blob())
         .then(blob => {
@@ -505,74 +763,23 @@ function downloadQRImage(url) {
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = blobUrl;
-            // Nama file saat didownload
             a.download = "QRIS_Invoice_<?= $transaksi_id ?>.png"; 
             document.body.appendChild(a);
             a.click();
             
-            // Bersihkan sisa proses
             window.URL.revokeObjectURL(blobUrl);
             a.remove();
             
-            // Kembalikan tombol seperti semula
             btn.innerHTML = originalText;
             btn.disabled = false;
         })
         .catch(err => {
             console.error('Error downloading QR:', err);
-            alert('Gagal mendownload gambar QRIS. Coba lagi atau screenshot layar ini.');
+            alert('Gagal mendownload gambar QR. Silakan screenshot layar ini.');
             btn.innerHTML = originalText;
             btn.disabled = false;
         });
 }
 </script>
-
-<!-- QRIS Modal -->
-<div class="modal fade" id="qrisModal" tabindex="-1" aria-labelledby="qrisModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header" style="background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%); color: white;">
-                <h5 class="modal-title" id="qrisModalLabel">
-                    <i class="fas fa-qrcode me-2"></i>Pembayaran QRIS
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="text-center">
-                    <img id="qris-image" src="" alt="QRIS QR Code" class="img-fluid mb-3" style="max-width: 300px; border: 2px solid #e91e63; border-radius: 8px;" loading="lazy">
-                    <h6 class="fw-bold mb-2" id="qris-merchant-name"></h6>
-                    <h5 class="text-primary fw-bold mb-3" id="qris-amount"></h5>
-                    <div class="alert alert-info">
-                        <small>
-                            <i class="fas fa-info-circle me-1"></i>
-                            Scan QR Code dengan aplikasi pembayaran (DANA, OVO, GoPay, dll)
-                        </small>
-                    </div>
-                    <div class="alert alert-warning">
-                        <small>
-                            <i class="fas fa-clock me-1"></i>
-                            Pastikan nominal: <strong id="qris-amount-reminder"></strong>
-                        </small>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer justify-content-center">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-1"></i>Tutup
-                </button>
-                <button type="button" class="btn btn-download-qr" id="downloadQRButton">
-                    <i class="fas fa-download me-2"></i>Download QR
-                </button>
-                <form method="POST" style="display: inline;">
-                    <input type="hidden" name="action" value="confirm_payment">
-                    <button type="submit" class="btn btn-success">
-                        <i class="fab fa-whatsapp me-1"></i>Konfirmasi Sudah Bayar
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
 </body>
 </html>
