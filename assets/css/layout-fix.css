@@ -1,36 +1,27 @@
-/* 
-Layout Override CSS - Fix layout issues with highest priority
-Add this AFTER style.css in header.php for proper cascade
+/* Layout Override CSS
+(Cleaned up to support Editorial UI Hover States)
 */
 
 /* Force correct layout - Desktop */
 @media screen and (min-width: 992px) {
     .main-content {
-        margin-left: 280px !important;
-        transition: margin-left 0.3s ease !important;
+        /* Margin kiri ditarik merapat mengikuti lebar sidebar baru */
+        margin-left: 230px !important; 
     }
-    
     .sidebar {
         position: fixed !important;
         left: 0 !important;
         top: 0 !important;
-        width: 280px !important;
+        width: 230px !important; /* Sidebar jadi lebih ramping */
         height: 100vh !important;
         z-index: 1000 !important;
     }
-    
-    .mobile-menu-btn {
-        display: none !important;
-    }
+    .mobile-menu-btn { display: none !important; }
 }
 
 /* Force correct layout - Mobile */
 @media screen and (max-width: 991px) {
-    .main-content {
-        margin-left: 0 !important;
-        padding-top: 60px !important;
-    }
-    
+    .main-content { margin-left: 0 !important; padding-top: 70px !important; }
     .sidebar {
         position: fixed !important;
         left: -100% !important;
@@ -38,129 +29,29 @@ Add this AFTER style.css in header.php for proper cascade
         width: 280px !important;
         height: 100vh !important;
         z-index: 1001 !important;
-        transition: left 0.3s ease !important;
+        transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
-    
-    .sidebar.open {
-        left: 0 !important;
-    }
-    
-    .mobile-menu-btn {
-        display: block !important;
-    }
+    .sidebar.open { left: 0 !important; }
+    .mobile-menu-btn { display: block !important; }
 }
 
-/* Fix color issues - Override dark mode */
-body {
-    background-color: #f8f9fa !important;
-    color: #212529 !important;
-}
-
-.main-content {
-    background-color: #f8f9fa !important;
-    color: #212529 !important;
-}
-
-.card {
-    background-color: #ffffff !important;
-    color: #212529 !important;
-}
-
-.card-header {
-    background-color: #ffffff !important;
-    color: #212529 !important;
-    border-bottom: 1px solid #dee2e6 !important;
-}
-
-.card-body {
-    background-color: #ffffff !important;
-    color: #212529 !important;
-}
-
-/* Remove any debug styles */
-.main-content,
-.sidebar {
-    border: none !important;
-}
-
-/* Fix alert colors */
-.alert {
-    color: inherit !important;
-}
-
-.alert-warning {
-    background-color: #fff3cd !important;
-    border-color: #ffecb5 !important;
-    color: #664d03 !important;
-}
-
-/* Fix text colors */
-.text-muted {
-    color: #6c757d !important;
-}
-
-.text-primary {
-    color: #0d6efd !important;
-}
-
-.text-success {
-    color: #198754 !important;
-}
-
-.text-info {
-    color: #0dcaf0 !important;
-}
-
-.text-warning {
-    color: #ffc107 !important;
-}
-
-/* Fix breadcrumb */
-.breadcrumb {
-    background-color: transparent !important;
-    color: #6c757d !important;
-}
-
-/* Fix top header */
-.bg-white {
-    background-color: #ffffff !important;
-    color: #212529 !important;
-}
-
-/* Ensure Bootstrap classes work */
-.container-fluid {
-    padding-left: 15px !important;
-    padding-right: 15px !important;
-}
-
-/* Fix any remaining layout issues */
-@media screen and (min-width: 992px) {
-    body {
-        padding-left: 0 !important;
-    }
+/* Ensure Bootstrap grid spacing */
+.container-fluid { 
+    padding-left: 0.75rem !important; 
+    padding-right: 0.75rem !important; 
 }
 
 /* Mobile overlay */
 .sidebar-overlay {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    background-color: rgba(0, 0, 0, 0.5) !important;
-    z-index: 1000 !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-    transition: all 0.3s ease !important;
+    position: fixed !important; top: 0 !important; left: 0 !important;
+    width: 100% !important; height: 100% !important;
+    background-color: rgba(15, 23, 42, 0.6) !important; backdrop-filter: blur(4px);
+    z-index: 1000 !important; opacity: 0 !important; visibility: hidden !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-.sidebar-overlay.active {
-    opacity: 1 !important;
-    visibility: visible !important;
-}
+.sidebar-overlay.active { opacity: 1 !important; visibility: visible !important; }
 
 @media screen and (min-width: 992px) {
-    .sidebar-overlay {
-        display: none !important;
-    }
+    .sidebar-overlay { display: none !important; }
 }

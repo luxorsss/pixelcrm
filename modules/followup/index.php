@@ -25,224 +25,269 @@ require_once __DIR__ . '/../../includes/header.php';
 require_once __DIR__ . '/../../includes/sidebar.php';
 ?>
 
-<div class="main-content">
-    <!-- Top Header -->
-    <div class="bg-white border-bottom p-3 mb-4">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="h3 mb-1">Followup Messages</h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>">Dashboard</a></li>
-                        <li class="breadcrumb-item active">Followup Messages</li>
-                    </ol>
-                </nav>
-            </div>
-            <div class="text-muted">
-                <i class="fas fa-calendar me-1"></i><?= date('d F Y') ?>
-            </div>
+<div class="main-content dashboard-wrapper">
+    <div class="dash-header flex-column flex-md-row align-items-start align-items-md-center gap-3 mb-4">
+        <div>
+            <h1 class="dash-title">Follow-up Sequence</h1>
+            <div class="text-muted mt-1" style="font-weight: 500; font-size: 0.95rem;">Kelola urutan pesan WhatsApp otomatis untuk pelanggan pending.</div>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="<?= BASE_URL ?>monitor_followup.php" class="btn btn-light text-dark fw-bold border" style="border-radius: 12px;">
+                <i class="fas fa-satellite-dish text-primary me-1"></i> Monitor Log
+            </a>
+            <?php if ($produk_id): ?>
+                <a href="create.php?produk_id=<?= $produk_id ?>" class="btn btn-primary fw-bold" style="border-radius: 12px;">
+                    <i class="fas fa-plus me-1"></i> Pesan Baru
+                </a>
+            <?php endif; ?>
         </div>
     </div>
 
-    <div class="container-fluid px-4">
-        <!-- Header Actions -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="fas fa-comments me-2"></i>Followup Messages</h2>
-            <div class="btn-group">
-                <a href="<?= BASE_URL ?>monitor_followup.php" class="btn btn-info">
-                    <i class="fas fa-satellite-dish me-2"></i>Monitor Followup
-                </a>
-                <?php if ($produk_id): ?>
-                <a href="create.php?produk_id=<?= $produk_id ?>" class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i>Tambah Pesan
-                </a>
-                <?php endif; ?>
+    <div class="w-100">
+        
+        <div class="list-container p-3 mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3" style="background: #FFFBEB; border-color: #FDE68A;">
+            <div class="d-flex align-items-center gap-3">
+                <div style="width: 40px; height: 40px; background: #FEF3C7; color: #D97706; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                    <i class="fas fa-filter"></i>
+                </div>
+                <div>
+                    <div class="fw-bold text-dark" style="font-size: 0.95rem;">Pilih Produk Target</div>
+                    <div class="text-muted" style="font-size: 0.75rem;">Sequence bekerja per-produk.</div>
+                </div>
             </div>
+            
+            <form method="GET" class="m-0 flex-grow-1" style="max-width: 400px;">
+                <select name="produk_id" class="form-control-editorial fw-bold bg-white" style="appearance: auto; border-color: #FDE68A; cursor: pointer;" onchange="this.form.submit()">
+                    <option value="">-- Silakan Pilih Produk --</option>
+                    <?php foreach ($products as $product): ?>
+                        <option value="<?= $product['id'] ?>" <?= $produk_id == $product['id'] ? 'selected' : '' ?>>
+                            <?= clean($product['nama']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </form>
         </div>
 
-        <!-- Filter Produk -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-white border-bottom">
-                <h5 class="mb-0">Filter Produk</h5>
+        <?php if (!$produk_id): ?>
+            <div class="text-center py-5">
+                <div style="width: 80px; height: 80px; background: #F3F4F6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                    <i class="fas fa-hand-pointer text-muted fs-2"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-1">Pilih Produk Terlebih Dahulu</h5>
+                <p class="text-muted mb-4" style="max-width: 400px; margin: 0 auto;">Pilih salah satu produk di kotak filter atas untuk melihat dan mengatur urutan (Sequence) pesannya.</p>
             </div>
-            <div class="card-body">
-                <form method="GET" class="row g-3">
-                    <div class="col-md-10">
-                        <label class="form-label">Pilih Produk</label>
-                        <select name="produk_id" class="form-select" onchange="this.form.submit()">
-                            <option value="">-- Pilih Produk --</option>
-                            <?php foreach ($products as $product): ?>
-                            <option value="<?= $product['id'] ?>" <?= $produk_id == $product['id'] ? 'selected' : '' ?>>
-                                <?= clean($product['nama']) ?>
-                            </option>
+            
+        <?php elseif (empty($followups)): ?>
+            <div class="text-center py-5">
+                <div style="width: 80px; height: 80px; background: #EFF6FF; color: #3B82F6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                    <i class="fas fa-comments fs-2"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-1">Belum Ada Follow-up</h5>
+                <p class="text-muted mb-4" style="max-width: 400px; margin: 0 auto;">Automasi WhatsApp untuk <strong><?= clean($selected_product['nama']) ?></strong> masih kosong.</p>
+                <a href="create.php?produk_id=<?= $produk_id ?>" class="btn btn-dark rounded-pill fw-bold px-4">
+                    <i class="fas fa-plus me-2"></i>Buat Pesan Follow-up Ke-1
+                </a>
+            </div>
+            
+        <?php else: ?>
+            <div class="product-list-container shadow-sm mb-4">
+                <div class="p-4 border-bottom bg-white d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <h5 class="mb-0 fw-bold list-header m-0 p-0 text-dark">
+                        <i class="fas fa-stream text-primary me-2"></i> Sequence untuk: <?= clean($selected_product['nama']) ?>
+                    </h5>
+                    <span class="badge bg-light text-muted border" style="font-size: 0.8rem;"><?= $total_records ?> Pesan</span>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table-editorial mb-0">
+                        <thead>
+                            <tr>
+                                <th width="100" class="text-center">Sequence</th>
+                                <th>Konten Pesan</th>
+                                <th width="150">Jeda (Delay)</th>
+                                <th width="120" class="text-center">Status</th>
+                                <th width="150" class="text-end pe-4">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($followups as $index => $followup): ?>
+                            <tr>
+                                <td class="text-center">
+                                    <div style="width: 32px; height: 32px; background: #111827; color: white; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem;">
+                                        <?= $followup['urutan'] ?>
+                                    </div>
+                                    <?php if($index < count($followups) - 1): ?>
+                                        <!-- Visual Connection Line -->
+                                        <div style="width: 2px; height: 30px; background: #E5E7EB; margin: 5px auto -15px auto;"></div>
+                                    <?php endif; ?>
+                                </td>
+                                
+                                <td>
+                                    <div class="fw-bold text-dark mb-1" style="font-size: 0.95rem;">
+                                        <?= clean($followup['nama_pesan']) ?>
+                                        <?php if ($followup['tipe_pesan'] === 'pesan_gambar'): ?>
+                                            <span class="ms-2 badge-clean bg-light text-info border"><i class="fas fa-image me-1"></i>+Gambar</span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="text-muted" style="font-size: 0.8rem; line-height: 1.4; max-width: 450px;">
+                                        <?= truncateText(clean($followup['isi_pesan']), 70) ?>
+                                    </div>
+                                </td>
+                                
+                                <td>
+                                    <span class="badge-clean" style="background: #F3F4F6; color: #4B5563;">
+                                        <i class="fas fa-stopwatch me-1 text-warning"></i> <?= formatDelay($followup['delay_value'], $followup['delay_unit']) ?>
+                                    </span>
+                                </td>
+                                
+                                <td class="text-center">
+                                    <?php if ($followup['status'] === 'aktif'): ?>
+                                        <span class="badge-clean" style="background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0;"><i class="fas fa-play-circle me-1"></i>Aktif</span>
+                                    <?php else: ?>
+                                        <span class="badge-clean" style="background: #FEF2F2; color: #EF4444; border: 1px solid #FCA5A5;"><i class="fas fa-pause-circle me-1"></i>Mati</span>
+                                    <?php endif; ?>
+                                </td>
+                                
+                                <td class="text-end pe-4">
+                                    <div class="d-flex justify-content-end gap-1">
+                                        <!-- Tombol Preview yang sudah diperbaiki pakai data-attributes -->
+                                        <button type="button" class="btn-action-icon embed btn-preview-wa" title="Lihat Tampilan WA"
+                                                data-pesan="<?= htmlspecialchars($followup['isi_pesan'], ENT_QUOTES) ?>"
+                                                data-gambar="<?= htmlspecialchars($followup['link_gambar'] ?? '', ENT_QUOTES) ?>"
+                                                data-tipe="<?= $followup['tipe_pesan'] ?>">
+                                            <i class="fas fa-mobile-alt"></i>
+                                        </button>
+                                        
+                                        <a href="edit.php?id=<?= $followup['id'] ?>" class="btn-action-icon edit" title="Edit Pesan">
+                                            <i class="fas fa-pen"></i>
+                                        </a>
+                                        
+                                        <!-- Tombol Delete yang sudah diperbaiki pakai Modal -->
+                                        <button type="button" class="btn-action-icon delete" title="Hapus Pesan"
+                                                onclick="showDeleteModal(<?= $followup['id'] ?>, <?= $followup['urutan'] ?>)">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
                             <?php endforeach; ?>
-                        </select>
-                    </div>
-                </form>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
-
-        <?php if ($selected_product): ?>
-        <!-- Info Produk -->
-        <div class="alert alert-info border-0 shadow-sm">
-            <i class="fas fa-info-circle me-2"></i>
-            Mengelola followup untuk produk: <strong><?= clean($selected_product['nama']) ?></strong>
-        </div>
         <?php endif; ?>
         
-        <!-- Main Card -->
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-bottom">
-                <h5 class="mb-0">
-                    <?php if ($selected_product): ?>
-                        Daftar Followup Messages (<?= $total_records ?> pesan)
-                    <?php else: ?>
-                        Followup Messages
-                    <?php endif; ?>
-                </h5>
-            </div>
-            <div class="card-body p-0">
-                <?php if (!$produk_id): ?>
-                    <!-- Select Product -->
-                    <div class="text-center py-5">
-                        <i class="fas fa-box fa-3x text-muted mb-3"></i>
-                        <h5 class="text-muted">Pilih Produk</h5>
-                        <p class="text-muted">Pilih produk terlebih dahulu untuk melihat followup messages</p>
-                    </div>
-                
-                <?php elseif (empty($followups)): ?>
-                    <!-- No Messages -->
-                    <div class="text-center py-5">
-                        <i class="fas fa-comments fa-3x text-muted mb-3"></i>
-                        <h5 class="text-muted">Belum ada followup message</h5>
-                        <p class="text-muted">Mulai buat pesan followup otomatis untuk produk ini.</p>
-                        <a href="create.php?produk_id=<?= $produk_id ?>" class="btn btn-primary">
-                            <i class="fas fa-plus me-2"></i>Buat Pesan Pertama
-                        </a>
-                    </div>
-                
-                <?php else: ?>
-                    <!-- Followup Messages Table -->
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th width="80">Urutan</th>
-                                    <th>Nama Pesan</th>
-                                    <th width="120">Delay</th>
-                                    <th width="100">Tipe</th>
-                                    <th width="80">Status</th>
-                                    <th width="80">Preview</th>
-                                    <th width="130">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($followups as $followup): ?>
-                                <tr>
-                                    <td>
-                                        <span class="badge bg-primary"><?= $followup['urutan'] ?></span>
-                                    </td>
-                                    <td>
-                                        <div class="fw-bold"><?= clean($followup['nama_pesan']) ?></div>
-                                        <small class="text-muted"><?= truncateText(clean($followup['isi_pesan']), 50) ?></small>
-                                    </td>
-                                    <td>
-                                        <small class="text-muted">
-                                            <?= formatDelay($followup['delay_value'], $followup['delay_unit']) ?>
-                                        </small>
-                                    </td>
-                                    <td>
-                                        <?php if ($followup['tipe_pesan'] === 'pesan_gambar'): ?>
-                                            <span class="badge bg-info">
-                                                <i class="fas fa-image"></i> Gambar
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="badge bg-secondary">
-                                                <i class="fas fa-comment"></i> Teks
-                                            </span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <?php if ($followup['status'] === 'aktif'): ?>
-                                            <span class="badge bg-success">Aktif</span>
-                                        <?php else: ?>
-                                            <span class="badge bg-danger">Nonaktif</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-info" 
-                                                onclick="showPreview('<?= addslashes($followup['isi_pesan']) ?>', '<?= addslashes($followup['link_gambar']) ?>', '<?= $followup['tipe_pesan'] ?>')"
-                                                title="Preview">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <a href="edit.php?id=<?= $followup['id'] ?>" 
-                                               class="btn btn-outline-warning" 
-                                               title="Edit">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <a href="delete.php?id=<?= $followup['id'] ?>" 
-                                               class="btn btn-outline-danger" 
-                                               onclick="return confirm('Yakin hapus pesan \'<?= clean($followup['nama_pesan']) ?>\'?')" 
-                                               title="Hapus">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>    
+    </div>
 </div>
 
-<!-- Preview Modal -->
-<div class="modal fade" id="previewModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Preview Pesan</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<!-- Custom Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" style="transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1), opacity 200ms cubic-bezier(0.16, 1, 0.3, 1);">
+        <div class="modal-content" style="border-radius: 24px; border: none; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+            <div class="modal-body text-center p-4">
+                <div style="width: 64px; height: 64px; background: #FEF2F2; color: #EF4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                    <i class="fas fa-trash-alt" style="font-size: 1.75rem;"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">Hapus Sequence?</h5>
+                <p class="text-muted small mb-4" style="line-height: 1.5;">
+                    Yakin ingin menghapus pesan urutan ke-<strong id="deleteSequenceUrutan" class="text-dark"></strong>? 
+                    Alur follow-up kamu akan terputus.
+                </p>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-light w-50 fw-bold" data-bs-dismiss="modal" style="border-radius: 12px;">Batal</button>
+                    <a href="#" id="confirmDeleteBtn" class="btn btn-danger w-50 fw-bold" style="border-radius: 12px; background: #EF4444; border: none;">Hapus</a>
+                </div>
             </div>
-            <div class="modal-body">
-                <div id="previewContent"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Preview WhatsApp Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1), opacity 200ms cubic-bezier(0.16, 1, 0.3, 1); max-width: 400px;">
+        <div class="modal-content" style="border-radius: 24px; border: none; box-shadow: 0 20px 40px rgba(0,0,0,0.2); background: #E5DDD5;">
+            
+            <div class="modal-header border-0 pb-0 d-flex justify-content-between align-items-center" style="background: #075E54; border-radius: 24px 24px 0 0; padding: 1rem 1.5rem;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fab fa-whatsapp text-white fs-4"></i>
+                    <h5 class="modal-title text-white fw-bold m-0" style="font-size: 1rem;">WhatsApp Preview</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body p-4" style="min-height: 300px;">
+                <div class="bg-white p-3 shadow-sm position-relative" style="border-radius: 0 12px 12px 12px !important; margin-left: 10px;">
+                    <!-- Ekor balon chat -->
+                    <div style="position: absolute; top: 0; left: -8px; width: 0; height: 0; border-top: 10px solid white; border-left: 10px solid transparent;"></div>
+                    
+                    <div id="previewContent" style="font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; color: #111827;"></div>
+                    
+                    <div class="text-end mt-1 text-muted" style="font-size: 0.65rem;">
+                        <?= date('H:i') ?> <i class="fas fa-check-double text-info ms-1"></i>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Event listener yang bersih untuk tombol Preview WA
+    document.querySelectorAll('.btn-preview-wa').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const message = this.getAttribute('data-pesan');
+            const image = this.getAttribute('data-gambar');
+            const type = this.getAttribute('data-tipe');
+            showPreview(message, image, type);
+        });
+    });
+
+    // UX Feedback saat hapus ditekan
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    if(confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', function() {
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Proses...';
+            this.style.opacity = '0.8';
+            this.style.pointerEvents = 'none';
+        });
+    }
+});
+
+function showDeleteModal(id, urutan) {
+    document.getElementById('deleteSequenceUrutan').textContent = urutan;
+    document.getElementById('confirmDeleteBtn').href = 'delete.php?id=' + id;
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    deleteModal.show();
+}
+
 function showPreview(message, image, type) {
-    // Replace placeholders with sample data
+    // Simulasi data pelanggan untuk preview
     const sampleData = {
-        '[nama]': 'John Doe',
-        '[produk]': '<?= clean($selected_product['nama'] ?? 'Contoh Produk') ?>',
+        '[nama]': 'Budi Santoso',
+        '[produk]': '<?= clean($selected_product['nama'] ?? 'Produk Saya') ?>',
         '[harga]': 'Rp 150.000'
     };
     
-    let previewMessage = message;
+    // Replace placeholder dgn data bohongan
+    let previewMessage = message || '';
     Object.keys(sampleData).forEach(placeholder => {
         previewMessage = previewMessage.replace(new RegExp(placeholder.replace(/[\[\]]/g, '\\$&'), 'g'), sampleData[placeholder]);
     });
     
-    let content = `<div class="border p-3 rounded" style="background:#f8f9fa;">
-                    <strong>📱 WhatsApp Preview:</strong><br><br>
-                    ${previewMessage.replace(/\n/g, '<br>')}`;
+    // Konversi newline (\n) menjadi <br>
+    let contentHtml = previewMessage.replace(/\n/g, '<br>');
     
+    // Kalau ada gambar, sisipkan di atas pesan
     if (type === 'pesan_gambar' && image) {
-        content += `<br><br><img src="${image}" class="img-fluid rounded mt-2" style="max-height:200px;" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5HYW1iYXIgVGlkYWsgRGl0ZW11a2FuPC90ZXh0Pjwvc3ZnPg==';">`;
+        const imgTag = `<img src="${image}" class="img-fluid rounded mb-2 w-100" style="max-height: 250px; object-fit: cover;" onerror="this.src='https://via.placeholder.com/300x200?text=Gambar+Rusak/Gagal';">`;
+        contentHtml = imgTag + contentHtml;
     }
     
-    content += '</div>';
+    document.getElementById('previewContent').innerHTML = contentHtml;
     
-    document.getElementById('previewContent').innerHTML = content;
-    new bootstrap.Modal(document.getElementById('previewModal')).show();
+    const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+    previewModal.show();
 }
 </script>
 

@@ -20,253 +20,318 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 ?>
 
 <style>
+    /* Color Palette RFM Premium */
     :root {
-      --champ:   #fff9c4;  
-      --loyal:   #bbdefb;  
-      --prime:   #ffecb3;  
-      --new:     #c8e6c9;  
-      --risk:    #f8bbd0;  
-      --cold:    #d7ccc8;  
-      --whale:   #e1bee7;  
-      --others:  #eeeeee;  
+      --champ:   #FEF9C3;  
+      --loyal:   #DBEAFE;  
+      --prime:   #FEF08A;  
+      --new:     #D1FAE5;  
+      --risk:    #FCE7F3;  
+      --cold:    #E5E7EB;  
+      --whale:   #F3E8FF;  
+      --others:  #F3F4F6;  
     }
-    /* Sisanya disesuaikan agar tidak bertabrakan dengan Bootstrap PixelCRM */
-    .segment-checkboxes { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+    
+    /* Segment Selector UI */
+    .segment-checkboxes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
     .segment-item {
-      padding: 8px 18px; border-radius: 50px; color: #212529; font-size: 13px; font-weight: 600;
-      cursor: pointer; user-select: none; transition: all 0.2s; border: 2px solid transparent; position: relative;
+      padding: 6px 14px; border-radius: 8px; color: #374151; font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; user-select: none; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); 
+      border: 2px solid transparent; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
-    .segment-item:hover { transform: scale(1.03); }
-    .segment-item.active { border-color: #4361ee; box-shadow: 0 2px 6px rgba(67, 97, 238, 0.2); }
+    .segment-item:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .segment-item.active { border-color: #3B82F6; color: #1E3A8A; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+    
     .segment-item.champ { background-color: var(--champ); }
     .segment-item.loyal { background-color: var(--loyal); }
     .segment-item.prime { background-color: var(--prime); }
     .segment-item.new { background-color: var(--new); }
-    .segment-item.risk { background-color: var(--risk); }
+    .segment-item.risk { background-color: var(--risk); color: #BE185D; }
     .segment-item.cold { background-color: var(--cold); }
-    .segment-item.whale { background-color: var(--whale); }
+    .segment-item.whale { background-color: var(--whale); color: #6B21A8; }
     .segment-item.others { background-color: var(--others); }
     
+    /* Tooltip Custom */
     .segment-item[data-tooltip]::after {
-      content: attr(data-tooltip); position: absolute; left: 50%; bottom: 130%; transform: translateX(-50%);
-      background: rgba(33, 37, 41, 0.95); color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 11px;
-      white-space: nowrap; opacity: 0; pointer-events: none; transition: 0.15s ease; z-index: 20;
+      content: attr(data-tooltip); position: absolute; left: 50%; bottom: 120%; transform: translateX(-50%);
+      background: #111827; color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 500;
+      white-space: nowrap; opacity: 0; pointer-events: none; transition: 0.2s ease; z-index: 20;
     }
-    .segment-item[data-tooltip]:hover::after { opacity: 1; }    
+    .segment-item[data-tooltip]:hover::after { opacity: 1; bottom: 130%; }    
 
+    /* Multi-select Tags UI */
     .multi-select-container { position: relative; width: 100%; }
-    .multi-select-input { width: 100%; padding: 10px 10px 10px 35px; border: 1px solid #ced4da; border-radius: 8px; }
-    .multi-select-input::before { content: "🔍"; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); }
-    .multi-select-tags { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
-    .tag { background: #4361ee; color: white; padding: 5px 12px; border-radius: 20px; font-size: 12px; display: flex; gap: 6px; }
-    .tag-remove { cursor: pointer; font-weight: bold; }
-    .dropdown-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ced4da; max-height: 200px; overflow-y: auto; z-index: 10; display: none; }
-    .dropdown-item { padding: 10px; cursor: pointer; font-size: 14px; }
-    .dropdown-item:hover { background: #f8f9fa; }
-    .dropdown-item.selected { background: #e9ecef; }
-    .preview-container { max-height: 320px; overflow-y: auto; border: 1px solid #ced4da; border-radius: 8px; }
-    .radio-option { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; cursor: pointer; margin-right: 15px;}
+    .multi-select-input { width: 100%; padding: 10px 10px 10px 36px; border: 1px solid #D1D5DB; border-radius: 12px; font-size: 0.85rem; font-weight: 500; outline: none; transition: border-color 0.2s; }
+    .multi-select-input:focus { border-color: #3B82F6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+    .multi-select-input::before { content: "\f002"; font-family: "Font Awesome 5 Free"; font-weight: 900; position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9CA3AF; }
+    .multi-select-tags { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+    .tag-remove { cursor: pointer; color: #93C5FD; transition: color 0.2s; font-size: 1rem; line-height: 1; }
+    .tag-remove:hover { color: #DC2626; }
+    .dropdown-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #D1D5DB; border-radius: 8px; margin-top: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-height: 200px; overflow-y: auto; z-index: 100; display: none; }
+    .dropdown-item { padding: 10px 14px; cursor: pointer; font-size: 0.85rem; font-weight: 500; border-bottom: 1px solid #F3F4F6; }
+    .dropdown-item:last-child { border-bottom: none; }
+    .dropdown-item:hover { background: #F9FAFB; color: #2563EB; }
+    .dropdown-item.selected { background: #EFF6FF; color: #1D4ED8; font-weight: 700; }
+    
+    /* Custom Radio Toggle */
+    .radio-option { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; padding: 8px 16px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.85rem; transition: all 0.2s; background: white; margin-right: 10px; }
+    .radio-option:has(input:checked) { border-color: #3B82F6; background: #EFF6FF; color: #1D4ED8; }
+    .radio-option input { display: none; }
 </style>
 
-<div class="main-content">
-    <div class="bg-white border-bottom p-3 mb-4">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="h3 mb-1"><i class="fas fa-bullhorn text-primary me-2"></i>Kirim Broadcast WA</h1>
-                <p class="text-muted mb-0">Segmentasi berdasarkan RFM dan riwayat transaksi</p>
-            </div>
+<div class="main-content dashboard-wrapper flex-grow-1">
+    <div class="form-container" style="max-width: 1400px;">
+        
+        <div class="dash-header mb-4">
+            <h1 class="dash-title"><i class="fas fa-bullhorn text-primary me-2"></i> Broadcast Campaign</h1>
+            <p class="text-muted mt-1 fw-medium" style="font-size: 0.95rem;">Kirim pesan massal dengan menargetkan segmentasi RFM dan riwayat transaksi pelanggan.</p>
         </div>
-    </div>
 
-    <div class="container-fluid px-4">
         <form method="POST" action="proses_kirim.php" id="formBroadcast">
-            
-            <div class="row">
-                <div class="col-lg-8">
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-white"><h6 class="mb-0 fw-bold"><i class="fas fa-edit me-2 text-primary"></i>Konten Pesan</h6></div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <label class="radio-option">
-                                    <input type="radio" name="tipe_pesan" value="text" checked> <i class="fas fa-comment"></i> Teks
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="tipe_pesan" value="image"> <i class="fas fa-image"></i> Gambar
-                                </label>
-                            </div>
-                            <div id="pesanTeks">
-                                <textarea class="form-control" name="pesan" rows="5" placeholder="Hai [nama], terima kasih sudah berlangganan! 💙" required></textarea>
-                            </div>
-                            <div id="pesanGambar" style="display:none;">
-                                <input type="url" class="form-control mb-2" name="link_gambar" placeholder="https://example.com/gambar-promo.jpg">
-                                <textarea class="form-control" name="caption" rows="4" placeholder="Hai [nama], ini hadiah spesial buat kamu! 🎁"></textarea>
-                            </div>
+            <div class="row g-4">
+                
+                <div class="col-xl-8 col-lg-7 d-flex flex-column gap-4">
+                    
+                    <div class="panel-editorial p-0 overflow-hidden">
+                        <div class="p-4 border-bottom bg-white d-flex justify-content-between align-items-center flex-wrap gap-3">
+                            <h3 class="panel-title m-0"><i class="fas fa-users text-success me-2"></i> Filter Audiens (RFM)</h3>
+                            <button type="button" id="btnUpdateSegment" class="btn btn-light btn-sm border fw-bold text-dark rounded-pill px-3">
+                                <i class="fas fa-sync-alt text-primary me-1"></i> Update Data RFM
+                            </button>
                         </div>
-                    </div>
-
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-white"><h6 class="mb-0 fw-bold"><i class="fas fa-users me-2 text-success"></i>Segmentasi RFM</h6></div>
-                        <div class="card-body">
-                            <div class="segment-checkboxes" id="segmentContainer">
-                                <?php 
-                                $segments = [
-                                  'Champ'  => 'Sering beli, nilai tinggi, aktif.',
-                                  'Prime'  => 'Baru beli tapi langsung spend lumayan.',                
-                                  'Loyal'  => 'Sudah repeat 2x, masih lumayan baru.',
-                                  'Whale'  => 'Total belanja sangat besar.',
-                                  'Risk'   => 'Dulu sering beli, sekarang mulai jarang.',
-                                  'New'    => 'Baru sekali beli, nilai kecil.',
-                                  'Cold'   => 'Sekali beli, sudah lama, kecil nilainya.',
-                                  'Others' => 'Di luar pola utama.'
-                                ];
-                                foreach (array_keys($segments) as $seg):
-                                    $class = strtolower($seg);
-                                    $tooltip = $segments[$seg];
-                                ?>
-                                  <div class="segment-item <?= $class ?>" data-seg="<?= $seg ?>" data-tooltip="<?= $tooltip ?>"><?= $seg ?></div>
-                                <?php endforeach; ?>
+                        <div class="p-4" style="background: #FAFAFA;">
+                            
+                            <div class="mb-4">
+                                <label class="fw-bold text-dark mb-1" style="font-size: 0.85rem;">Pilih Segmentasi Target</label>
+                                <div class="text-muted mb-2" style="font-size: 0.75rem;">Klik untuk memilih satu atau beberapa kelompok RFM sekaligus.</div>
+                                <div class="segment-checkboxes" id="segmentContainer">
+                                    <?php 
+                                    $segments = [
+                                      'Champ'  => 'Sering beli, nilai tinggi, aktif.',
+                                      'Prime'  => 'Baru beli tapi langsung spend lumayan.',                
+                                      'Loyal'  => 'Sudah repeat 2x, masih lumayan baru.',
+                                      'Whale'  => 'Total belanja sangat besar.',
+                                      'Risk'   => 'Dulu sering beli, sekarang mulai jarang.',
+                                      'New'    => 'Baru sekali beli, nilai kecil.',
+                                      'Cold'   => 'Sekali beli, sudah lama, kecil nilainya.',
+                                      'Others' => 'Di luar pola utama.'
+                                    ];
+                                    foreach (array_keys($segments) as $seg):
+                                        $class = strtolower($seg);
+                                        $tooltip = $segments[$seg];
+                                    ?>
+                                      <div class="segment-item <?= $class ?>" data-seg="<?= $seg ?>" data-tooltip="<?= $tooltip ?>"><?= $seg ?></div>
+                                    <?php endforeach; ?>
+                                </div>
+                                <input type="hidden" name="segments" id="segmentsInput">
                             </div>
-                            <input type="hidden" name="segments" id="segmentsInput">
-                            
-                            <hr class="my-4">
-                            
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="fw-bold mb-2"><i class="fas fa-box text-info"></i> Include Produk</label>
-                                    <small class="d-block text-muted mb-2">Pernah beli produk ini:</small>
-                                    <div class="multi-select-container" id="includeContainer">
-                                        <input type="text" class="multi-select-input" placeholder="Cari produk...">
+
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="fw-bold text-dark mb-1" style="font-size: 0.85rem;"><i class="fas fa-filter text-info me-1"></i> Wajib Beli Produk Ini (Include)</label>
+                                    <div class="multi-select-container mt-1" id="includeContainer">
+                                        <div class="position-relative">
+                                            <i class="fas fa-search position-absolute text-muted" style="top: 50%; left: 14px; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none;"></i>
+                                            <input type="text" class="multi-select-input" placeholder="Cari nama produk...">
+                                        </div>
                                         <div class="dropdown-list"></div>
                                         <div class="multi-select-tags" id="includeTags"></div>
                                     </div>
                                     <input type="hidden" name="include_produk_json" id="includeProdukJson">
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="fw-bold mb-2"><i class="fas fa-ban text-danger"></i> Exclude Produk</label>
-                                    <small class="d-block text-muted mb-2">JANGAN kirim ke pembeli ini:</small>
-                                    <div class="multi-select-container" id="excludeContainer">
-                                        <input type="text" class="multi-select-input" placeholder="Cari produk...">
+
+                                <div class="col-md-6">
+                                    <label class="fw-bold text-dark mb-1" style="font-size: 0.85rem;"><i class="fas fa-ban text-danger me-1"></i> Jangan Kirim Jika Pernah Beli (Exclude)</label>
+                                    <div class="multi-select-container mt-1" id="excludeContainer">
+                                        <div class="position-relative">
+                                            <i class="fas fa-search position-absolute text-muted" style="top: 50%; left: 14px; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none;"></i>
+                                            <input type="text" class="multi-select-input" placeholder="Cari nama produk...">
+                                        </div>
                                         <div class="dropdown-list"></div>
                                         <div class="multi-select-tags" id="excludeTags"></div>
                                     </div>
                                     <input type="hidden" name="exclude_produk_json" id="excludeProdukJson">
                                 </div>
                             </div>
+
                         </div>
                     </div>
+
+                    <div class="panel-editorial">
+                        <h3 class="panel-title"><i class="fas fa-pen-nib text-warning me-2"></i> Editor Pesan</h3>
+                        
+                        <div class="mb-3 d-flex flex-wrap gap-2">
+                            <label class="radio-option">
+                                <input type="radio" name="tipe_pesan" value="text" checked> 
+                                <i class="fas fa-align-left"></i> Teks Saja
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="tipe_pesan" value="image"> 
+                                <i class="fas fa-image"></i> Media Gambar
+                            </label>
+                        </div>
+
+                        <div id="pesanTeks">
+                            <textarea class="form-control-editorial fw-medium" name="pesan" rows="6" 
+                                      placeholder="Hai [nama], terima kasih sudah berlangganan! 💙" required 
+                                      style="font-family: monospace; resize: vertical; font-size: 0.85rem; line-height: 1.6;"></textarea>
+                        </div>
+
+                        <div id="pesanGambar" style="display:none;">
+                            <div class="mb-3 p-3 bg-light border rounded-3">
+                                <label class="fw-bold text-dark mb-2" style="font-size: 0.8rem;"><i class="fas fa-link text-info me-1"></i> URL Gambar (JPG/PNG)</label>
+                                <input type="url" class="form-control-editorial bg-white" name="link_gambar" placeholder="https://example.com/gambar-promo.jpg">
+                            </div>
+                            <textarea class="form-control-editorial fw-medium" name="caption" rows="5" 
+                                      placeholder="Tulis caption promomu di sini... (Hai [nama], ini hadiah spesial buat kamu! 🎁)"
+                                      style="font-family: monospace; resize: vertical; font-size: 0.85rem; line-height: 1.6;"></textarea>
+                        </div>
+                        
+                        <div class="mt-2 text-muted" style="font-size: 0.75rem;">
+                            <i class="fas fa-info-circle me-1"></i> Gunakan variabel <code>[nama]</code> untuk memanggil nama pelanggan secara otomatis.
+                        </div>
+                    </div>
+
                 </div>
 
-                <div class="col-lg-4">
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-white"><h6 class="mb-0 fw-bold"><i class="fas fa-cogs me-2 text-warning"></i>Pengaturan Pengiriman</h6></div>
-                        <div class="card-body">
-                            
-                            <div class="mb-3">
-                                <label class="fw-bold">Akun WhatsApp Gateway <span class="text-danger">*</span></label>
-                                <select class="form-select mt-2" name="wa_account_id" required>
-                                    <option value="">-- Pilih Akun --</option>
-                                    <?php foreach($wa_accounts as $acc): ?>
-                                        <option value="<?= (int)$acc['id'] ?>"><?= htmlspecialchars($acc['account_name']) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-
-                            <div class="mb-3 border border-warning rounded p-3 bg-warning bg-opacity-10">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="mode_uji" name="mode_uji" value="1">
-                                    <label class="form-check-label fw-bold text-dark" for="mode_uji">
-                                        <i class="fas fa-flask text-warning me-1"></i> Aktifkan Mode Uji Coba
-                                    </label>
-                                </div>
-                                <div id="ujiFields" style="display:none;" class="mt-2">
-                                    <small class="text-muted d-block mb-1">Pesan HANYA dikirim ke nomor ini:</small>
-                                    <input type="text" class="form-control border-warning" id="nomor_uji" name="nomor_uji" placeholder="Contoh: 6281234567890">
-                                    <small class="text-danger mt-1" style="font-size: 11px;">*Abaikan opsi Segmen/Limit di bawah jika ini aktif.</small>
-                                </div>
-                            </div>
-                            
-                            <div class="mb-3 border rounded p-3 bg-light">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="tglCheckbox">
-                                    <label class="form-check-label fw-bold">Filter Tanggal Transaksi</label>
-                                </div>
-                                <div id="tanggalFields" style="display:none;" class="mt-2">
-                                    <input type="date" class="form-control mb-2" name="tanggal_mulai" value="<?= date('Y-m-01') ?>">
-                                    <input type="date" class="form-control" name="tanggal_akhir" value="<?= date('Y-m-d') ?>">
-                                </div>
-                            </div>
-
-                            <div class="mb-3 border rounded p-3 bg-light">
-                                <label class="fw-bold mb-2">Limit / Batch Pengiriman</label>
-                                <div class="d-flex gap-2">
-                                    <div>
-                                        <small class="text-muted">Dari Urutan</small>
-                                        <input type="number" class="form-control" id="urut_awal" name="urut_awal" min="1" value="1">
-                                    </div>
-                                    <div>
-                                        <small class="text-muted">Sampai Urutan</small>
-                                        <input type="number" class="form-control" id="urut_akhir" name="urut_akhir" min="1" value="100">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
-                                <i class="fas fa-paper-plane me-2"></i> Kirim Broadcast
-                            </button>
-                        </div>
-                    </div>
+                <div class="col-xl-4 col-lg-5 d-flex flex-column gap-4">
                     
-                    <button type="button" id="btnUpdateSegment" class="btn btn-outline-success w-100 mb-4">
-                        <i class="fas fa-sync-alt me-2"></i> Update Data Segmentasi
-                    </button>
+                    <div class="panel-editorial sticky-top" style="top: 2rem;">
+                        <h3 class="panel-title border-bottom pb-3 mb-3"><i class="fas fa-paper-plane text-primary me-2"></i> Delivery Settings</h3>
+                        
+                        <div class="mb-4">
+                            <label class="fw-bold text-dark mb-2" style="font-size: 0.85rem;">Device / Akun WhatsApp <span class="text-danger">*</span></label>
+                            <select class="form-control-editorial fw-bold" name="wa_account_id" required style="appearance: auto; cursor: pointer;">
+                                <option value="">-- Pilih Device Pengirim --</option>
+                                <?php foreach($wa_accounts as $acc): ?>
+                                    <option value="<?= (int)$acc['id'] ?>"><?= htmlspecialchars($acc['account_name']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="mb-4 p-3 rounded-3" style="background: #FFFBEB; border: 1px solid #FDE68A;">
+                            <label class="toggle-switch w-100" style="cursor: pointer; margin: 0;">
+                                <div class="text-start pe-3">
+                                    <div class="toggle-label text-warning fw-bold"><i class="fas fa-flask me-1"></i> Mode Uji Coba</div>
+                                </div>
+                                <input type="checkbox" id="mode_uji" name="mode_uji" value="1" class="switch-input">
+                                <div class="switch-slider" style="background-color: #FCD34D;"></div>
+                            </label>
+                            
+                            <div id="ujiFields" style="display:none;" class="mt-3 pt-3 border-top border-warning border-opacity-25">
+                                <label class="fw-bold text-dark mb-1" style="font-size: 0.75rem;">Kirim ke Nomor Ini Saja:</label>
+                                <input type="text" class="form-control-editorial fw-bold border-warning" id="nomor_uji" name="nomor_uji" placeholder="Contoh: 6281234567890">
+                                <div class="text-danger mt-1 fw-bold" style="font-size: 0.7rem;">*Segmen & Limit otomatis diabaikan.</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="toggle-switch w-100 mb-2" style="cursor: pointer; margin: 0;">
+                                <div class="text-start pe-3">
+                                    <div class="toggle-label text-dark" style="font-size: 0.85rem;"><i class="fas fa-calendar-alt text-info me-1"></i> Filter Tgl Transaksi</div>
+                                </div>
+                                <input type="checkbox" id="tglCheckbox" class="switch-input">
+                                <div class="switch-slider"></div>
+                            </label>
+                            <div id="tanggalFields" style="display:none;" class="mt-2 p-3 bg-light rounded-3 border">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label class="text-muted" style="font-size: 0.7rem;">Dari Tanggal</label>
+                                        <input type="date" class="form-control-editorial text-muted px-2" name="tanggal_mulai" value="<?= date('Y-m-01') ?>">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="text-muted" style="font-size: 0.7rem;">Sampai</label>
+                                        <input type="date" class="form-control-editorial text-muted px-2" name="tanggal_akhir" value="<?= date('Y-m-d') ?>">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="fw-bold text-dark mb-2" style="font-size: 0.85rem;"><i class="fas fa-sort-numeric-down text-secondary me-1"></i> Batch Limit (Pengiriman)</label>
+                            <div class="d-flex gap-2">
+                                <div class="flex-grow-1">
+                                    <label class="text-muted" style="font-size: 0.7rem;">Mulai Data Ke-</label>
+                                    <input type="number" class="form-control-editorial fw-bold text-center" id="urut_awal" name="urut_awal" min="1" value="1">
+                                </div>
+                                <div class="flex-grow-1">
+                                    <label class="text-muted" style="font-size: 0.7rem;">Sampai Data Ke-</label>
+                                    <input type="number" class="form-control-editorial fw-bold text-center" id="urut_akhir" name="urut_akhir" min="1" value="100">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill" style="font-size: 0.95rem; letter-spacing: 0.02em; transition: all 0.2s; box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);">
+                            <i class="fas fa-paper-plane me-2"></i> Eksekusi Broadcast
+                        </button>
+
+                    </div>
                 </div>
             </div>
 
-            <div class="card border-0 shadow-sm mb-5">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0 fw-bold"><i class="fas fa-eye me-2 text-info"></i>Preview Penerima</h6>
-                    <span class="badge bg-secondary">Menampilkan <span id="totalBatch">0</span> dari <span id="totalSemua">0</span></span>
+            <div class="panel-editorial p-0 overflow-hidden mb-5">
+                <div class="p-3 border-bottom bg-white d-flex justify-content-between align-items-center">
+                    <h3 class="panel-title m-0"><i class="fas fa-eye text-info me-2"></i> Target Penerima Broadcast</h3>
+                    <div class="badge-clean bg-light text-dark border">
+                        Menampilkan <strong class="text-primary" id="totalBatch">0</strong> dari Total <strong class="text-primary" id="totalSemua">0</strong> Pelanggan
+                    </div>
                 </div>
-                <div class="card-body p-0">
-                    <div class="preview-container">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light sticky-top">
+                <div class="bg-light p-0">
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table-editorial mb-0">
+                            <thead class="sticky-top" style="z-index: 5;">
                                 <tr>
-                                    <th>No</th>
+                                    <th width="60" class="text-center">No</th>
                                     <th>Pelanggan</th>
-                                    <th>Terakhir Beli</th>
-                                    <th>Recency</th>
-                                    <th>Freq</th>
-                                    <th>Monetary</th>
-                                    <th>Segment</th>
+                                    <th width="150">Last Order</th>
+                                    <th width="100" class="text-center" title="Jarak hari sejak transaksi terakhir">Recency</th>
+                                    <th width="100" class="text-center" title="Jumlah total transaksi">Freq</th>
+                                    <th width="150" class="text-end">Monetary</th>
+                                    <th width="120" class="text-center pe-4">Segment</th>
                                 </tr>
                             </thead>
                             <tbody id="previewTbody">
-                                <tr><td colspan="7" class="text-center py-4 text-muted">Pilih filter untuk melihat preview...</td></tr>
+                                <tr>
+                                    <td colspan="7" class="text-center py-5">
+                                        <i class="fas fa-filter fa-3x text-muted mb-3 opacity-50"></i>
+                                        <h6 class="fw-bold text-dark">Siap Memfilter Target</h6>
+                                        <div class="text-muted" style="font-size: 0.85rem;">Pilih segmentasi atau produk di atas untuk melihat preview penerima.</div>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-            
+
         </form>
     </div>
 </div>
 
 <script>
+    // Data List Produk dari PHP
     const produkList = <?= $produk_json ?>;
 
-    // Toggle Teks / Gambar
+    // Toggle Teks / Gambar (Native styling)
     document.querySelectorAll('input[name="tipe_pesan"]').forEach(radio => {
       radio.addEventListener('change', function() {
+        const textContainer = document.getElementById('pesanTeks');
+        const imgContainer = document.getElementById('pesanGambar');
+        const textInput = textContainer.querySelector('textarea');
+        
         if (this.value === 'text') {
-          document.getElementById('pesanTeks').style.display = 'block';
-          document.getElementById('pesanGambar').style.display = 'none';
-          document.querySelector('textarea[name="pesan"]').required = true;
+          textContainer.style.display = 'block';
+          imgContainer.style.display = 'none';
+          textInput.required = true;
+          textInput.name = "pesan";
+          imgContainer.querySelector('textarea').name = "caption";
         } else {
-          document.getElementById('pesanTeks').style.display = 'none';
-          document.getElementById('pesanGambar').style.display = 'block';
-          document.querySelector('textarea[name="pesan"]').required = false;
+          textContainer.style.display = 'none';
+          imgContainer.style.display = 'block';
+          textInput.required = false;
+          textInput.name = "pesan_ignore"; // Biar gak kebawa POST
+          imgContainer.querySelector('textarea').name = "pesan"; // Timpa nama pesannya kesini
         }
       });
     });
@@ -287,10 +352,28 @@ require_once __DIR__ . '/../../includes/sidebar.php';
       });
     });
 
-    // Tanggal Toggle
+    // Tanggal Toggle (Custom Switch)
     document.getElementById('tglCheckbox').addEventListener('change', function() {
-      document.getElementById('tanggalFields').style.display = this.checked ? 'block' : 'none';
+      const tgF = document.getElementById('tanggalFields');
+      if(this.checked) {
+          tgF.style.display = 'block';
+      } else {
+          tgF.style.display = 'none';
+      }
       triggerPreview();
+    });
+
+    // Mode Uji Toggle
+    document.getElementById('mode_uji').addEventListener('change', function() {
+        const ujiFields = document.getElementById('ujiFields');
+        const nomorUji = document.getElementById('nomor_uji');
+        if (this.checked) {
+            ujiFields.style.display = 'block';
+            nomorUji.required = true;
+        } else {
+            ujiFields.style.display = 'none';
+            nomorUji.required = false;
+        }
     });
 
     // Multi-select Logic (Include/Exclude Produk)
@@ -329,7 +412,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
         tagsContainer.innerHTML = '';
         selected.forEach(p => {
           const tag = document.createElement('div'); tag.className = 'tag';
-          tag.innerHTML = `${p.text} <span class="tag-remove" data-id="${p.id}">×</span>`;
+          tag.innerHTML = `${p.text} <span class="tag-remove" data-id="${p.id}">&times;</span>`;
           tag.querySelector('.tag-remove').addEventListener('click', (e) => {
             e.stopPropagation(); selected = selected.filter(s => s.id !== p.id); renderTags(); triggerPreview();
           });
@@ -345,7 +428,10 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 
     // === LIVE PREVIEW FETCHING ===
     let previewTimeout;
-    function triggerPreview() { clearTimeout(previewTimeout); previewTimeout = setTimeout(fetchPreview, 500); }
+    function triggerPreview() { 
+        clearTimeout(previewTimeout); 
+        previewTimeout = setTimeout(fetchPreview, 500); 
+    }
 
     function fetchPreview() {
       const urutAwal = parseInt(document.getElementById('urut_awal').value) || 1;
@@ -361,11 +447,10 @@ require_once __DIR__ . '/../../includes/sidebar.php';
       };
 
       if (selectedSegments.length === 0 && formData.include_produk.length === 0) {
-        clearPreview("Pilih minimal 1 segment atau 1 produk include."); return;
+        clearPreview("Pilih minimal 1 segment atau 1 produk target untuk memfilter daftar."); return;
       }
 
-      // --- TAMBAHAN: Efek Loading sebelum memanggil API ---
-      document.getElementById('previewTbody').innerHTML = `<tr><td colspan="7" class="text-center py-4 text-primary"><i class="fas fa-spinner fa-spin me-2"></i>Sedang memuat pratinjau penerima...</td></tr>`;
+      document.getElementById('previewTbody').innerHTML = `<tr><td colspan="7" class="text-center py-5 text-primary"><i class="fas fa-spinner fa-spin fa-2x mb-3"></i><br><span class="fw-bold">Sinkronisasi Database...</span></td></tr>`;
 
       fetch('backend/get_penerima.php', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData)
@@ -380,34 +465,45 @@ require_once __DIR__ . '/../../includes/sidebar.php';
           let rows = '';
           data.penerima.forEach((p, index) => {
               const segClass = (p.segment || 'others').toLowerCase();
-              // --- PERBAIKAN: Nomor baris mengikuti Urutan Awal ---
               const nomorBaris = urutAwal + index; 
               
+              // Define tag color logic for Segment display in table
+              let badgeColor = '#6B7280'; let badgeBg = '#F3F4F6';
+              if(segClass==='champ') { badgeBg = '#FEF9C3'; badgeColor = '#854D0E'; }
+              else if(segClass==='loyal') { badgeBg = '#DBEAFE'; badgeColor = '#1E40AF'; }
+              else if(segClass==='prime') { badgeBg = '#FEF08A'; badgeColor = '#854D0E'; }
+              else if(segClass==='new') { badgeBg = '#D1FAE5'; badgeColor = '#065F46'; }
+              else if(segClass==='risk') { badgeBg = '#FCE7F3'; badgeColor = '#9D174D'; }
+              else if(segClass==='whale') { badgeBg = '#F3E8FF'; badgeColor = '#6B21A8'; }
+              
               rows += `
-                <tr style="background-color: var(--${segClass}) !important; opacity: 0.9;">
-                  <td>${nomorBaris}</td>
-                  <td><strong>${p.nama}</strong><br><small class="text-muted">${p.nomor_wa}</small></td>
-                  <td><small>${p.pembelian_terakhir}</small></td>
-                  <td>${p.recency_hari} hr</td>
-                  <td>${p.frekuensi}x</td>
-                  <td class="text-success fw-bold">Rp ${p.monetary.toLocaleString('id-ID')}</td>
-                  <td><span class="badge bg-dark">${p.segment}</span></td>
+                <tr>
+                  <td class="text-center text-muted fw-bold" style="font-size: 0.85rem;">${nomorBaris}</td>
+                  <td>
+                      <div class="fw-bold text-dark" style="font-size: 0.85rem;">${p.nama}</div>
+                      <div class="text-muted" style="font-size: 0.75rem;"><i class="fab fa-whatsapp text-success me-1"></i>${p.nomor_wa}</div>
+                  </td>
+                  <td><div class="text-dark fw-bold" style="font-size: 0.85rem;">${p.pembelian_terakhir}</div></td>
+                  <td class="text-center"><span class="badge-clean bg-light text-muted border">${p.recency_hari} hr</span></td>
+                  <td class="text-center"><span class="badge-clean bg-light text-primary border">${p.frekuensi}x</span></td>
+                  <td class="text-end text-success fw-bold" style="font-size: 0.85rem;">Rp ${p.monetary.toLocaleString('id-ID')}</td>
+                  <td class="text-center pe-4"><span class="badge-clean" style="background: ${badgeBg}; color: ${badgeColor}; font-size: 0.65rem;">${p.segment}</span></td>
                 </tr>
               `;
             });
           tbody.innerHTML = rows;
         } else {
-          tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-danger">${data.error || 'Tidak ada data penerima yang cocok dengan filter ini.'}</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-danger fw-bold"><i class="fas fa-exclamation-triangle fa-2x mb-3 opacity-50"></i><br>${data.error || 'Tidak ada data penerima yang cocok dengan filter ini.'}</td></tr>`;
         }
-      }).catch(err => clearPreview("Gagal memuat data preview. Cek koneksi Anda."));
+      }).catch(err => clearPreview("Gagal memuat data preview. Cek koneksi server Anda."));
     }
 
     function clearPreview(msg) {
-      document.getElementById('totalSemua').textContent = '0'; document.getElementById('totalBatch').textContent = '0';
-      document.getElementById('previewTbody').innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">${msg}</td></tr>`;
+      document.getElementById('totalSemua').textContent = '0'; 
+      document.getElementById('totalBatch').textContent = '0';
+      document.getElementById('previewTbody').innerHTML = `<tr><td colspan="7" class="text-center py-5 text-muted"><i class="fas fa-filter fa-3x mb-3 opacity-25"></i><br>${msg}</td></tr>`;
     }
 
-    // Input Batas urutan berubah -> Update preview
     document.getElementById('urut_awal').addEventListener('input', triggerPreview);
     document.getElementById('urut_akhir').addEventListener('input', triggerPreview);
 
@@ -415,37 +511,37 @@ require_once __DIR__ . '/../../includes/sidebar.php';
     document.getElementById('btnUpdateSegment').addEventListener('click', async () => {
       const btn = document.getElementById('btnUpdateSegment');
       const originalHTML = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Memproses...';
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Sinkronisasi...';
       btn.disabled = true;
 
       try {
         const res = await fetch('backend/update_segmentasi.php');
         const data = await res.json();
         if (data.success) {
-          alert(`✅ ${data.message}`); triggerPreview();
+          // Ganti jadi feedback inline ala modern UI
+          btn.innerHTML = '<i class="fas fa-check text-success me-1"></i> Data Terupdate';
+          setTimeout(() => { btn.innerHTML = originalHTML; btn.disabled = false; }, 3000);
+          triggerPreview();
         } else {
-          alert('❌ ' + (data.error || 'Terjadi kesalahan.'));
+          alert('❌ ' + (data.error || 'Terjadi kesalahan saat memproses RFM.'));
+          btn.innerHTML = originalHTML; btn.disabled = false;
         }
-      } catch (e) { alert('❌ Gagal terhubung ke server.'); } finally {
-        btn.innerHTML = originalHTML; btn.disabled = false;
+      } catch (e) { 
+          alert('❌ Koneksi terputus. Silakan coba lagi.'); 
+          btn.innerHTML = originalHTML; btn.disabled = false;
       }
     });
 
-    triggerPreview();
-
-    // Mode Uji Toggle
-    document.getElementById('mode_uji').addEventListener('change', function() {
-        const ujiFields = document.getElementById('ujiFields');
-        const nomorUji = document.getElementById('nomor_uji');
-        
-        if (this.checked) {
-            ujiFields.style.display = 'block';
-            nomorUji.required = true;
-        } else {
-            ujiFields.style.display = 'none';
-            nomorUji.required = false;
+    // UX Feedback on Submit
+    document.getElementById('formBroadcast').addEventListener('submit', function() {
+        const btn = this.querySelector('button[type="submit"]');
+        if(btn) {
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Mengantre Broadcast...';
+            btn.style.opacity = '0.8';
+            btn.style.pointerEvents = 'none';
         }
     });
+
 </script>
 
 <?php require_once __DIR__ . '/../../includes/footer.php'; ?>

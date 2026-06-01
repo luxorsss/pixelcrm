@@ -266,618 +266,395 @@ $offset = ($filters['page'] - 1) * $filters['limit'];
 $paginated_customers = array_slice($filtered_customers, $offset, $filters['limit']);
 ?>
 
-<div class="main-content">
-    <!-- Header -->
-    <div class="top-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="page-title mb-0">Customer Analytics</h1>
-                <nav class="breadcrumb">
-                    <a href="<?= BASE_URL ?>" class="breadcrumb-item text-decoration-none">Dashboard</a>
-                    <a href="analitik.php" class="breadcrumb-item text-decoration-none">Analytics</a>
-                    <span class="breadcrumb-item active">Detail</span>
-                </nav>
+<div class="main-content dashboard-wrapper">
+    <div class="dash-header flex-column flex-md-row align-items-start align-items-md-center gap-3">
+        <div>
+            <h1 class="dash-title">Detail & Perilaku Pelanggan</h1>
+            <div class="text-muted mt-1" style="font-weight: 500; font-size: 0.95rem;">Analisis mendalam riwayat belanja dan risiko *churn* pelanggan.</div>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <?php if (!empty($report['data'])): ?>
+                <a href="<?= buildFilterUrl(['export' => 'csv']) ?>" id="btnExportCSV" class="btn btn-light text-dark fw-bold border" style="border-radius: 12px;">
+                    <i class="fas fa-file-csv me-1 text-success"></i> Export Data
+                </a>
+            <?php endif; ?>
+            <a href="analitik.php" class="btn btn-dark fw-bold" style="border-radius: 12px;">
+                <i class="fas fa-chart-pie me-1"></i> Ringkasan Analitik
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="row g-3 h-100">
+                <div class="col-sm-6">
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-icon" style="background: #EFF6FF; color: #2563EB;"><i class="fas fa-users"></i></div>
+                            <div class="stat-value text-dark"><?= formatNumber($customer_summary['total_customers']) ?></div>
+                            <div class="stat-label">Total Pelanggan <span class="fw-normal text-muted">(Database)</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-icon" style="background: #ECFDF5; color: #059669;"><i class="fas fa-user-plus"></i></div>
+                            <div class="stat-value text-success"><?= formatNumber($customer_summary['new_customers']) ?></div>
+                            <div class="stat-label">Pelanggan Baru <span class="fw-normal text-muted">(30 Hari Terakhir)</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-icon" style="background: #F3E8FF; color: #9333EA;"><i class="fas fa-redo-alt"></i></div>
+                            <div class="stat-value" style="color: #9333EA;"><?= formatNumber($customer_summary['repeat_customers']) ?></div>
+                            <div class="stat-label">Repeat Customer <span class="fw-normal text-muted">(>1x Beli)</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-icon" style="background: #FEF3C7; color: #D97706;"><i class="fas fa-receipt"></i></div>
+                            <div class="stat-value text-warning" style="font-size: 1.6rem;"><?= formatCurrency($customer_summary['avg_transaction_value']) ?></div>
+                            <div class="stat-label">Rata-rata Nilai Transaksi</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="d-flex gap-2">
-                <?php if (!empty($report['data'])): ?>
-                    <a href="<?= buildFilterUrl(['export' => 'csv']) ?>" class="btn btn-success">
-                        <i class="fas fa-download me-2"></i>Export CSV
-                    </a>
-                <?php endif; ?>
-                <a href="analitik.php" class="btn btn-outline-primary">
-                    <i class="fas fa-chart-line me-2"></i>Analytics
+        </div>
+
+        <div class="col-lg-4">
+            <div class="list-container h-100 d-flex flex-column">
+                <h6 class="fw-bold mb-3"><i class="fas fa-heartbeat text-danger me-2"></i>Kesehatan Pelanggan</h6>
+                <div style="height: 180px; position: relative; margin-bottom: 1rem;">
+                    <canvas id="statusChart"></canvas>
+                </div>
+                <div class="mt-auto row text-center g-2">
+                    <div class="col-4">
+                        <div class="text-danger fw-bold fs-5"><?= $status_stats['high_risk'] ?></div>
+                        <div class="text-muted" style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700;">High Risk</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-success fw-bold fs-5"><?= $status_stats['very_active'] ?></div>
+                        <div class="text-muted" style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700;">Very Active</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-secondary fw-bold fs-5"><?= $status_stats['stable'] ?></div>
+                        <div class="text-muted" style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700;">Stable</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="list-container mb-4 p-3 px-4">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+            
+            <div class="d-flex flex-wrap gap-2">
+                <a href="<?= buildFilterUrl(['status_filter' => '', 'page' => 1]) ?>" 
+                   class="btn <?= empty($filters['status_filter']) ? 'btn-dark' : 'btn-light text-muted' ?> btn-sm rounded-pill px-3 fw-bold">
+                    Semua <span class="ms-1 opacity-75">(<?= count($all_customers_for_chart) ?>)</span>
+                </a>
+                <a href="<?= buildFilterUrl(['status_filter' => 'high_risk', 'page' => 1]) ?>" 
+                   class="btn <?= $filters['status_filter'] === 'high_risk' ? 'btn-danger' : 'btn-light text-danger' ?> btn-sm rounded-pill px-3 fw-bold">
+                    High Risk <span class="ms-1 opacity-75">(<?= $status_stats['high_risk'] ?>)</span>
+                </a>
+                <a href="<?= buildFilterUrl(['status_filter' => 'medium_risk', 'page' => 1]) ?>" 
+                   class="btn <?= $filters['status_filter'] === 'medium_risk' ? 'btn-warning' : 'btn-light text-warning' ?> btn-sm rounded-pill px-3 fw-bold">
+                    Medium <span class="ms-1 opacity-75">(<?= $status_stats['medium_risk'] ?>)</span>
+                </a>
+                <a href="<?= buildFilterUrl(['status_filter' => 'very_active', 'page' => 1]) ?>" 
+                   class="btn <?= $filters['status_filter'] === 'very_active' ? 'btn-success' : 'btn-light text-success' ?> btn-sm rounded-pill px-3 fw-bold">
+                    Very Active <span class="ms-1 opacity-75">(<?= $status_stats['very_active'] ?>)</span>
                 </a>
             </div>
+
+            <form method="GET" class="d-flex flex-wrap align-items-center gap-2" id="filterForm">
+                <?php if(!empty($filters['status_filter'])): ?>
+                    <input type="hidden" name="status_filter" value="<?= $filters['status_filter'] ?>">
+                <?php endif; ?>
+
+                <div class="input-group input-group-sm" style="width: auto;">
+                    <span class="input-group-text bg-light border-0"><i class="fas fa-calendar"></i></span>
+                    <input type="date" name="tanggal_dari" class="form-control border-0 bg-light" value="<?= $filters['tanggal_dari'] ?>" title="Dari Tanggal">
+                </div>
+                <div class="input-group input-group-sm" style="width: auto;">
+                    <span class="input-group-text bg-light border-0">-</span>
+                    <input type="date" name="tanggal_sampai" class="form-control border-0 bg-light" value="<?= $filters['tanggal_sampai'] ?>" title="Sampai Tanggal">
+                </div>
+                
+                <select name="produk_id" class="form-select form-select-sm border-0 bg-light fw-bold text-muted" style="width: 140px;">
+                    <option value="">Semua Produk</option>
+                    <?php foreach ($all_produk as $produk): ?>
+                        <option value="<?= $produk['id'] ?>" <?= $produk['id'] == $filters['produk_id'] ? 'selected' : '' ?>>
+                            <?= safeHtml($produk['nama']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+
+                <div class="input-group input-group-sm" style="width: 180px;">
+                    <input type="text" name="cari_customer" class="form-control border-0 bg-light" placeholder="Cari nama/WA..." value="<?= $filters['cari_customer'] ?>">
+                    <button type="submit" class="btn btn-light text-primary fw-bold border-0"><i class="fas fa-search"></i></button>
+                </div>
+
+                <?php if (!empty($active_filters)): ?>
+                    <button type="button" class="btn btn-sm btn-outline-danger border-0" onclick="window.location='detail.php'" title="Reset Filter">
+                        <i class="fas fa-times"></i>
+                    </button>
+                <?php endif; ?>
+            </form>
         </div>
     </div>
 
-    <div class="content-area">
-        <!-- Customer Summary Cards + Status Chart -->
-        <div class="row mb-4">
-            <!-- Summary Cards -->
-            <div class="col-lg-8">
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 mb-3">
-                        <div class="card dashboard-card">
-                            <div class="card-body text-center">
-                                <div class="h3 text-primary mb-2"><?= formatNumber($customer_summary['total_customers']) ?></div>
-                                <h6 class="text-muted">Total Customer</h6>
-                                <small class="text-muted">Dari database</small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-lg-6 col-md-6 mb-3">
-                        <div class="card dashboard-card">
-                            <div class="card-body text-center">
-                                <div class="h3 text-success mb-2"><?= formatNumber($customer_summary['new_customers']) ?></div>
-                                <h6 class="text-muted">Customer Baru</h6>
-                                <small class="text-muted">(30 hari terakhir)</small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-lg-6 col-md-6 mb-3">
-                        <div class="card dashboard-card">
-                            <div class="card-body text-center">
-                                <div class="h3 text-info mb-2"><?= formatNumber($customer_summary['repeat_customers']) ?></div>
-                                <h6 class="text-muted">Repeat Customer</h6>
-                                <small class="text-muted">(Lebih dari 1 pembelian)</small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-lg-6 col-md-6 mb-3">
-                        <div class="card dashboard-card">
-                            <div class="card-body text-center">
-                                <div class="h3 text-warning mb-2"><?= formatCurrency($customer_summary['avg_transaction_value']) ?></div>
-                                <h6 class="text-muted">Rata-rata Transaksi</h6>
-                            </div>
-                        </div>
-                    </div>
+    <div class="product-list-container shadow-sm mb-4">
+        <?php if (empty($paginated_customers)): ?>
+            <div class="text-center py-5">
+                <div style="width: 80px; height: 80px; background: #F3F4F6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                    <i class="fas fa-search text-muted fs-2"></i>
                 </div>
+                <h5 class="fw-bold text-dark mb-1">Tidak Ditemukan</h5>
+                <p class="text-muted">Customer dengan kriteria tersebut tidak ditemukan dalam catatan.</p>
+                <a href="detail.php" class="btn btn-dark rounded-pill px-4">Reset Pencarian</a>
             </div>
-            
-            <!-- Status Distribution Chart -->
-            <div class="col-lg-4 mb-3">
-                <div class="card">
-                    <div class="card-header">
-                        <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Distribusi Status Customer</h6>
-                    </div>
-                    <div class="card-body">
-                        <div style="height: 250px; position: relative;">
-                            <canvas id="statusChart"></canvas>
-                        </div>
-                        
-                        <!-- Status Legend -->
-                        <div class="mt-3">
-                            <div class="row text-center">
-                                <div class="col-6 mb-2">
-                                    <span class="badge bg-danger"><?= $status_stats['high_risk'] ?></span>
-                                    <small class="d-block">High Risk</small>
-                                </div>
-                                <div class="col-6 mb-2">
-                                    <span class="badge bg-warning"><?= $status_stats['medium_risk'] ?></span>
-                                    <small class="d-block">Medium Risk</small>
-                                </div>
-                                <div class="col-6 mb-2">
-                                    <span class="badge bg-success"><?= $status_stats['very_active'] ?></span>
-                                    <small class="d-block">Very Active</small>
-                                </div>
-                                <div class="col-6 mb-2">
-                                    <span class="badge bg-info"><?= $status_stats['active'] ?></span>
-                                    <small class="d-block">Active</small>
-                                </div>
-                                <div class="col-12">
-                                    <span class="badge bg-secondary"><?= $status_stats['stable'] ?></span>
-                                    <small class="d-block">Stable</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Filter Section -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Filter Data</h6>
-                    <?php if (!empty($active_filters)): ?>
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="text-muted small">
-                                <i class="fas fa-info-circle me-1"></i>
-                                <?= $total_customers ?> customer ditemukan
-                                <?php if (!empty($filters['status_filter'])): ?>
-                                    (status: <?= ucwords(str_replace('_', ' ', $filters['status_filter'])) ?>)
-                                <?php endif; ?>
-                            </span>
-                            <a href="detail.php" class="btn btn-outline-secondary btn-sm">
-                                <i class="fas fa-times me-1"></i>Reset
-                            </a>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-            <div class="card-body">
-                <!-- Quick Status Filters -->
-                <div class="row mb-3">
-                    <div class="col-12">
-                        <h6 class="mb-2">
-                            <i class="fas fa-bolt me-2"></i>Quick Filter Status:
-                        </h6>
-                        <div class="btn-group flex-wrap" role="group">
-                            <a href="<?= buildFilterUrl(['status_filter' => '', 'page' => 1]) ?>" 
-                               class="btn <?= empty($filters['status_filter']) ? 'btn-primary' : 'btn-outline-primary' ?> btn-sm">
-                                <i class="fas fa-users me-1"></i>Semua
-                                <span class="badge bg-white text-primary ms-1"><?= count($all_customers_for_chart) ?></span>
-                            </a>
-                            <a href="<?= buildFilterUrl(['status_filter' => 'high_risk', 'page' => 1]) ?>" 
-                               class="btn <?= $filters['status_filter'] === 'high_risk' ? 'btn-danger' : 'btn-outline-danger' ?> btn-sm">
-                                <i class="fas fa-exclamation-triangle me-1"></i>High Risk
-                                <span class="badge bg-white text-danger ms-1"><?= $status_stats['high_risk'] ?></span>
-                            </a>
-                            <a href="<?= buildFilterUrl(['status_filter' => 'medium_risk', 'page' => 1]) ?>" 
-                               class="btn <?= $filters['status_filter'] === 'medium_risk' ? 'btn-warning' : 'btn-outline-warning' ?> btn-sm">
-                                <i class="fas fa-eye me-1"></i>Medium Risk
-                                <span class="badge bg-white text-warning ms-1"><?= $status_stats['medium_risk'] ?></span>
-                            </a>
-                            <a href="<?= buildFilterUrl(['status_filter' => 'very_active', 'page' => 1]) ?>" 
-                               class="btn <?= $filters['status_filter'] === 'very_active' ? 'btn-success' : 'btn-outline-success' ?> btn-sm">
-                                <i class="fas fa-star me-1"></i>Very Active
-                                <span class="badge bg-white text-success ms-1"><?= $status_stats['very_active'] ?></span>
-                            </a>
-                            <a href="<?= buildFilterUrl(['status_filter' => 'active', 'page' => 1]) ?>" 
-                               class="btn <?= $filters['status_filter'] === 'active' ? 'btn-info' : 'btn-outline-info' ?> btn-sm">
-                                <i class="fas fa-thumbs-up me-1"></i>Active
-                                <span class="badge bg-white text-info ms-1"><?= $status_stats['active'] ?></span>
-                            </a>
-                            <a href="<?= buildFilterUrl(['status_filter' => 'stable', 'page' => 1]) ?>" 
-                               class="btn <?= $filters['status_filter'] === 'stable' ? 'btn-secondary' : 'btn-outline-secondary' ?> btn-sm">
-                                <i class="fas fa-minus me-1"></i>Stable
-                                <span class="badge bg-white text-secondary ms-1"><?= $status_stats['stable'] ?></span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Traditional Filters -->
-                <form method="GET" class="row g-3" id="filterForm">
-                    <div class="col-md-3">
-                        <label class="form-label">Dari Tanggal</label>
-                        <input type="date" name="tanggal_dari" class="form-control" 
-                               value="<?= $filters['tanggal_dari'] ?>">
-                    </div>
-                    
-                    <div class="col-md-3">
-                        <label class="form-label">Sampai Tanggal</label>
-                        <input type="date" name="tanggal_sampai" class="form-control" 
-                               value="<?= $filters['tanggal_sampai'] ?>">
-                    </div>
-                    
-                    <div class="col-md-2">
-                        <label class="form-label">Produk</label>
-                        <select name="produk_id" class="form-select">
-                            <option value="">Semua Produk</option>
-                            <?php foreach ($all_produk as $produk): ?>
-                                <option value="<?= $produk['id'] ?>" 
-                                        <?= $produk['id'] == $filters['produk_id'] ? 'selected' : '' ?>>
-                                    <?= safeHtml($produk['nama']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-2">
-                        <label class="form-label">Per Halaman</label>
-                        <select name="limit" class="form-select">
-                            <option value="10" <?= $filters['limit'] == 10 ? 'selected' : '' ?>>10</option>
-                            <option value="20" <?= $filters['limit'] == 20 ? 'selected' : '' ?>>20</option>
-                            <option value="50" <?= $filters['limit'] == 50 ? 'selected' : '' ?>>50</option>
-                            <option value="100" <?= $filters['limit'] == 100 ? 'selected' : '' ?>>100</option>
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-2">
-                        <label class="form-label">Cari Customer</label>
-                        <input type="text" name="cari_customer" class="form-control" 
-                               placeholder="Nama atau WhatsApp..." 
-                               value="<?= $filters['cari_customer'] ?>">
-                    </div>
-                    
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-search me-2"></i>Filter
-                        </button>
-                        <button type="button" class="btn btn-outline-secondary" onclick="window.location='detail.php'">
-                            <i class="fas fa-refresh me-1"></i>Reset
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Customer Table -->
-        <div class="card">
-            <div class="card-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        Data Customer & Analytics
-                        <?php if (!empty($active_filters) || !empty($filters['status_filter'])): ?>
-                            (<?= $total_customers ?> customer)
-                        <?php endif; ?>
-                    </h5>
-                    
-                    <?php if (!empty($paginated_customers)): ?>
-                        <div class="d-flex gap-2 align-items-center">
-                            <span class="text-muted">
-                                Halaman <?= $filters['page'] ?> dari <?= $total_pages ?>
-                            </span>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-            <div class="card-body">
-                <?php if (empty($paginated_customers)): ?>
-                    <div class="text-center py-5">
-                        <?php if (!empty($active_filters) || !empty($filters['status_filter'])): ?>
-                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">Tidak ada customer yang sesuai kriteria</h5>
-                            <p class="text-muted">Coba sesuaikan filter pencarian Anda.</p>
-                            <a href="detail.php" class="btn btn-outline-primary">Reset Filter</a>
-                        <?php else: ?>
-                            <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">Belum ada data customer</h5>
-                            <p class="text-muted">Data akan muncul setelah ada transaksi selesai.</p>
-                            <a href="<?= BASE_URL ?>modules/transaksi/create.php" class="btn btn-primary">
-                                <i class="fas fa-plus me-2"></i>Buat Transaksi
-                            </a>
-                        <?php endif; ?>
-                    </div>
-                <?php else: ?>
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>No</th>
-                                    <th>Customer</th>
-                                    <th>Status & Risk</th>
-                                    <th>Pembelian</th>
-                                    <th>Produk Terbeli</th>
-                                    <th>Total Belanja</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php 
-                                $start_number = ($filters['page'] - 1) * $filters['limit'] + 1;
-                                foreach ($paginated_customers as $index => $customer): 
-                                    $behavior = getCustomerBehavior($customer); // Pass full customer data
-                                    $risk_class = $behavior['status']['class'];
-                                ?>
-                                <tr class="<?= $risk_class == 'danger' ? 'table-danger' : ($risk_class == 'warning' ? 'table-warning' : '') ?>">
-                                    <td><?= $start_number + $index ?></td>
-                                    
-                                    <!-- Customer Info -->
-                                    <td>
-                                        <div class="fw-bold"><?= safeHtml($customer['customer_nama']) ?></div>
-                                        <a href="https://wa.me/<?= $customer['nomor_wa'] ?>" 
-                                           target="_blank" class="text-success text-decoration-none">
-                                            <i class="fab fa-whatsapp me-1"></i><?= $customer['nomor_wa'] ?>
-                                        </a>
-                                    </td>
-                                    
-                                    <!-- Status & Risk -->
-                                    <td>
-                                        <span class="badge bg-<?= $behavior['status']['class'] ?> mb-1">
-                                            <?= $behavior['status']['label'] ?>
-                                        </span>
-                                        <br>
-                                        <small class="text-muted">
-                                            Risk: <?= $behavior['risk_score'] ?>% 
-                                            (<?= $behavior['frequency'] ?>x buyer)
-                                        </small>
-                                        <div class="progress mt-1" style="height: 4px;">
-                                            <div class="progress-bar bg-<?= $risk_class ?>" 
-                                                 style="width: <?= $behavior['risk_score'] ?>%"></div>
-                                        </div>
-                                    </td>
-                                    
-                                    <!-- Purchase Info - FIXED -->
-                                    <td>
-                                        <div class="mb-1">
-                                            <strong><?= $customer['jumlah_transaksi'] ?></strong> transaksi
-                                        </div>
-                                        <small class="text-muted">
-                                            Terakhir: <?= date('d/m/Y', strtotime($customer['transaksi_terakhir'])) ?>
-                                        </small>
-                                        <br>
-                                        <small class="text-muted">
-                                            <strong><?= $behavior['days_since_last'] ?> hari lalu</strong>
-                                        </small>
-                                    </td>
-                                    
-                                    <!-- Products -->
-                                    <td>
-                                        <div style="max-height: 80px; overflow-y: auto;">
-                                            <?php 
-                                            // Group produk yang sama untuk tampilan yang lebih rapi
-                                            $product_summary = [];
-                                            foreach ($customer['produk_list'] as $produk) {
-                                                $product_name = $produk['nama'];
-                                                if (!isset($product_summary[$product_name])) {
-                                                    $product_summary[$product_name] = [
-                                                        'count' => 0,
-                                                        'total_harga' => 0,
-                                                        'harga_satuan' => $produk['harga']
-                                                    ];
-                                                }
-                                                $product_summary[$product_name]['count']++;
-                                                $product_summary[$product_name]['total_harga'] += $produk['harga'];
-                                            }
-                                            
-                                            // Tampilkan maksimal 3 produk teratas (berdasarkan total harga)
-                                            arsort($product_summary, SORT_NUMERIC);
-                                            $top_products = array_slice($product_summary, 0, 3, true);
-                                            
-                                            foreach ($top_products as $product_name => $summary): 
-                                            ?>
-                                                <div class="small mb-1">
-                                                    • <?= safeHtml($product_name) ?>
-                                                    <?php if ($summary['count'] > 1): ?>
-                                                        <span class="badge bg-secondary"><?= $summary['count'] ?>x</span>
-                                                    <?php endif; ?>
-                                                    <span class="text-success"><?= formatCurrency($summary['total_harga']) ?></span>
-                                                </div>
-                                            <?php endforeach; ?>
-                                            
-                                            <?php if (count($product_summary) > 3): ?>
-                                                <small class="text-muted">
-                                                    +<?= count($product_summary) - 3 ?> produk lainnya
-                                                </small>
-                                            <?php endif; ?>
-                                        </div>
-                                    </td>
-                                    
-                                    <!-- Total Spending -->
-                                    <td>
-                                        <div class="fw-bold text-primary">
-                                            <?= formatCurrency($customer['total_belanja']) ?>
-                                        </div>
-                                        <small class="text-muted">
-                                            Avg: <?= formatCurrency($customer['total_belanja'] / $customer['jumlah_transaksi']) ?>
-                                        </small>
-                                    </td>
-                                    
-                                    <!-- Actions -->
-                                    <td>
-                                        <div class="btn-group-vertical btn-group-sm" role="group">
-                                            <!-- Basic WhatsApp -->
-                                            <a href="https://wa.me/<?= $customer['nomor_wa'] ?>" 
-                                               class="btn btn-success btn-sm" target="_blank" title="Chat WhatsApp">
-                                                <i class="fab fa-whatsapp me-1"></i>Chat
-                                            </a>
-                                            
-                                            <!-- Action berdasarkan behavior -->
-                                            <?php if ($behavior['status']['action'] == 'retention'): ?>
-                                                <a href="https://wa.me/<?= $customer['nomor_wa'] ?>?text=Hai%20<?= urlencode($customer['customer_nama']) ?>,%20kami%20rindu%20Anda!%20Ada%20promo%20spesial%20nih!" 
-                                                   class="btn btn-danger btn-sm" target="_blank" title="Kirim promo retensi">
-                                                    <i class="fas fa-gift me-1"></i>Promo
-                                                </a>
-                                            <?php elseif ($behavior['status']['action'] == 'upsell'): ?>
-                                                <a href="https://wa.me/<?= $customer['nomor_wa'] ?>?text=Hai%20<?= urlencode($customer['customer_nama']) ?>,%20ada%20produk%20premium%20yang%20cocok%20untuk%20Anda!" 
-                                                   class="btn btn-info btn-sm" target="_blank" title="Tawarkan upsell">
-                                                    <i class="fas fa-arrow-up me-1"></i>Upsell
-                                                </a>
-                                            <?php else: ?>
-                                                <a href="https://wa.me/<?= $customer['nomor_wa'] ?>?text=Hai%20<?= urlencode($customer['customer_nama']) ?>,%20apa%20kabar?%20Semoga%20sehat%20selalu!" 
-                                                   class="btn btn-primary btn-sm" target="_blank" title="Sapa customer">
-                                                    <i class="fas fa-handshake me-1"></i>Sapa
-                                                </a>
-                                            <?php endif; ?>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <!-- Pagination -->
-                    <?php if ($total_pages > 1): ?>
-                        <nav class="mt-4" aria-label="Customer pagination">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <div class="text-muted">
-                                    Halaman <?= $filters['page'] ?> dari <?= $total_pages ?> 
-                                    (<?= number_format($total_customers) ?> total customer)
-                                </div>
-                                <div class="btn-group" role="group">
-                                    <?php if ($filters['page'] > 1): ?>
-                                        <a href="<?= buildFilterUrl(['page' => 1]) ?>" class="btn btn-outline-primary btn-sm">
-                                            <i class="fas fa-angle-double-left"></i> Pertama
-                                        </a>
-                                        <a href="<?= buildFilterUrl(['page' => $filters['page'] - 1]) ?>" class="btn btn-outline-primary btn-sm">
-                                            <i class="fas fa-angle-left"></i> Sebelumnya
-                                        </a>
-                                    <?php endif; ?>
-                                    
-                                    <?php if ($filters['page'] < $total_pages): ?>
-                                        <a href="<?= buildFilterUrl(['page' => $filters['page'] + 1]) ?>" class="btn btn-outline-primary btn-sm">
-                                            Berikutnya <i class="fas fa-angle-right"></i>
-                                        </a>
-                                        <a href="<?= buildFilterUrl(['page' => $total_pages]) ?>" class="btn btn-outline-primary btn-sm">
-                                            Terakhir <i class="fas fa-angle-double-right"></i>
-                                        </a>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
+        <?php else: ?>
+            <div class="table-responsive">
+                <table class="table-editorial">
+                    <thead>
+                        <tr>
+                            <th width="40" class="text-center">#</th>
+                            <th>Info Pelanggan</th>
+                            <th>Status & Risiko</th>
+                            <th>Aktivitas</th>
+                            <th>Produk Utama</th>
+                            <th>Nilai Pelanggan</th>
+                            <th class="text-end pe-4">Aksi Cepat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php 
+                        $start_number = ($filters['page'] - 1) * $filters['limit'] + 1;
+                        foreach ($paginated_customers as $index => $customer): 
+                            $behavior = getCustomerBehavior($customer); 
+                            $risk_class = $behavior['status']['class'];
                             
-                            <ul class="pagination justify-content-center">
-                                <?php if ($filters['page'] > 1): ?>
-                                    <li class="page-item">
-                                        <a class="page-link" href="<?= buildFilterUrl(['page' => $filters['page'] - 1]) ?>" aria-label="Previous">
-                                            <i class="fas fa-chevron-left"></i>
-                                        </a>
-                                    </li>
-                                <?php endif; ?>
-                                
-                                <?php 
-                                $start_page = max(1, $filters['page'] - 2);
-                                $end_page = min($total_pages, $filters['page'] + 2);
-                                
-                                // Show first page if not in range
-                                if ($start_page > 1): ?>
-                                    <li class="page-item">
-                                        <a class="page-link" href="<?= buildFilterUrl(['page' => 1]) ?>">1</a>
-                                    </li>
-                                    <?php if ($start_page > 2): ?>
-                                        <li class="page-item disabled">
-                                            <span class="page-link">...</span>
-                                        </li>
-                                    <?php endif; ?>
-                                <?php endif; ?>
-                                
-                                <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
-                                    <li class="page-item <?= $i == $filters['page'] ? 'active' : '' ?>">
-                                        <a class="page-link" href="<?= buildFilterUrl(['page' => $i]) ?>">
-                                            <?= $i ?>
-                                        </a>
-                                    </li>
-                                <?php endfor; ?>
-                                
-                                <!-- Show last page if not in range -->
-                                <?php if ($end_page < $total_pages): ?>
-                                    <?php if ($end_page < $total_pages - 1): ?>
-                                        <li class="page-item disabled">
-                                            <span class="page-link">...</span>
-                                        </li>
-                                    <?php endif; ?>
-                                    <li class="page-item">
-                                        <a class="page-link" href="<?= buildFilterUrl(['page' => $total_pages]) ?>"><?= $total_pages ?></a>
-                                    </li>
-                                <?php endif; ?>
-                                
-                                <?php if ($filters['page'] < $total_pages): ?>
-                                    <li class="page-item">
-                                        <a class="page-link" href="<?= buildFilterUrl(['page' => $filters['page'] + 1]) ?>" aria-label="Next">
-                                            <i class="fas fa-chevron-right"></i>
-                                        </a>
-                                    </li>
-                                <?php endif; ?>
-                            </ul>
-                        </nav>
-                    <?php endif; ?>
-                    
-                    <!-- Summary Info -->
-                    <div class="row mt-4">
-                        <div class="col-md-6">
-                            <div class="text-muted">
-                                Menampilkan <?= count($paginated_customers) ?> dari <?= $total_customers ?> customer
-                                <?php if (!empty($filters['status_filter'])): ?>
-                                    dengan status <strong><?= ucwords(str_replace('_', ' ', $filters['status_filter'])) ?></strong>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                        <div class="col-md-6 text-end">
-                            <?php if (!empty($paginated_customers)): ?>
-                                <a href="<?= buildFilterUrl(['export' => 'csv']) ?>" class="btn btn-outline-success btn-sm">
-                                    <i class="fas fa-download me-1"></i>Export CSV
-                                </a>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <!-- Simple Business Tips -->
-        <?php if (!empty($grouped_customers)): ?>
-        <div class="row mt-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Tips Bisnis</h6>
-                    </div>
-                    <div class="card-body">
-                        <?php
-                        $high_risk_count = 0;
-                        $active_count = 0;
-                        $total_customers = count($grouped_customers);
-                        
-                        foreach ($grouped_customers as $customer) {
-                            $behavior = getCustomerBehavior($customer);
-                            if ($behavior['risk_score'] > 70) $high_risk_count++;
-                            if ($behavior['status']['action'] == 'upsell') $active_count++;
-                        }
+                            // Map bootstrap color to custom hex for subtle progress bar
+                            $progress_color = '#6B7280';
+                            if($risk_class == 'danger') $progress_color = '#EF4444';
+                            if($risk_class == 'warning') $progress_color = '#F59E0B';
+                            if($risk_class == 'success') $progress_color = '#10B981';
+                            if($risk_class == 'info') $progress_color = '#3B82F6';
                         ?>
-                        
-                        <ul class="list-unstyled">
-                            <?php if ($high_risk_count > 0): ?>
-                                <li class="mb-2">
-                                    <i class="fas fa-exclamation-triangle text-danger me-2"></i>
-                                    <strong><?= $high_risk_count ?></strong> customer berisiko tinggi. 
-                                    Segera lakukan campaign retensi!
-                                </li>
-                            <?php endif; ?>
+                        <tr>
+                            <td class="text-center text-muted fw-bold" style="font-size: 0.85rem;"><?= $start_number + $index ?></td>
                             
-                            <?php if ($active_count > 0): ?>
-                                <li class="mb-2">
-                                    <i class="fas fa-arrow-up text-success me-2"></i>
-                                    <strong><?= $active_count ?></strong> customer aktif siap ditawarkan upsell.
-                                </li>
-                            <?php endif; ?>
+                            <td>
+                                <div class="fw-bold text-dark" style="font-size: 0.95rem;"><?= safeHtml($customer['customer_nama']) ?></div>
+                                <a href="https://wa.me/<?= $customer['nomor_wa'] ?>" target="_blank" class="text-muted text-decoration-none" style="font-size: 0.85rem;">
+                                    <i class="fab fa-whatsapp text-success me-1"></i><?= $customer['nomor_wa'] ?>
+                                </a>
+                            </td>
                             
-                            <li class="mb-2">
-                                <i class="fas fa-chart-line text-info me-2"></i>
-                                Total revenue: <strong><?= formatCurrency($customer_summary['total_revenue']) ?></strong>
-                            </li>
+                            <td>
+                                <span class="badge-clean" style="background: rgba(var(--bs-<?= $risk_class ?>-rgb), 0.1); color: var(--bs-<?= $risk_class ?>); padding: 0.25rem 0.6rem;">
+                                    <?= $behavior['status']['label'] ?>
+                                </span>
+                                <div class="mt-2 d-flex align-items-center gap-2">
+                                    <div style="flex-grow: 1; height: 4px; background: #F3F4F6; border-radius: 4px; overflow: hidden;">
+                                        <div style="width: <?= $behavior['risk_score'] ?>%; height: 100%; background: <?= $progress_color ?>; border-radius: 4px;"></div>
+                                    </div>
+                                    <span style="font-size: 0.7rem; font-weight: 700; color: #9CA3AF; min-width: 25px; text-align: right;"><?= $behavior['risk_score'] ?>%</span>
+                                </div>
+                            </td>
                             
-                            <li class="mb-2">
-                                <i class="fas fa-users text-primary me-2"></i>
-                                Repeat rate: <strong><?= $total_customers > 0 ? round(($customer_summary['repeat_customers'] / $total_customers) * 100, 1) : 0 ?>%</strong>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+                            <td>
+                                <div class="fw-bold text-dark" style="font-size: 0.9rem;"><?= $customer['jumlah_transaksi'] ?>x Transaksi</div>
+                                <div class="text-muted" style="font-size: 0.8rem;">
+                                    <i class="fas fa-history me-1"></i><?= $behavior['days_since_last'] ?> hari lalu
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div style="font-size: 0.85rem; line-height: 1.5; color: #4B5563;">
+                                    <?php 
+                                    $product_summary = [];
+                                    foreach ($customer['produk_list'] as $produk) {
+                                        $p_name = $produk['nama'];
+                                        if (!isset($product_summary[$p_name])) $product_summary[$p_name] = ['count' => 0];
+                                        $product_summary[$p_name]['count']++;
+                                    }
+                                    arsort($product_summary);
+                                    $top_products = array_slice($product_summary, 0, 2, true);
+                                    foreach ($top_products as $p_name => $summary): 
+                                    ?>
+                                        <div><span class="text-dark fw-bold">&bull;</span> <?= truncateText(safeHtml($p_name), 20) ?> <?= $summary['count'] > 1 ? '<span class="text-primary fw-bold">('.$summary['count'].'x)</span>' : '' ?></div>
+                                    <?php endforeach; ?>
+                                    <?php if (count($product_summary) > 2): ?>
+                                        <div class="text-muted fst-italic">+<?= count($product_summary) - 2 ?> lainnya</div>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="fw-bold text-primary" style="font-size: 1rem;"><?= formatCurrency($customer['total_belanja']) ?></div>
+                                <div class="text-muted" style="font-size: 0.75rem;">Avg: <?= formatCurrency($customer['total_belanja'] / $customer['jumlah_transaksi']) ?></div>
+                            </td>
+                            
+                            <td class="text-end pe-4">
+                                <div class="d-flex justify-content-end gap-1">
+                                    <a href="https://wa.me/<?= $customer['nomor_wa'] ?>" class="btn-action-icon checkout" target="_blank" title="Chat Biasa">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </a>
+                                    
+                                    <?php if ($behavior['status']['action'] == 'retention'): ?>
+                                        <a href="https://wa.me/<?= $customer['nomor_wa'] ?>?text=Hai%20<?= urlencode($customer['customer_nama']) ?>,%20kami%20rindu%20Anda!%20Ada%20promo%20spesial%20nih!" 
+                                           class="btn btn-sm btn-danger rounded-pill fw-bold" target="_blank" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">
+                                            <i class="fas fa-gift me-1"></i> Promo
+                                        </a>
+                                    <?php elseif ($behavior['status']['action'] == 'upsell'): ?>
+                                        <a href="https://wa.me/<?= $customer['nomor_wa'] ?>?text=Hai%20<?= urlencode($customer['customer_nama']) ?>,%20ada%20produk%20premium%20yang%20cocok%20untuk%20Anda!" 
+                                           class="btn btn-sm btn-info text-white rounded-pill fw-bold" target="_blank" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">
+                                            <i class="fas fa-arrow-up me-1"></i> Upsell
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="https://wa.me/<?= $customer['nomor_wa'] ?>?text=Hai%20<?= urlencode($customer['customer_nama']) ?>,%20apa%20kabar?%20Semoga%20sehat%20selalu!" 
+                                           class="btn btn-sm btn-dark rounded-pill fw-bold" target="_blank" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">
+                                            <i class="fas fa-handshake me-1"></i> Sapa
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
             
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h6 class="mb-0"><i class="fas fa-tasks me-2"></i>Action Items</h6>
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-unstyled">
-                            <li class="mb-2">
-                                <i class="fas fa-phone text-danger me-2"></i>
-                                Hubungi customer high-risk dalam 24 jam
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-envelope text-info me-2"></i>
-                                Kirim newsletter ke customer aktif mingguan
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-gift text-success me-2"></i>
-                                Buat program loyalitas untuk repeat customer
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-chart-bar text-warning me-2"></i>
-                                Analisa produk terlaris untuk stok optimal
-                            </li>
-                        </ul>
-                    </div>
+            <?php if ($total_pages > 1): ?>
+            <div class="p-3 border-top d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                <div class="text-muted small fw-bold">
+                    Hal <?= $filters['page'] ?> dari <?= $total_pages ?> (<?= number_format($total_customers) ?> data)
+                </div>
+                <div class="d-flex gap-1">
+                    <?php if ($filters['page'] > 1): ?>
+                        <a href="<?= buildFilterUrl(['page' => $filters['page'] - 1]) ?>" class="btn btn-sm btn-light text-dark fw-bold border-0"><i class="fas fa-chevron-left"></i></a>
+                    <?php endif; ?>
+                    
+                    <?php 
+                    $start_page = max(1, $filters['page'] - 2);
+                    $end_page = min($total_pages, $filters['page'] + 2);
+                    for ($i = $start_page; $i <= $end_page; $i++): 
+                    ?>
+                        <a href="<?= buildFilterUrl(['page' => $i]) ?>" class="btn btn-sm <?= $i == $filters['page'] ? 'btn-dark' : 'btn-light text-muted' ?> fw-bold border-0" style="min-width: 32px;"><?= $i ?></a>
+                    <?php endfor; ?>
+                    
+                    <?php if ($filters['page'] < $total_pages): ?>
+                        <a href="<?= buildFilterUrl(['page' => $filters['page'] + 1]) ?>" class="btn btn-sm btn-light text-dark fw-bold border-0"><i class="fas fa-chevron-right"></i></a>
+                    <?php endif; ?>
                 </div>
             </div>
-        </div>
+            <?php endif; ?>
         <?php endif; ?>
     </div>
+
+    <?php if ($customer_summary['total_customers'] > 0): ?>
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="list-container h-100">
+                <h6 class="fw-bold mb-4"><i class="fas fa-lightbulb text-warning me-2"></i>Insight Bisnis</h6>
+                <?php
+                // Mengambil data dari perhitungan global PHP kamu, bukan dari paginasi tabel
+                $high_risk_count = $status_stats['high_risk']; 
+                $active_count = $status_stats['very_active'] + $status_stats['active'];
+                $total_cust = $customer_summary['total_customers'];
+                ?>
+                <div class="d-flex flex-column gap-3">
+                    <?php if ($high_risk_count > 0): ?>
+                        <div class="d-flex align-items-start gap-3 p-3 rounded-4" style="background: #FEF2F2; border: 1px solid #FECACA;">
+                            <div style="width:40px; height:40px; background:#FFFFFF; color:#EF4444; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.1);">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div>
+                                <strong class="text-danger d-block mb-1" style="font-size: 0.95rem;"><?= $high_risk_count ?> Customer Berisiko Tinggi</strong>
+                                <span class="text-dark" style="font-size: 0.85rem; line-height: 1.4;">Mereka sudah lama tidak belanja. Segera klik filter "High Risk" di atas dan kirimkan campaign promo retensi (diskon).</span>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if ($active_count > 0): ?>
+                        <div class="d-flex align-items-start gap-3 p-3 rounded-4" style="background: #ECFDF5; border: 1px solid #A7F3D0;">
+                            <div style="width:40px; height:40px; background:#FFFFFF; color:#10B981; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.1);">
+                                <i class="fas fa-arrow-up"></i>
+                            </div>
+                            <div>
+                                <strong class="text-success d-block mb-1" style="font-size: 0.95rem;"><?= $active_count ?> Customer Siap Upsell</strong>
+                                <span class="text-dark" style="font-size: 0.85rem; line-height: 1.4;">Mereka adalah pelanggan aktif. Waktu yang sangat tepat untuk menawarkan produk premium baru kamu.</span>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="row g-2 mt-1">
+                        <div class="col-6">
+                            <div class="p-3 rounded-4" style="background: #F9FAFB; border: 1px solid #E5E7EB;">
+                                <div class="text-muted small text-uppercase fw-bold mb-1">Total Revenue</div>
+                                <div class="text-primary fw-bold fs-5"><?= formatCurrency($customer_summary['total_revenue']) ?></div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 rounded-4" style="background: #F9FAFB; border: 1px solid #E5E7EB;">
+                                <div class="text-muted small text-uppercase fw-bold mb-1">Repeat Rate</div>
+                                <div class="text-primary fw-bold fs-5"><?= $total_cust > 0 ? round(($customer_summary['repeat_customers'] / $total_cust) * 100, 1) : 0 ?>%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="list-container h-100">
+                <h6 class="fw-bold mb-4"><i class="fas fa-tasks text-primary me-2"></i>Action Plan Checklist</h6>
+                <div class="d-flex flex-column gap-0">
+                    <label class="row-item" style="cursor: pointer;">
+                        <div class="d-flex align-items-center gap-3">
+                            <input type="checkbox" class="form-check-input mt-0" style="width: 1.25rem; height: 1.25rem;">
+                            <span class="text-dark" style="font-weight: 500; font-size: 0.9rem;">Sapa customer 'Stable' agar kembali 'Active'</span>
+                        </div>
+                    </label>
+                    <label class="row-item" style="cursor: pointer;">
+                        <div class="d-flex align-items-center gap-3">
+                            <input type="checkbox" class="form-check-input mt-0" style="width: 1.25rem; height: 1.25rem;">
+                            <span class="text-dark" style="font-weight: 500; font-size: 0.9rem;">Kirim broadcast WhatsApp ke customer baru</span>
+                        </div>
+                    </label>
+                    <label class="row-item" style="cursor: pointer;">
+                        <div class="d-flex align-items-center gap-3">
+                            <input type="checkbox" class="form-check-input mt-0" style="width: 1.25rem; height: 1.25rem;">
+                            <span class="text-dark" style="font-weight: 500; font-size: 0.9rem;">Evaluasi produk yang dibeli kelompok 'High Risk'</span>
+                        </div>
+                    </label>
+                    <label class="row-item border-bottom-0" style="cursor: pointer;">
+                        <div class="d-flex align-items-center gap-3">
+                            <input type="checkbox" class="form-check-input mt-0" style="width: 1.25rem; height: 1.25rem;">
+                            <span class="text-dark" style="font-weight: 500; font-size: 0.9rem;">Tawarkan kupon spesial untuk repeat order</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// Simple form enhancements
 document.addEventListener('DOMContentLoaded', function() {
+    // Styling Global Chart
+    Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+    
     // Status Chart
     const ctx = document.getElementById('statusChart').getContext('2d');
     new Chart(ctx, {
@@ -892,83 +669,59 @@ document.addEventListener('DOMContentLoaded', function() {
                     <?= $status_stats['active'] ?>,
                     <?= $status_stats['stable'] ?>
                 ],
-                backgroundColor: [
-                    '#dc3545', // High Risk - Danger
-                    '#ffc107', // Medium Risk - Warning  
-                    '#28a745', // Very Active - Success
-                    '#17a2b8', // Active - Info
-                    '#6c757d'  // Stable - Secondary
-                ],
-                borderWidth: 2,
-                borderColor: '#fff'
+                backgroundColor: ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#6B7280'],
+                borderWidth: 0,
+                hoverOffset: 4
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            cutout: '75%', // Bikin lingkaran tipis elegan
             plugins: {
-                legend: {
-                    display: false // Kita pakai legend custom di HTML
-                },
+                legend: { display: false }, // Legend custom di HTML
                 tooltip: {
+                    backgroundColor: '#111827',
+                    padding: 10,
+                    bodyFont: { weight: 'bold' },
                     callbacks: {
                         label: function(context) {
                             const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                            const percentage = total > 0 ? ((context.parsed * 100) / total).toFixed(1) : 0;
-                            return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                            const percent = total > 0 ? ((context.parsed * 100) / total).toFixed(1) : 0;
+                            return ' ' + context.label + ': ' + context.parsed + ' orang (' + percent + '%)';
                         }
                     }
                 }
-            },
-            layout: {
-                padding: 10
             }
         }
     });
     
-    // Auto submit on select changes
-    document.querySelectorAll('#filterForm select').forEach(element => {
-        element.addEventListener('change', function() {
-            document.getElementById('filterForm').submit();
-        });
+    // Auto submit form saat input berubah
+    document.querySelectorAll('#filterForm select, #filterForm input[type="date"]').forEach(element => {
+        element.addEventListener('change', () => document.getElementById('filterForm').submit());
     });
     
-    // Date auto submit
-    document.querySelectorAll('#filterForm input[type="date"]').forEach(element => {
-        element.addEventListener('change', function() {
-            document.getElementById('filterForm').submit();
-        });
-    });
-    
-    // Search with delay
+    // Search dengan Delay (Debounce)
     let searchTimeout;
     const searchInput = document.querySelector('input[name="cari_customer"]');
     if (searchInput) {
         searchInput.addEventListener('input', function() {
             clearTimeout(searchTimeout);
-            const searchValue = this.value.trim();
-            
-            if (searchValue.length >= 3 || searchValue.length === 0) {
-                searchTimeout = setTimeout(() => {
-                    document.getElementById('filterForm').submit();
-                }, 1000);
+            if (this.value.trim().length >= 3 || this.value.trim().length === 0) {
+                searchTimeout = setTimeout(() => document.getElementById('filterForm').submit(), 800);
             }
         });
     }
     
-    // Export loading state
-    document.querySelectorAll('a[href*="export=csv"]').forEach(function(link) {
-        link.addEventListener('click', function() {
-            const originalText = this.innerHTML;
-            this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Export...';
-            this.style.pointerEvents = 'none';
-            
-            setTimeout(() => {
-                this.innerHTML = originalText;
-                this.style.pointerEvents = 'auto';
-            }, 3000);
+    // Animasi Export CSV Button
+    const btnExport = document.getElementById('btnExportCSV');
+    if (btnExport) {
+        btnExport.addEventListener('click', function() {
+            const icon = this.querySelector('i');
+            icon.className = 'fas fa-spinner fa-spin me-1 text-success';
+            setTimeout(() => { icon.className = 'fas fa-file-csv me-1 text-success'; }, 2500);
         });
-    });
+    }
 });
 </script>
 

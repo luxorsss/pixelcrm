@@ -25,25 +25,34 @@ if (isPost() && post('delete_all_produk_id')) {
 }
 ?>
 
-<div class="main-content">
-    <div class="content-area">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="fas fa-layer-group me-2"></i>Bundling Produk</h2>
-            <a href="create.php" class="btn btn-primary">
-                <i class="fas fa-plus me-1"></i>Tambah Bundling
+<div class="main-content dashboard-wrapper">
+    <!-- Header -->
+    <div class="dash-header flex-column flex-md-row align-items-start align-items-md-center gap-3 mb-4">
+        <div>
+            <h1 class="dash-title">Paket Bundling</h1>
+            <div class="text-muted mt-1" style="font-weight: 500; font-size: 0.95rem;">Kelola penawaran spesial dan diskon gabungan produk.</div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="create.php" class="btn btn-primary d-flex align-items-center gap-2" style="border-radius: 12px; font-weight: 700; padding: 0.75rem 1.25rem;">
+                <i class="fas fa-plus"></i> Tambah Bundling
             </a>
         </div>
+    </div>
 
+    <!-- Content Area -->
+    <div class="w-100">
         <?php if (empty($bundlings)): ?>
-            <div class="card">
-                <div class="card-body text-center py-5">
-                    <i class="fas fa-layer-group fa-3x text-muted mb-3"></i>
-                    <h5>Belum ada bundling produk</h5>
-                    <p class="text-muted">Mulai buat bundling produk untuk meningkatkan penjualan</p>
-                    <a href="create.php" class="btn btn-primary">
-                        <i class="fas fa-plus me-1"></i>Buat Bundling
-                    </a>
+            <div class="list-container text-center py-5 shadow-sm">
+                <div class="mb-3">
+                    <div style="width: 80px; height: 80px; background: #F3F4F6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-layer-group text-muted fs-2"></i>
+                    </div>
                 </div>
+                <h5 class="fw-bold text-dark mb-1">Belum Ada Bundling</h5>
+                <p class="text-muted mb-4" style="max-width: 400px; margin: 0 auto;">Buat penawaran paket bundling pertamamu untuk menarik pelanggan dan meningkatkan omzet penjualan.</p>
+                <a href="create.php" class="btn btn-dark rounded-pill fw-bold px-4">
+                    <i class="fas fa-plus me-2"></i>Buat Bundling Pertama
+                </a>
             </div>
         <?php else: ?>
             <?php 
@@ -63,51 +72,64 @@ if (isPost() && post('delete_all_produk_id')) {
             }
             ?>
             
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Daftar Bundling Produk (<?= count($grouped) ?> produk utama)</h5>
+            <div class="product-list-container shadow-sm mb-4">
+                <div class="p-4 border-bottom d-flex justify-content-between align-items-center bg-white">
+                    <h5 class="mb-0 fw-bold list-header m-0 p-0 text-dark">
+                        Daftar Bundling Aktif
+                        <span class="badge bg-light text-muted border ms-2" style="font-size: 0.8rem;"><?= count($grouped) ?> Produk Utama</span>
+                    </h5>
                 </div>
+
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
+                    <table class="table-editorial mb-0">
+                        <thead>
                             <tr>
-                                <th width="5%">No</th>
-                                <th width="40%">Produk Utama</th>
-                                <th width="15%">Bundling</th>
-                                <th width="20%">Total Diskon</th>
-                                <th width="20%">Aksi</th>
+                                <th width="60" class="text-center">No</th>
+                                <th>Produk Utama</th>
+                                <th width="150" class="text-center">Total Varian</th>
+                                <th width="220" class="text-end">Total Diskon Diberikan</th>
+                                <th width="150" class="text-end pe-4">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php $no = 1; foreach ($grouped as $produk_id => $data): ?>
                                 <tr>
-                                    <td><?= $no++ ?></td>
+                                    <td class="text-center text-muted fw-bold" style="font-size: 0.85rem;"><?= $no++ ?></td>
+                                    
                                     <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;">
-                                                <i class="fas fa-star text-white"></i>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div style="width: 44px; height: 44px; background: #FFFBEB; color: #F59E0B; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.1rem;">
+                                                <i class="fas fa-star"></i>
                                             </div>
                                             <div>
-                                                <div class="fw-bold"><?= clean($data['produk_utama']) ?></div>
-                                                <small class="text-muted"><?= formatCurrency($data['harga_utama']) ?></small>
+                                                <div class="fw-bold text-dark" style="font-size: 0.95rem;"><?= clean($data['produk_utama']) ?></div>
+                                                <div class="text-muted mt-1" style="font-size: 0.85rem; font-weight: 600;">
+                                                    <?= formatCurrency($data['harga_utama']) ?>
+                                                </div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td>
-                                        <span class="badge bg-info fs-6"><?= $data['count'] ?> produk</span>
+                                    
+                                    <td class="text-center">
+                                        <span class="badge-clean" style="background: #EFF6FF; color: #2563EB;">
+                                            <?= $data['count'] ?> Item
+                                        </span>
                                     </td>
-                                    <td>
-                                        <span class="badge bg-success fs-6"><?= formatCurrency($data['total_diskon']) ?></span>
+                                    
+                                    <td class="text-end">
+                                        <span class="badge-clean" style="background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0;">
+                                            <?= formatCurrency($data['total_diskon']) ?>
+                                        </span>
                                     </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <a href="edit.php?produk_id=<?= $produk_id ?>" class="btn btn-warning" title="Kelola Bundling">
-                                                <i class="fas fa-edit me-1"></i>Kelola
+                                    
+                                    <td class="text-end pe-4">
+                                        <div class="d-flex justify-content-end gap-1">
+                                            <a href="edit.php?produk_id=<?= $produk_id ?>" class="btn-action-icon edit" title="Kelola Bundling">
+                                                <i class="fas fa-pen"></i>
                                             </a>
-                                            <button type="button" class="btn btn-danger" 
-                                                    onclick="confirmDeleteAll(<?= $produk_id ?>, '<?= addslashes($data['produk_utama']) ?>')" 
-                                                    title="Hapus Semua Bundling">
-                                                <i class="fas fa-trash"></i>
+                                            <button type="button" class="btn-action-icon delete" title="Hapus Semua Bundling"
+                                                    onclick="confirmDeleteAll(<?= $produk_id ?>, '<?= addslashes(safeHtml($data['produk_utama'])) ?>')">
+                                                <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </div>
                                     </td>
@@ -118,8 +140,13 @@ if (isPost() && post('delete_all_produk_id')) {
                 </div>
                 
                 <?php if ($total_pages > 1): ?>
-                    <div class="card-footer">
-                        <?= getBundlingPagination($page, $total_pages) ?>
+                    <div class="p-3 border-top d-flex flex-column flex-md-row justify-content-between align-items-center gap-3" style="background: #F9FAFB;">
+                        <div class="text-muted small fw-bold text-uppercase" style="letter-spacing: 0.05em;">
+                            Halaman <?= $page ?> dari <?= $total_pages ?>
+                        </div>
+                        <div class="d-flex gap-1">
+                            <?= getBundlingPagination($page, $total_pages) ?>
+                        </div>
                     </div>
                 <?php endif; ?>
             </div>
@@ -127,27 +154,24 @@ if (isPost() && post('delete_all_produk_id')) {
     </div>
 </div>
 
-<!-- Delete All Modal -->
-<div class="modal fade" id="deleteAllModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Konfirmasi Hapus Semua Bundling</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Yakin ingin menghapus <strong>SEMUA bundling</strong> untuk produk <strong id="deleteAllName"></strong>?</p>
-                <div class="alert alert-danger">
-                    <small><i class="fas fa-exclamation-triangle me-1"></i>Semua bundling terkait produk ini akan dihapus permanen!</small>
+<!-- Custom Delete All Modal -->
+<div class="modal fade" id="deleteAllModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content" style="border-radius: 24px; border: none; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+            <div class="modal-body text-center p-4">
+                <div style="width: 64px; height: 64px; background: #FEF2F2; color: #EF4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                    <i class="fas fa-trash-alt" style="font-size: 1.75rem;"></i>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <form method="POST" id="deleteAllForm" class="d-inline">
+                <h5 class="fw-bold text-dark mb-2">Hapus Semua Bundling?</h5>
+                <p class="text-muted small mb-4" style="line-height: 1.5;">
+                    Yakin ingin menghapus seluruh varian bundling untuk <strong id="deleteAllName" class="text-dark"></strong>? 
+                    Tindakan ini permanen dan tidak bisa dibatalkan.
+                </p>
+                
+                <form method="POST" id="deleteAllForm" class="d-flex gap-2">
                     <input type="hidden" name="delete_all_produk_id" id="deleteAllProdukId">
-                    <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-trash me-1"></i>Hapus Semua
-                    </button>
+                    <button type="button" class="btn btn-light w-50 fw-bold" data-bs-dismiss="modal" style="border-radius: 12px; transition: all 0.2s;">Batal</button>
+                    <button type="submit" class="btn btn-danger w-50 fw-bold" id="confirmDeleteBtn" style="border-radius: 12px; background: #EF4444; border: none; transition: transform 0.2s;">Hapus</button>
                 </form>
             </div>
         </div>
@@ -158,8 +182,17 @@ if (isPost() && post('delete_all_produk_id')) {
 function confirmDeleteAll(produkId, produkName) {
     document.getElementById('deleteAllProdukId').value = produkId;
     document.getElementById('deleteAllName').textContent = produkName;
-    new bootstrap.Modal(document.getElementById('deleteAllModal')).show();
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteAllModal'));
+    deleteModal.show();
 }
+
+// Micro-interaction untuk tombol submit
+document.getElementById('deleteAllForm').addEventListener('submit', function() {
+    const btn = document.getElementById('confirmDeleteBtn');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Proses...';
+    btn.style.opacity = '0.8';
+    btn.style.pointerEvents = 'none';
+});
 </script>
 
 <?php require_once __DIR__ . '/../../includes/footer.php'; ?>

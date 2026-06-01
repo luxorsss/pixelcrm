@@ -1,6 +1,8 @@
 <?php
+ob_start(); // 1. TAHAN SEMUA CETAKAN HTML
+
 $page_title = 'Kelola Template Pesan';
-require_once __DIR__ . '/../../includes/header.php';
+require_once __DIR__ . '/../../includes/header.php'; // 2. Load header (Fungsi get() & database ada di sini)
 require_once __DIR__ . '/functions.php';
 
 $produk_id = (int)get('id');
@@ -16,17 +18,24 @@ if (!$product) {
     redirect('index.php');
 }
 
-// Handle AJAX preview request
+// -----------------------------------------------------------------------------
+// 1. HANDLE AJAX REQUEST (LIVE PREVIEW)
+// -----------------------------------------------------------------------------
 if (get('action') === 'preview') {
+    ob_clean(); // 3. BUANG cetakan HTML dari header.php tadi! Kita cuma butuh JSON.
+    
     header('Content-Type: application/json');
     $template_text = post('template');
     $sample_data = getSampleTemplateData($produk_id);
     $preview = replaceTemplatePlaceholders($template_text, $sample_data);
+    
     echo json_encode(['preview' => nl2br(clean($preview))]);
-    exit;
+    exit; // Berhenti di sini
 }
 
-// Process form submission
+// -----------------------------------------------------------------------------
+// 2. HANDLE FORM SUBMIT
+// -----------------------------------------------------------------------------
 if (isPost() && !get('action')) {
     $template_invoice = clean(post('template_invoice', ''));
     $template_akses = clean(post('template_akses', ''));
@@ -55,278 +64,199 @@ if (isPost() && !get('action')) {
 $templates = getTemplatesByProduct($produk_id);
 $sample_data = getSampleTemplateData($produk_id);
 $placeholders = getAvailablePlaceholders();
+
+// Biarkan HTML mengalir ke bawah jika ini bukan AJAX
 ?>
 
 <div class="d-flex">
     <?php include __DIR__ . '/../../includes/sidebar.php'; ?>
     
-    <div class="main-content">
+    <div class="main-content dashboard-wrapper flex-grow-1">
         <div class="content-area">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            
+            <div class="dash-header flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
                 <div>
-                    <h2 class="mb-1"><?= $page_title ?></h2>
-                    <p class="text-muted mb-0">
-                        <i class="fas fa-box me-1"></i><?= clean($product['nama']) ?>
-                    </p>
+                    <a href="index.php" class="text-muted text-decoration-none fw-bold" style="font-size: 0.85rem;">
+                        <i class="fas fa-arrow-left me-1"></i> Kembali ke Daftar Template
+                    </a>
+                    <h1 class="dash-title mt-2 d-flex align-items-center gap-2">
+                        <i class="fas fa-box text-warning" style="font-size: 1.5rem;"></i> <?= clean($product['nama']) ?>
+                    </h1>
                 </div>
-                <a href="index.php" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left me-1"></i>Kembali
-                </a>
+                <div>
+                    <button type="submit" form="templateForm" class="btn btn-dark fw-bold rounded-pill px-4 btn-submit">
+                        <i class="fas fa-save me-2"></i> Simpan Template
+                    </button>
+                </div>
             </div>
 
-            <form method="POST" class="row">
-                <!-- Placeholder Helper -->
-                <div class="col-12 mb-3">
-                    <div class="card border-info">
-                        <div class="card-header bg-info text-white">
-                            <h6 class="mb-0">
-                                <i class="fas fa-tags me-2"></i>Placeholder yang Tersedia
-                                <button type="button" class="btn btn-sm btn-light ms-2" onclick="togglePlaceholders()">
-                                    <i class="fas fa-eye" id="toggleIcon"></i> <span id="toggleText">Tampilkan</span>
-                                </button>
-                            </h6>
-                        </div>
-                        <div class="card-body" id="placeholderList" style="display: none;">
-                            <div class="row">
-                                <?php foreach ($placeholders as $category => $items): ?>
-                                    <div class="col-md-3">
-                                        <h6 class="text-primary"><?= $category ?></h6>
+            <?php if ($msg = getMessage()): ?>
+                <div class="alert alert-editorial mb-4" style="border-left-color: <?= $msg[1] === 'error' || $msg[1] === 'danger' ? 'var(--danger-color)' : 'var(--success-color)' ?>;">
+                    <div class="d-flex align-items-center">
+                        <i class="fas <?= $msg[1] === 'error' || $msg[1] === 'danger' ? 'fa-exclamation-circle text-danger' : 'fa-check-circle text-success' ?> me-2 fs-5"></i>
+                        <span class="fw-bold text-dark"><?= clean($msg[0]) ?></span>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <form method="POST" id="templateForm" class="row g-4">
+                
+                <div class="col-lg-7">
+                    
+                    <div class="panel-editorial mb-4" style="background: #F9FAFB; border: 1px dashed var(--border-light);">
+                        <h3 class="panel-title" style="font-size: 1rem;"><i class="fas fa-magic text-primary"></i> Variabel Otomatis (Klik untuk memasukkan)</h3>
+                        
+                        <div class="d-flex flex-column gap-3">
+                            <?php foreach ($placeholders as $category => $items): ?>
+                                <div>
+                                    <div class="text-muted fw-bold text-uppercase mb-2" style="font-size: 0.7rem; letter-spacing: 0.05em; border-bottom: 1px solid #E5E7EB; padding-bottom: 4px;"><?= $category ?></div>
+                                    <div class="d-flex flex-wrap gap-2">
                                         <?php foreach ($items as $placeholder => $description): ?>
-                                            <div class="mb-2">
-                                                <code class="placeholder-item" onclick="insertPlaceholder('<?= $placeholder ?>')" 
-                                                      style="cursor: pointer; background: #e3f2fd; padding: 2px 6px; border-radius: 4px;">
-                                                    <?= $placeholder ?>
-                                                </code>
-                                                <small class="d-block text-muted"><?= $description ?></small>
+                                            <div class="badge-clean placeholder-chip" 
+                                                 onclick="insertPlaceholder('<?= $placeholder ?>')" 
+                                                 title="<?= $description ?>">
+                                                <?= $placeholder ?>
                                             </div>
                                         <?php endforeach; ?>
                                     </div>
-                                <?php endforeach; ?>
-                            </div>
-                            <div class="alert alert-info mt-3 mb-0">
-                                <i class="fas fa-info-circle me-2"></i>
-                                <strong>Tip:</strong> Klik placeholder untuk menambahkan ke template yang sedang aktif
-                            </div>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
                     </div>
-                </div>
-                <!-- Template Invoice -->
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">
-                                <i class="fas fa-receipt me-2"></i>Template Invoice
-                            </h5>
+
+                    <div class="panel-editorial mb-4" style="border-left: 4px solid #F59E0B;">
+                        <h3 class="panel-title d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-receipt text-warning"></i> Template Invoice (Pending)</span>
+                        </h3>
+                        <div class="text-muted mb-3" style="font-size: 0.85rem; line-height: 1.5;">
+                            Dikirim saat pesanan dibuat. Gunakan ini untuk memberikan instruksi pembayaran kepada pembeli.
                         </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <label class="form-label">Isi Template Invoice</label>
-                                <textarea name="template_invoice" 
-                                          id="templateInvoice"
-                                          class="form-control" 
-                                          rows="12" 
-                                          placeholder="Masukkan template pesan invoice..."><?= clean($templates['invoice']) ?></textarea>
-                                <div class="form-text">
-                                    Template pesan yang dikirim saat customer melakukan pemesanan
-                                </div>
-                            </div>
-                            
-                            <!-- Preview with Sample Data -->
-                            <div class="border rounded p-3 bg-light">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h6 class="text-muted mb-0">Preview dengan Data Sample:</h6>
-                                    <button type="button" class="btn btn-sm btn-outline-primary" 
-                                            onclick="updateLivePreview('templateInvoice', 'invoicePreview')">
-                                        <i class="fas fa-sync-alt"></i> Refresh
-                                    </button>
-                                </div>
-                                <div class="template-preview" id="invoicePreview">
-                                    <?= $templates['invoice'] ? nl2br(clean(replaceTemplatePlaceholders($templates['invoice'], $sample_data))) : '<em class="text-muted">Template kosong</em>' ?>
-                                </div>
-                            </div>
-                        </div>
+                        <textarea name="template_invoice" id="templateInvoice" class="form-control-editorial fw-medium" rows="12" 
+                                  placeholder="Ketik pesan invoice di sini..." 
+                                  style="resize: vertical; font-family: monospace; font-size: 0.85rem; line-height: 1.6;"><?= clean($templates['invoice']) ?></textarea>
                     </div>
+
+                    <div class="panel-editorial mb-4 mb-lg-0" style="border-left: 4px solid #10B981;">
+                        <h3 class="panel-title d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-key text-success"></i> Template Akses (Lunas)</span>
+                        </h3>
+                        <div class="text-muted mb-3" style="font-size: 0.85rem; line-height: 1.5;">
+                            Dikirim saat pesanan sudah lunas. Gunakan ini untuk memberikan link download atau akses produk.
+                        </div>
+                        <textarea name="template_akses" id="templateAkses" class="form-control-editorial fw-medium" rows="12" 
+                                  placeholder="Ketik pesan akses produk di sini..." 
+                                  style="resize: vertical; font-family: monospace; font-size: 0.85rem; line-height: 1.6;"><?= clean($templates['akses_produk']) ?></textarea>
+                    </div>
+
                 </div>
 
-                <!-- Template Akses Produk -->
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">
-                                <i class="fas fa-key me-2"></i>Template Akses Produk
-                            </h5>
+                <div class="col-lg-5">
+                    <div class="panel-editorial sticky-top p-0 overflow-hidden" style="top: 2rem;">
+                        
+                        <div class="bg-dark p-3 text-white border-bottom border-secondary d-flex justify-content-between align-items-center">
+                            <h6 class="fw-bold m-0" style="font-size: 0.95rem;"><i class="fab fa-whatsapp text-success me-2 fs-5 align-middle"></i> Live Preview</h6>
+                            <span class="badge bg-secondary" style="font-size: 0.65rem;" id="activePreviewLabel">Preview Invoice</span>
                         </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <label class="form-label">Isi Template Akses Produk</label>
-                                <textarea name="template_akses" 
-                                          id="templateAkses"
-                                          class="form-control" 
-                                          rows="12" 
-                                          placeholder="Masukkan template pesan akses produk..."><?= clean($templates['akses_produk']) ?></textarea>
-                                <div class="form-text">
-                                    Template pesan yang dikirim saat memberikan akses produk digital
-                                </div>
-                            </div>
-                            
-                            <!-- Preview with Sample Data -->
-                            <div class="border rounded p-3 bg-light">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h6 class="text-muted mb-0">Preview dengan Data Sample:</h6>
-                                    <button type="button" class="btn btn-sm btn-outline-primary" 
-                                            onclick="updateLivePreview('templateAkses', 'aksesPreview')">
-                                        <i class="fas fa-sync-alt"></i> Refresh
-                                    </button>
-                                </div>
-                                <div class="template-preview" id="aksesPreview">
-                                    <?= $templates['akses_produk'] ? nl2br(clean(replaceTemplatePlaceholders($templates['akses_produk'], $sample_data))) : '<em class="text-muted">Template kosong</em>' ?>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Submit Button -->
-                <div class="col-12 mt-3">
-                    <div class="card">
-                        <div class="card-body text-center">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-save me-2"></i>Simpan Template
-                            </button>
+                        <div style="background: #E5DDD5; padding: 1.5rem; min-height: 350px;">
+                            <div class="bg-white rounded-3 p-3 shadow-sm position-relative" style="border-radius: 0 12px 12px 12px !important;">
+                                <div style="position: absolute; top: 0; left: -8px; width: 0; height: 0; border-top: 10px solid white; border-left: 10px solid transparent;"></div>
+                                
+                                <div class="template-preview fw-medium text-dark" id="livePreviewContainer" style="font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word;">
+                                    <em class="text-muted text-center d-block py-4">Memuat preview...</em>
+                                </div>
+                                <div class="text-end mt-2 text-muted" style="font-size: 0.65rem;">
+                                    <?= date('H:i') ?> <i class="fas fa-check-double text-info ms-1"></i>
+                                </div>
+                            </div>
                         </div>
+
+                        <div class="p-4 bg-white border-top">
+                            <div class="text-muted fw-bold text-uppercase mb-3" style="font-size: 0.75rem; letter-spacing: 0.05em;"><i class="fas fa-database me-2"></i>Data Sample Saat Ini:</div>
+                            <div class="row g-2" style="font-size: 0.8rem;">
+                                <div class="col-6">
+                                    <div class="p-2 bg-light rounded border">
+                                        <div class="text-muted mb-1">Nama Customer</div>
+                                        <div class="fw-bold text-dark text-truncate"><?= $sample_data['nama_customer'] ?></div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="p-2 bg-light rounded border">
+                                        <div class="text-muted mb-1">Total Tagihan</div>
+                                        <div class="fw-bold text-success text-truncate"><?= formatCurrency($sample_data['total_harga']) ?></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </form>
 
-            <!-- Sample Data Info -->
-            <div class="card mt-3">
-                <div class="card-body">
-                    <h6><i class="fas fa-database me-2"></i>Data Sample untuk Preview</h6>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <strong>Customer:</strong>
-                            <ul class="text-muted mb-0">
-                                <li>Nama: <?= $sample_data['nama_customer'] ?></li>
-                                <li>No WA: <?= $sample_data['nomor_wa'] ?></li>
-								<li>Email: <?= $sample_data['email_customer'] ?></li>
-                            </ul>
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Transaksi:</strong>
-                            <ul class="text-muted mb-0">
-                                <li>ID: <?= $sample_data['id_transaksi'] ?></li>
-                                <li>Total: <?= formatCurrency($sample_data['total_harga']) ?></li>
-                            </ul>
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Produk:</strong>
-                            <?php if (isset($sample_data['produk_list'])): ?>
-                                <ul class="text-muted mb-0">
-                                    <?php foreach ($sample_data['produk_list'] as $produk): ?>
-                                        <li><?= clean($produk['nama']) ?> - <?= formatCurrency($produk['harga']) ?></li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            <?php else: ?>
-                                <ul class="text-muted mb-0">
-                                    <li><?= clean($sample_data['nama_produk']) ?> - <?= formatCurrency($sample_data['harga_produk']) ?></li>
-                                </ul>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Help Card -->
-            <div class="card mt-3">
-                <div class="card-body">
-                    <h6><i class="fas fa-lightbulb me-2"></i>Contoh Template</h6>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <strong>Template Invoice:</strong>
-                            <div class="bg-light p-3 rounded text-muted small mt-2">
-                                Halo [nama]!<br><br>
-                                Terima kasih telah memesan:<br>
-                                [daftar_produk]<br><br>
-                                Total: [total]<br>
-                                ID Transaksi: [id_transaksi]<br><br>
-                                Silakan lakukan pembayaran sesuai instruksi...
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Template Akses Produk:</strong>
-                            <div class="bg-light p-3 rounded text-muted small mt-2">
-                                Halo [nama]!<br><br>
-                                Pembayaran berhasil! Berikut akses produk Anda:<br><br>
-                                [daftar_link]<br><br>
-                                Terima kasih telah berbelanja!<br>
-                                Hubungi admin jika ada kendala.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>
 
-<script>
-let currentActiveTextarea = null;
-
-// Toggle placeholder visibility
-function togglePlaceholders() {
-    const list = document.getElementById('placeholderList');
-    const icon = document.getElementById('toggleIcon');
-    const text = document.getElementById('toggleText');
-    
-    if (list.style.display === 'none') {
-        list.style.display = 'block';
-        icon.className = 'fas fa-eye-slash';
-        text.textContent = 'Sembunyikan';
-    } else {
-        list.style.display = 'none';
-        icon.className = 'fas fa-eye';
-        text.textContent = 'Tampilkan';
-    }
+<style>
+/* CSS khusus untuk Chip Placeholder */
+.placeholder-chip {
+    background: #EFF6FF;
+    color: #2563EB;
+    border: 1px solid #BFDBFE;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.75rem;
+    font-family: monospace;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
 }
+.placeholder-chip:hover {
+    background: #3B82F6;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+}
+.placeholder-chip:active { transform: scale(0.95); }
+</style>
 
-// Insert placeholder to active textarea
+<script>
+let currentActiveTextarea = 'templateInvoice'; // Default aktif
+
+// Fungsi menyisipkan placeholder ke cursor position
 function insertPlaceholder(placeholder) {
-    if (!currentActiveTextarea) {
-        alert('Klik pada textarea terlebih dahulu');
-        return;
-    }
-    
     const textarea = document.getElementById(currentActiveTextarea);
+    if(!textarea) return;
+
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const value = textarea.value;
     
-    // Insert at cursor position
     textarea.value = value.substring(0, start) + placeholder + value.substring(end);
-    
-    // Move cursor after inserted placeholder
     textarea.setSelectionRange(start + placeholder.length, start + placeholder.length);
     textarea.focus();
     
-    // Update preview
-    updateLivePreview(currentActiveTextarea, currentActiveTextarea === 'templateInvoice' ? 'invoicePreview' : 'aksesPreview');
+    updateLivePreview(currentActiveTextarea);
 }
 
-// Update live preview with AJAX
-function updateLivePreview(textareaId, previewId) {
+// Update live preview dengan error handling simpel
+function updateLivePreview(textareaId) {
     const textarea = document.getElementById(textareaId);
-    const preview = document.getElementById(previewId);
+    const previewContainer = document.getElementById('livePreviewContainer');
+    const label = document.getElementById('activePreviewLabel');
+    
+    // Update label
+    label.textContent = textareaId === 'templateInvoice' ? 'Preview Invoice' : 'Preview Akses Lunas';
+    label.className = textareaId === 'templateInvoice' ? 'badge bg-warning text-dark' : 'badge bg-success text-white';
+
     const template = textarea.value;
     
     if (!template.trim()) {
-        preview.innerHTML = '<em class="text-muted">Template kosong</em>';
+        previewContainer.innerHTML = '<em class="text-muted d-block py-4 text-center">Template masih kosong...</em>';
         return;
     }
     
-    // Show loading
-    preview.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat preview...';
+    previewContainer.style.opacity = '0.5';
     
-    // AJAX request
     fetch('edit.php?id=<?= $produk_id ?>&action=preview', {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -334,39 +264,63 @@ function updateLivePreview(textareaId, previewId) {
     })
     .then(response => response.json())
     .then(data => {
-        preview.innerHTML = data.preview || '<em class="text-muted">Error preview</em>';
+        if(data.preview) {
+            previewContainer.innerHTML = data.preview;
+        } else {
+            previewContainer.innerHTML = '<em class="text-danger d-block py-4 text-center">Gagal merender teks.</em>';
+        }
+        previewContainer.style.opacity = '1';
     })
     .catch(error => {
-        preview.innerHTML = '<em class="text-danger">Error loading preview</em>';
+        previewContainer.innerHTML = '<em class="text-danger d-block py-4 text-center">Gagal memuat AJAX Preview.</em>';
+        previewContainer.style.opacity = '1';
     });
 }
 
-// Document ready
+// Delay untuk typing agar tidak spam AJAX
+const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func.apply(this, args), delay);
+    };
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     const invoiceTextarea = document.getElementById('templateInvoice');
     const aksesTextarea = document.getElementById('templateAkses');
     
-    // Track active textarea
+    const debouncedPreview = debounce((id) => updateLivePreview(id), 500);
+
+    // Event listener Invoice
     if (invoiceTextarea) {
-        invoiceTextarea.addEventListener('focus', () => currentActiveTextarea = 'templateInvoice');
-        invoiceTextarea.addEventListener('input', () => updateLivePreview('templateInvoice', 'invoicePreview'));
+        invoiceTextarea.addEventListener('focus', () => { 
+            currentActiveTextarea = 'templateInvoice'; 
+            updateLivePreview('templateInvoice'); 
+        });
+        invoiceTextarea.addEventListener('input', () => debouncedPreview('templateInvoice'));
     }
     
+    // Event listener Akses
     if (aksesTextarea) {
-        aksesTextarea.addEventListener('focus', () => currentActiveTextarea = 'templateAkses');
-        aksesTextarea.addEventListener('input', () => updateLivePreview('templateAkses', 'aksesPreview'));
+        aksesTextarea.addEventListener('focus', () => { 
+            currentActiveTextarea = 'templateAkses'; 
+            updateLivePreview('templateAkses'); 
+        });
+        aksesTextarea.addEventListener('input', () => debouncedPreview('templateAkses'));
     }
     
-    // Highlight placeholder items on hover
-    document.querySelectorAll('.placeholder-item').forEach(item => {
-        item.addEventListener('mouseenter', function() {
-            this.style.backgroundColor = '#1976d2';
-            this.style.color = 'white';
-        });
-        item.addEventListener('mouseleave', function() {
-            this.style.backgroundColor = '#e3f2fd';
-            this.style.color = '#1976d2';
-        });
+    // Muat preview pertama kali
+    updateLivePreview('templateInvoice');
+
+    // UX Feedback Tombol Simpan
+    document.getElementById('templateForm').addEventListener('submit', function() {
+        const btn = this.querySelector('.btn-submit');
+        if(btn) {
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...';
+            btn.style.opacity = '0.8';
+            btn.style.pointerEvents = 'none';
+        }
     });
 });
 </script>

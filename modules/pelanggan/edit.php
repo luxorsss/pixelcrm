@@ -67,192 +67,124 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 ?>
 
 <!-- Main Content -->
-<div class="main-content">
-    <!-- Top Header -->
-    <div class="top-header">
-        <div class="d-flex justify-content-between align-items-center">
+<div class="main-content dashboard-wrapper">
+    <div class="form-container">
+        
+        <div class="dash-header mb-4">
             <div>
-                <h1 class="page-title mb-0">Edit Pelanggan</h1>
-                <nav class="breadcrumb">
-                    <a href="<?= BASE_URL ?>" class="breadcrumb-item text-decoration-none">Dashboard</a>
-                    <a href="index.php" class="breadcrumb-item text-decoration-none">Pelanggan</a>
-                    <span class="breadcrumb-item active">Edit</span>
-                </nav>
+                <a href="index.php" class="text-muted text-decoration-none fw-bold" style="font-size: 0.85rem;">
+                    <i class="fas fa-arrow-left me-1"></i> Database Pelanggan
+                </a>
+                <h1 class="dash-title mt-2">Edit Pelanggan</h1>
             </div>
             <div class="d-flex gap-2">
-                <a href="histori.php?id=<?= $pelanggan_id ?>" class="btn btn-info">
-                    <i class="fas fa-history me-2"></i>Histori
-                </a>
-                <a href="index.php" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Kembali
+                <a href="histori.php?id=<?= $pelanggan_id ?>" class="btn btn-light text-dark fw-bold border" style="border-radius: 12px;">
+                    <i class="fas fa-history me-1"></i> Histori Belanja
                 </a>
             </div>
         </div>
-    </div>
 
-    <!-- Content Area -->
-    <div class="content-area">
         <?php if (!empty($errors)): ?>
-            <div class="alert alert-danger">
-                <ul class="mb-0">
+            <div class="alert alert-editorial mb-4" style="border-left-color: #EF4444;">
+                <ul class="mb-0 text-danger fw-bold" style="font-size: 0.9rem;">
                     <?php foreach ($errors as $error): ?>
                         <li><?= $error ?></li>
                     <?php endforeach; ?>
                 </ul>
             </div>
         <?php endif; ?>
-        
-        <div class="row">
-            <!-- Form Edit -->
+
+        <div class="row g-4">
             <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Form Edit Pelanggan</h5>
-                    </div>
-                    <div class="card-body">
-                        <form method="POST" class="needs-validation" novalidate>
-                            <div class="mb-3">
-                                <label for="nama" class="form-label">Nama Pelanggan <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="nama" name="nama" 
-                                       value="<?= safeHtml(post('nama', '')) ?>" 
-                                       required maxlength="100">
-                                <div class="invalid-feedback">Nama pelanggan harus diisi.</div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="nomor_wa" class="form-label">Nomor WhatsApp <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text">
-                                        <i class="fab fa-whatsapp text-success"></i>
-                                    </span>
-                                    <input type="text" class="form-control" id="nomor_wa" name="nomor_wa" 
-                                           value="<?= safeHtml(post('nomor_wa', '')) ?>" 
-                                           placeholder="628xxxxxxxxxx" required>
-                                </div>
-                                <small class="form-text text-muted">
-                                    Format: 628xxxxxxxxxx (akan otomatis dinormalisasi)
-                                </small>
-                                <div class="invalid-feedback">Nomor WA harus diisi dengan format yang valid.</div>
-                            </div>
-                            
-                            <div class="d-flex justify-content-end gap-2">
-                                <a href="index.php" class="btn btn-secondary">Batal</a>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save me-2"></i>Update Pelanggan
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Info Panel -->
-            <div class="col-lg-4">
-                <!-- Statistik Pelanggan -->
-                <div class="card">
-                    <div class="card-header">
-                        <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Statistik Pelanggan</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="row text-center">
-                            <div class="col-4">
-                                <div class="h5 text-primary"><?= $stats['total_transaksi'] ?></div>
-                                <small class="text-muted">Transaksi</small>
-                            </div>
-                            <div class="col-8">
-                                <div class="h5 text-success"><?= formatCurrency($stats['total_pembelian']) ?></div>
-                                <small class="text-muted">Total Pembelian</small>
+                <div class="panel-editorial">
+                    <h3 class="panel-title"><i class="fas fa-user-edit"></i> Form Update Data</h3>
+                    
+                    <form method="POST" novalidate>
+                        <div class="mb-4">
+                            <label for="nama" class="form-label">Nama Pelanggan <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control-editorial" id="nama" name="nama" 
+                                   value="<?= safeHtml(post('nama', '')) ?>" required maxlength="100">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="nomor_wa" class="form-label">Nomor WhatsApp <span class="text-danger">*</span></label>
+                            <div class="input-group-editorial">
+                                <span class="addon"><i class="fab fa-whatsapp text-success"></i></span>
+                                <input type="text" class="form-control-editorial" id="nomor_wa" name="nomor_wa" 
+                                       value="<?= safeHtml(post('nomor_wa', '')) ?>" 
+                                       placeholder="628xxxxxxxxxx" required autocomplete="off">
                             </div>
                         </div>
                         
-                        <?php if ($stats['transaksi_terakhir']): ?>
-                            <hr>
-                            <p class="text-muted mb-1">Transaksi Terakhir:</p>
-                            <p class="fw-bold"><?= formatDate($stats['transaksi_terakhir'], 'd/m/Y H:i') ?></p>
-                        <?php endif; ?>
-                        
-                        <hr>
-                        <p class="text-muted mb-1">Terdaftar:</p>
-                        <p class="fw-bold"><?= formatDate($pelanggan['tanggal_daftar'], 'd/m/Y H:i') ?></p>
+                        <div class="d-flex flex-column flex-sm-row gap-2 mt-4 pt-3 border-top">
+                            <button type="submit" class="btn-submit flex-grow-1 order-1 order-sm-2">
+                                <i class="fas fa-save me-2"></i> Update Pelanggan
+                            </button>
+                            <a href="index.php" class="btn-cancel flex-grow-1 order-2 order-sm-1">Batal</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                
+                <div class="panel-editorial p-4 mb-4">
+                    <h3 class="panel-title" style="font-size: 1rem;"><i class="fas fa-chart-pie text-primary"></i> Statistik Belanja</h3>
+                    
+                    <div class="row text-center g-2 mb-3">
+                        <div class="col-5">
+                            <div class="p-2 bg-light rounded-3 border">
+                                <div class="fw-bold text-dark fs-5"><?= $stats['total_transaksi'] ?></div>
+                                <div class="text-muted" style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700;">Transaksi</div>
+                            </div>
+                        </div>
+                        <div class="col-7">
+                            <div class="p-2 bg-light rounded-3 border" style="border-color: #A7F3D0 !important; background: #ECFDF5 !important;">
+                                <div class="fw-bold text-success fs-5"><?= formatCurrency($stats['total_pembelian']) ?></div>
+                                <div class="text-muted" style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700;">Total Nilai</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex flex-column gap-2 mt-3 text-muted" style="font-size: 0.85rem;">
+                        <div class="d-flex justify-content-between border-bottom pb-2">
+                            <span>Terdaftar:</span>
+                            <span class="fw-bold text-dark"><?= formatDate($pelanggan['tanggal_daftar'], 'd/m/Y') ?></span>
+                        </div>
+                        <div class="d-flex justify-content-between pt-1">
+                            <span>Trx Terakhir:</span>
+                            <span class="fw-bold text-dark"><?= $stats['transaksi_terakhir'] ? formatDate($stats['transaksi_terakhir'], 'd/m/Y') : '-' ?></span>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Actions -->
-                <div class="card mt-3">
-                    <div class="card-header">
-                        <h6 class="mb-0"><i class="fas fa-tools me-2"></i>Aksi Lainnya</h6>
-                    </div>
-                    <div class="card-body">
-                        <a href="histori.php?id=<?= $pelanggan_id ?>" class="btn btn-info w-100 mb-2">
-                            <i class="fas fa-history me-2"></i>Lihat Histori Pembelian
-                        </a>
-                        
-                        <a href="<?= whatsappLink($pelanggan['nomor_wa']) ?>" 
-                           target="_blank" class="btn btn-success w-100 mb-2">
-                            <i class="fab fa-whatsapp me-2"></i>Hubungi via WhatsApp
+                <div class="panel-editorial p-4" style="background: #F9FAFB;">
+                    <h3 class="panel-title" style="font-size: 1rem;"><i class="fas fa-bolt text-warning"></i> Aksi Cepat</h3>
+                    
+                    <div class="d-flex flex-column gap-2">
+                        <a href="<?= whatsappLink($pelanggan['nomor_wa']) ?>" target="_blank" class="btn btn-success fw-bold w-100 text-start" style="border-radius: 12px; padding: 0.85rem;">
+                            <i class="fab fa-whatsapp me-2 fs-5 align-middle"></i> Chat WhatsApp
                         </a>
                         
                         <?php if ($stats['total_transaksi'] == 0): ?>
                             <a href="delete.php?id=<?= $pelanggan_id ?>" 
-                               class="btn btn-outline-danger w-100"
-                               onclick="return confirm('Hapus pelanggan <?= safeHtml($pelanggan['nama']) ?>?')">
-                                <i class="fas fa-trash me-2"></i>Hapus Pelanggan
+                               class="btn btn-outline-danger fw-bold w-100 text-start bg-white" 
+                               style="border-radius: 12px; padding: 0.85rem;"
+                               onclick="return confirm('Hapus pelanggan <?= safeHtml($pelanggan['nama']) ?> secara permanen?')">
+                                <i class="fas fa-trash-alt me-2 fs-5 align-middle"></i> Hapus Pelanggan
                             </a>
                         <?php else: ?>
-                            <button class="btn btn-outline-secondary w-100" disabled title="Tidak dapat dihapus karena memiliki riwayat transaksi">
-                                <i class="fas fa-lock me-2"></i>Tidak Dapat Dihapus
-                            </button>
+                            <div class="bg-white border rounded-3 p-3 text-center mt-2">
+                                <i class="fas fa-lock text-muted mb-2 fs-4"></i>
+                                <div class="text-muted fw-bold" style="font-size: 0.8rem; line-height: 1.4;">Tidak dapat dihapus karena memiliki riwayat transaksi.</div>
+                            </div>
                         <?php endif; ?>
                     </div>
                 </div>
+                
             </div>
         </div>
     </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const nomorWaInput = document.getElementById('nomor_wa');
-    const inputPreview = document.getElementById('input-preview');
-    const normalizedPreview = document.getElementById('normalized-preview');
-    
-    function normalizePhoneNumber(phone) {
-        // Remove all non-numeric characters
-        phone = phone.replace(/[^0-9]/g, '');
-        
-        // Convert to 62 format
-        if (phone.startsWith('0')) {
-            phone = '62' + phone.substring(1);
-        } else if (!phone.startsWith('62')) {
-            phone = '62' + phone;
-        }
-        
-        return phone;
-    }
-    
-    function updatePreview() {
-        const inputValue = nomorWaInput.value;
-        const normalizedValue = normalizePhoneNumber(inputValue);
-        
-        if (inputPreview) inputPreview.textContent = inputValue || '-';
-        if (normalizedPreview) normalizedPreview.textContent = normalizedValue || '-';
-        
-        // Validate format
-        if (normalizedPreview) {
-            const isValid = /^62[0-9]{8,11}$/.test(normalizedValue);
-            normalizedPreview.className = isValid ? 'badge bg-success' : 'badge bg-danger';
-        }
-    }
-    
-    if (nomorWaInput) {
-        nomorWaInput.addEventListener('input', updatePreview);
-        // Initial preview update
-        updatePreview();
-    }
-    
-    // Auto focus nama input
-    document.getElementById('nama').focus();
-});
-</script>
 
 <?php require_once __DIR__ . '/../../includes/footer.php'; ?>

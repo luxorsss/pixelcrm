@@ -45,205 +45,168 @@ require_once __DIR__ . '/../../includes/header.php';
 require_once __DIR__ . '/../../includes/sidebar.php';
 ?>
 
-<div class="main-content">
-    <!-- Top Header -->
-    <div class="bg-white border-bottom p-3 mb-4">
-        <div class="d-flex justify-content-between align-items-center">
+<div class="main-content dashboard-wrapper">
+    <div class="form-container">
+        
+        <div class="dash-header mb-4">
             <div>
-                <h1 class="h3 mb-1">Tambah Produk</h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="index.php">Produk</a></li>
-                        <li class="breadcrumb-item active">Tambah</li>
-                    </ol>
-                </nav>
-            </div>
-            <div>
-                <a href="index.php" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Kembali
+                <a href="index.php" class="text-muted text-decoration-none fw-bold" style="font-size: 0.85rem;">
+                    <i class="fas fa-arrow-left me-1"></i> Kembali ke Katalog
                 </a>
+                <h1 class="dash-title mt-2"><?= isset($produk) ? 'Edit Produk' : 'Tambah Produk Baru' ?></h1>
             </div>
         </div>
-    </div>
 
-    <div class="container-fluid px-4">
-        <?php if (!empty($errors)): ?>
-            <div class="alert alert-danger">
-                <ul class="mb-0">
-                    <?php foreach ($errors as $error): ?>
-                        <li><?= $error ?></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-        <?php endif; ?>
-        
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-bottom">
-                <h5 class="mb-0"><i class="fas fa-plus me-2"></i>Form Tambah Produk</h5>
-            </div>
-            <div class="card-body">
-                <form method="POST">
-                    <div class="row">
-						<div class="col-md-6">
-							<div class="mb-3">
-								<label for="nama" class="form-label">Nama Produk <span class="text-danger">*</span></label>
-								<input type="text" class="form-control" id="nama" name="nama" 
-									value="<?= post('nama') ?>" required>
-							</div>
-						</div>
+        <form action="" method="POST" enctype="multipart/form-data">
+            <?php if(isset($produk)): ?>
+                <input type="hidden" name="id" value="<?= $produk['id'] ?>">
+            <?php endif; ?>
 
-						<div class="col-md-6">
-							<div class="mb-3">
-								<label for="harga" class="form-label">Harga <span class="text-danger">*</span></label>
-								<div class="input-group">
-									<span class="input-group-text">Rp</span>
-									<input type="number" class="form-control" id="harga" name="harga" 
-										value="<?= post('harga') ?>" min="0" step="1" required>
-								</div>
-							</div>
-						</div>
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="panel-editorial">
+                        <h3 class="panel-title"><i class="fas fa-box"></i> Informasi Dasar</h3>
+                        
+                        <div class="mb-4">
+                            <label class="form-label">Nama Produk <span class="text-danger">*</span></label>
+                            <input type="text" name="nama" class="form-control-editorial" 
+                                   placeholder="Contoh: E-Book Jago Ngoding" 
+                                   value="<?= clean(post('nama')) ?>" required>
+                        </div>
 
-						<!-- Kolom Profit Baru -->
-						<div class="col-md-6">
-							<div class="mb-3">
-								<label for="profit" class="form-label">Profit (Rp) 
-									<span class="text-muted">(Opsional)</span>
-								</label>
-								<div class="input-group">
-									<span class="input-group-text">Rp</span>
-									<input type="number" 
-										   class="form-control" 
-										   id="profit" 
-										   name="profit"
-										   value="<?= post('profit') ?>"
-										   min="0" 
-										   step="1" 
-										   placeholder="Contoh: 50000">
-								</div>
-								<small class="form-text text-muted">
-									<i class="fas fa-info-circle me-1"></i>
-									Kosongkan jika profit anda adalah 100% dari harga jual (Misal produk digital milik sendiri).
-								</small>
-							</div>
-						</div>
-					</div>
+                        <div class="mb-4">
+                            <label class="form-label">Deskripsi Singkat</label>
+                            <textarea name="deskripsi" class="form-control-editorial" 
+                                      placeholder="Jelaskan produk ini secara singkat agar pembeli paham..."><?= post('deskripsi') ?></textarea>
+                        </div>
 
-                    <div class="card bg-light border-0 rounded-3 mb-4 mt-3">
-                        <div class="card-body">
-                            <h6 class="card-title fw-bold mb-3"><i class="fas fa-sliders-h me-2 text-primary"></i>Pengaturan Halaman Checkout</h6>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="show_kupon" name="show_kupon" value="1" <?= post('show_kupon') ? 'checked' : '' ?>>
-                                        <label class="form-check-label fw-bold" for="show_kupon">Kupon Diskon</label>
-                                        <small class="form-text text-muted d-block">Munculkan form pengisian kode promo/diskon.</small>
-                                    </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Harga Jual <span class="text-danger">*</span></label>
+                                <div class="input-group-editorial">
+                                    <span class="addon">Rp</span>
+                                    <input type="number" name="harga" class="form-control-editorial" 
+                                           placeholder="150000" min="0" step="1"
+                                           value="<?= post('harga') ?>" required>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-check form-switch mt-3 mt-md-0">
-                                        <input class="form-check-input" type="checkbox" id="show_email" name="show_email" value="1" <?= post('show_email') ? 'checked' : '' ?>>
-                                        <label class="form-check-label fw-bold" for="show_email">Koleksi Email</label>
-                                        <small class="form-text text-muted d-block">Munculkan form pengisian email pembeli (wajib).</small>
-                                    </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Profit / Modal Bersih <span class="text-muted text-lowercase" style="font-size:0.7rem;">(Opsional)</span></label>
+                                <div class="input-group-editorial">
+                                    <span class="addon">Rp</span>
+                                    <input type="number" name="profit" class="form-control-editorial" 
+                                           placeholder="Contoh: 50000" min="0" step="1"
+                                           value="<?= post('profit') ?>">
+                                </div>
+                                <div class="text-muted mt-2" style="font-size: 0.75rem;">
+                                    <i class="fas fa-info-circle me-1"></i>Kosongkan jika profit 100%.
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label for="deskripsi" class="form-label">Deskripsi Produk</label>
-                        <textarea class="form-control" id="deskripsi" name="deskripsi" rows="3"><?= post('deskripsi') ?></textarea>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="link_akses" class="form-label">Link Akses Produk</label>
-                                <input type="url" class="form-control" id="link_akses" name="link_akses" 
-                                    value="<?= post('link_akses') ?>" placeholder="https://example.com/produk">
+
+                    <div class="panel-editorial">
+                        <h3 class="panel-title"><i class="fas fa-link"></i> Akses & Integrasi</h3>
+                        
+                        <div class="mb-4">
+                            <label class="form-label">Link Akses Produk (Setelah Bayar)</label>
+                            <input type="url" name="link_akses" class="form-control-editorial" 
+                                   placeholder="https://drive.google.com/..." 
+                                   value="<?= clean(post('link_akses')) ?>">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">HTTP POST URL</label>
+                            <input type="url" name="http_post" class="form-control-editorial" 
+                                   placeholder="https://api.example.com/webhook" 
+                                   value="<?= clean(post('http_post')) ?>">
+                            <div class="text-muted mt-2" style="font-size: 0.75rem;">URL endpoint untuk HTTP POST notification.</div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Nomor WA Admin (Notifikasi)</label>
+                                <input type="text" name="admin_wa" class="form-control-editorial" 
+                                       placeholder="62812..." 
+                                       value="<?= clean(post('admin_wa')) ?>">
+                                <div class="text-muted mt-2" style="font-size: 0.75rem;">Format: 628xxx (tanpa +).</div>
                             </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Akun OneSender (API)</label>
+                                <select name="onesender_account" class="form-control-editorial" style="appearance: auto;">
+                                    <?php foreach ($onesender_accounts as $account): ?>
+                                        <option value="<?= $account['account_name'] ?>"
+                                                <?= (post('onesender_account') === $account['account_name']) ? 'selected' : '' ?>>
+                                            <?= clean($account['account_name']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="panel-editorial">
+                        <h3 class="panel-title"><i class="fas fa-sliders-h"></i> Tampilan Checkout</h3>
+                        
+                        <label class="toggle-switch">
+                            <div>
+                                <div class="toggle-label">Kolom Email</div>
+                                <div class="toggle-desc">Wajibkan isi email pembeli</div>
+                            </div>
+                            <input type="checkbox" name="show_email" value="1" class="switch-input" 
+                                   <?= post('show_email') ? 'checked' : '' ?>>
+                            <div class="switch-slider"></div>
+                        </label>
+
+                        <label class="toggle-switch">
+                            <div>
+                                <div class="toggle-label">Kolom Kupon</div>
+                                <div class="toggle-desc">Tampilkan input kode diskon</div>
+                            </div>
+                            <input type="checkbox" name="show_kupon" value="1" class="switch-input"
+                                   <?= post('show_kupon') ? 'checked' : '' ?>>
+                            <div class="switch-slider"></div>
+                        </label>
+                    </div>
+
+                    <div class="panel-editorial">
+                        <h3 class="panel-title"><i class="fas fa-chart-line"></i> Meta Tracking</h3>
+                        
+                        <label class="toggle-switch mb-4" style="border-color: #BFDBFE; background: #EFF6FF;">
+                            <div>
+                                <div class="toggle-label text-primary">Aktifkan Tracking</div>
+                                <div class="toggle-desc">Kirim event saat transaksi</div>
+                            </div>
+                            <input type="checkbox" name="tracking_aktif" value="1" class="switch-input" 
+                                   <?= post('tracking_aktif') ? 'checked' : '' ?>>
+                            <div class="switch-slider"></div>
+                        </label>
+
+                        <div class="mb-3">
+                            <label class="form-label">Meta Pixel ID</label>
+                            <input type="text" name="meta_pixel_id" class="form-control-editorial" 
+                                   placeholder="1234567890" 
+                                   value="<?= clean(post('meta_pixel_id')) ?>">
                         </div>
                         
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="http_post" class="form-label">HTTP POST URL</label>
-                                <input type="url" class="form-control" id="http_post" name="http_post" 
-                                    value="<?= post('http_post') ?>" placeholder="https://api.example.com/webhook">
-                                <small class="form-text text-muted">URL endpoint untuk HTTP POST notification</small>
-                            </div>
+                        <div>
+                            <label class="form-label">Conversion API Token</label>
+                            <textarea name="conversion_api_token" class="form-control-editorial" style="min-height: 80px;" 
+                                      placeholder="EAAI..."><?= clean(post('conversion_api_token')) ?></textarea>
                         </div>
                     </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="admin_wa" class="form-label">Nomor WA Admin</label>
-                                <input type="text" class="form-control" id="admin_wa" name="admin_wa" 
-                                    value="<?= post('admin_wa') ?>" placeholder="628xxxxxxxxxx">
-                                <small class="form-text text-muted">Format: 628xxxxxxxxxx (tanpa tanda +)</small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="onesender_account" class="form-label">Akun OneSender</label>
-                        <select class="form-select" id="onesender_account" name="onesender_account">
-                            <?php foreach ($onesender_accounts as $account): ?>
-                                <option value="<?= $account['account_name'] ?>"
-                                        <?= (post('onesender_account') === $account['account_name']) ? 'selected' : '' ?>>
-                                    <?= $account['account_name'] ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    
-                    <!-- Meta Pixel Section -->
-                    <div class="card border-info mb-3">
-                        <div class="card-header bg-info text-white">
-                            <h6 class="mb-0"><i class="fab fa-facebook me-2"></i>Meta Pixel & Conversion API</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="meta_pixel_id" class="form-label">Meta Pixel ID</label>
-                                        <input type="text" class="form-control" id="meta_pixel_id" name="meta_pixel_id" 
-                                            value="<?= post('meta_pixel_id') ?>" placeholder="1234567890123456">
-                                        <small class="form-text text-muted">ID Pixel Meta untuk tracking (16 digit)</small>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="conversion_api_token" class="form-label">Conversion API Token</label>
-                                        <input type="password" class="form-control" id="conversion_api_token" name="conversion_api_token" 
-                                            value="<?= post('conversion_api_token') ?>" placeholder="EAAxxxxxxxxxxxxxxx">
-                                        <small class="form-text text-muted">Token akses untuk Conversion API</small>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="tracking_aktif" name="tracking_aktif" 
-                                    value="1" <?= post('tracking_aktif') ? 'checked' : '' ?>>
-                                <label class="form-check-label" for="tracking_aktif">
-                                    <strong>Aktifkan tracking untuk produk ini</strong>
-                                </label>
-                                <small class="form-text text-muted d-block">Centang untuk mengaktifkan Meta Pixel tracking saat ada transaksi produk ini</small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="d-flex justify-content-end gap-2">
-                        <a href="index.php" class="btn btn-secondary">Batal</a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>Simpan Produk
+
+                    <div class="d-flex flex-column gap-2 mt-4">
+                        <button type="submit" class="btn-submit">
+                            <i class="fas fa-save me-2"></i> <?= isset($produk) ? 'Update Produk' : 'Simpan Produk' ?>
                         </button>
+                        <a href="index.php" class="btn-cancel">Batal</a>
                     </div>
-                </form>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 

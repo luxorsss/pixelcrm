@@ -62,242 +62,200 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 ?>
 
 <!-- Main Content -->
-<div class="main-content">
-    <!-- Top Header -->
-    <div class="top-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="page-title mb-0">Kelola Pelanggan</h1>
-                <nav class="breadcrumb">
-                    <a href="<?= BASE_URL ?>" class="breadcrumb-item text-decoration-none">Dashboard</a>
-                    <span class="breadcrumb-item active">Pelanggan</span>
-                </nav>
-            </div>
-            <div class="d-flex gap-2">
-                <a href="create.php" class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i>Tambah Pelanggan
-                </a>
-                <a href="bulk.php" class="btn btn-success">
-                    <i class="fas fa-upload me-2"></i>Bulk Import
-                </a>
-            </div>
+<div class="main-content dashboard-wrapper">
+    <div class="dash-header flex-column flex-md-row align-items-start align-items-md-center gap-3 mb-4">
+        <div>
+            <h1 class="dash-title">Database Pelanggan</h1>
+            <div class="text-muted mt-1" style="font-weight: 500; font-size: 0.95rem;">Kelola data kontak dan pantau aktivitas belanja.</div>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="bulk.php" class="btn btn-light text-dark fw-bold border" style="border-radius: 12px;">
+                <i class="fas fa-upload me-1"></i> Bulk Import
+            </a>
+            <a href="create.php" class="btn btn-primary fw-bold" style="border-radius: 12px;">
+                <i class="fas fa-plus me-1"></i> Tambah Pelanggan
+            </a>
         </div>
     </div>
 
-    <!-- Content Area -->
-    <div class="content-area">
+    <div class="w-100">
         <?php displaySessionMessage(); ?>
         
-        <!-- Search and Stats -->
-        <div class="row mb-4">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-body">
-                        <form method="GET" class="row g-3">
-                            <div class="col-md-8">
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                    <input type="text" class="form-control" name="search" 
-                                           value="<?= safeHtml($search) ?>" 
-                                           placeholder="Cari nama atau nomor WA..." autocomplete="off">
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn btn-outline-primary w-100">
-                                    <i class="fas fa-search me-1"></i>Cari
-                                </button>
-                            </div>
-                            <div class="col-md-2">
-                                <?php if (!empty($search)): ?>
-                                    <a href="index.php" class="btn btn-outline-secondary w-100">
-                                        <i class="fas fa-times me-1"></i>Reset
-                                    </a>
-                                <?php else: ?>
-                                    <button type="button" class="btn btn-outline-secondary w-100" disabled>
-                                        <i class="fas fa-times me-1"></i>Reset
-                                    </button>
-                                <?php endif; ?>
-                            </div>
-                        </form>
-                        
-                        <?php if (!empty($search)): ?>
-                            <div class="mt-3">
-                                <span class="text-muted">
-                                    Hasil pencarian untuk: <strong>"<?= safeHtml($search) ?>"</strong>
-                                    (<?= $total_records ?> hasil)
-                                </span>
-                            </div>
-                        <?php endif; ?>
-                    </div>
+        <div class="list-container p-3 mb-4 d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+            <form method="GET" class="d-flex flex-wrap align-items-center gap-2 m-0 w-100">
+                <div class="d-flex align-items-center bg-light rounded-pill px-3 py-2 border border-light flex-grow-1" style="max-width: 500px; transition: var(--transition);" id="searchContainer">
+                    <i class="fas fa-search text-muted me-2"></i>
+                    <input type="text" name="search" class="form-control border-0 bg-transparent p-0 text-dark fw-bold" 
+                           placeholder="Cari nama atau nomor WA..." value="<?= safeHtml($search) ?>" autocomplete="off" 
+                           style="font-size: 0.95rem; outline: none; box-shadow: none;"
+                           onfocus="document.getElementById('searchContainer').style.borderColor='#111827'; document.getElementById('searchContainer').style.background='#ffffff';"
+                           onblur="document.getElementById('searchContainer').style.borderColor='transparent'; document.getElementById('searchContainer').style.background='#f8f9fa';">
                 </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card dashboard-card">
-                    <div class="card-body text-center">
-                        <div class="display-6 mb-2 text-primary"><?= number_format($total_records) ?></div>
-                        <h6 class="text-muted">
-                            <?= !empty($search) ? 'Hasil Pencarian' : 'Total Pelanggan' ?>
-                        </h6>
-                        <?php if (!empty($search)): ?>
-                            <small class="text-<?= $total_records > 0 ? 'success' : 'danger' ?>">
-                                <i class="fas fa-<?= $total_records > 0 ? 'check' : 'times' ?>-circle me-1"></i>
-                                <?= $total_records > 0 ? 'Ditemukan' : 'Tidak ditemukan' ?>
-                            </small>
-                        <?php endif; ?>
+                
+                <button type="submit" class="btn btn-dark btn-sm rounded-pill px-4 fw-bold" style="padding-top: 0.5rem; padding-bottom: 0.5rem;">Cari</button>
+                
+                <?php if (!empty($search)): ?>
+                    <a href="index.php" class="btn btn-light text-danger btn-sm rounded-pill px-3 fw-bold border-0" style="padding-top: 0.5rem; padding-bottom: 0.5rem;">
+                        <i class="fas fa-times me-1"></i> Reset
+                    </a>
+                <?php endif; ?>
+            </form>
+
+            <div class="d-flex align-items-center gap-2">
+                <?php if (!empty($search)): ?>
+                    <div class="badge-clean bg-light text-muted border">
+                        Hasil: <strong class="text-dark"><?= $total_records ?></strong>
                     </div>
-                </div>
+                <?php else: ?>
+                    <div class="badge-clean" style="background: #EFF6FF; color: #2563EB; font-size: 0.85rem; padding: 0.5rem 1rem; white-space: nowrap;">
+                        <i class="fas fa-users me-2"></i><?= number_format($total_records) ?> Total Pelanggan
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
         
-        <!-- Pelanggan Table -->
-        <div class="card">
-            <div class="card-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
+        <div class="product-list-container shadow-sm mb-4">
+            <?php if (empty($pelanggan_list)): ?>
+                <div class="text-center py-5">
+                    <div style="width: 80px; height: 80px; background: #F3F4F6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                        <i class="fas fa-<?= !empty($search) ? 'search' : 'user-slash' ?> text-muted fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-1"><?= !empty($search) ? 'Tidak Ditemukan' : 'Belum Ada Pelanggan' ?></h5>
+                    <p class="text-muted mb-4"><?= !empty($search) ? 'Coba gunakan kata kunci atau nomor WA lain.' : 'Mulai tambahkan pelanggan pertama atau import data secara bulk.' ?></p>
+                    <div class="d-flex gap-2 justify-content-center">
                         <?php if (!empty($search)): ?>
-                            <i class="fas fa-search me-2"></i>
-                            Hasil Pencarian: "<?= safeHtml($search) ?>"
+                            <a href="index.php" class="btn btn-dark rounded-pill px-4 fw-bold">Reset Pencarian</a>
                         <?php else: ?>
-                            <i class="fas fa-users me-2"></i>
-                            Daftar Pelanggan
-                        <?php endif; ?>
-                        <span class="badge bg-primary ms-2"><?= $total_records ?></span>
-                    </h5>
-                    
-                    <?php if (!empty($search)): ?>
-                        <a href="index.php" class="btn btn-sm btn-outline-secondary">
-                            <i class="fas fa-arrow-left me-1"></i>Lihat Semua
-                        </a>
-                    <?php endif; ?>
-                </div>
-            </div>
-            <div class="card-body">
-                <?php if (empty($pelanggan_list)): ?>
-                    <div class="text-center py-5">
-                        <?php if (!empty($search)): ?>
-                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">Tidak ada hasil pencarian</h5>
-                            <p class="text-muted mb-3">
-                                Tidak ditemukan pelanggan dengan kata kunci: <strong>"<?= safeHtml($search) ?>"</strong>
-                            </p>
-                            <div class="d-flex gap-2 justify-content-center">
-                                <a href="index.php" class="btn btn-outline-primary">
-                                    <i class="fas fa-list me-1"></i>Lihat Semua Pelanggan
-                                </a>
-                                <a href="create.php" class="btn btn-primary">
-                                    <i class="fas fa-plus me-1"></i>Tambah Pelanggan
-                                </a>
-                            </div>
-                        <?php else: ?>
-                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">Belum ada pelanggan</h5>
-                            <p class="text-muted">Mulai tambahkan pelanggan pertama atau import data secara bulk.</p>
-                            <div class="d-flex gap-2 justify-content-center">
-                                <a href="create.php" class="btn btn-primary">
-                                    <i class="fas fa-plus me-2"></i>Tambah Pelanggan
-                                </a>
-                                <a href="bulk.php" class="btn btn-success">
-                                    <i class="fas fa-upload me-2"></i>Bulk Import
-                                </a>
-                            </div>
+                            <a href="create.php" class="btn btn-primary rounded-pill px-4 fw-bold"><i class="fas fa-plus me-2"></i>Tambah Manual</a>
+                            <a href="bulk.php" class="btn btn-success rounded-pill px-4 fw-bold"><i class="fas fa-upload me-2"></i>Import Excel</a>
                         <?php endif; ?>
                     </div>
-                <?php else: ?>
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th width="60">ID</th>
-                                    <th>Nama</th>
-                                    <th width="140">Nomor WA</th>
-                                    <th width="120">Tanggal Daftar</th>
-                                    <th width="80">Status</th>
-                                    <th width="160">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($pelanggan_list as $pelanggan): ?>
-                                <?php $stats = getStatistikPelanggan($pelanggan['id']); ?>
-                                <tr>
-                                    <td>
-                                        <span class="badge bg-light text-dark"><?= $pelanggan['id'] ?></span>
-                                    </td>
-                                    <td>
-                                        <div>
-                                            <strong><?= safeHtml($pelanggan['nama']) ?></strong>
-                                            <?php if ($stats['total_transaksi'] > 0): ?>
-                                                <br><small class="text-success">
-                                                    <i class="fas fa-shopping-cart me-1"></i>
-                                                    <?= $stats['total_transaksi'] ?> transaksi
-                                                    <?php if ($stats['total_pembelian'] > 0): ?>
-                                                        • <?= formatCurrency($stats['total_pembelian']) ?>
-                                                    <?php endif; ?>
-                                                </small>
+                </div>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table-editorial mb-0">
+                        <thead>
+                            <tr>
+                                <th width="60" class="text-center">#ID</th>
+                                <th>Info Pelanggan</th>
+                                <th>Kontak WhatsApp</th>
+                                <th>Tgl Daftar</th>
+                                <th width="100" class="text-center">Status</th>
+                                <th width="150" class="text-end pe-4">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($pelanggan_list as $pelanggan): ?>
+                            <?php $stats = getStatistikPelanggan($pelanggan['id']); ?>
+                            <tr>
+                                <td class="text-center text-muted fw-bold" style="font-size: 0.85rem;"><?= $pelanggan['id'] ?></td>
+                                
+                                <td>
+                                    <div class="fw-bold text-dark" style="font-size: 0.95rem;"><?= safeHtml($pelanggan['nama']) ?></div>
+                                    <?php if ($stats['total_transaksi'] > 0): ?>
+                                        <div class="d-flex align-items-center gap-2 mt-1">
+                                            <span class="badge-clean" style="background: #ECFDF5; color: #059669; padding: 0.2rem 0.5rem; font-size: 0.7rem;">
+                                                <i class="fas fa-shopping-cart"></i> <?= $stats['total_transaksi'] ?> Trx
+                                            </span>
+                                            <?php if ($stats['total_pembelian'] > 0): ?>
+                                                <span class="text-muted fw-bold" style="font-size: 0.75rem;"><?= formatCurrency($stats['total_pembelian']) ?></span>
                                             <?php endif; ?>
                                         </div>
-                                    </td>
-                                    <td>
-                                        <a href="<?= whatsappLink($pelanggan['nomor_wa']) ?>" 
-                                           target="_blank" class="text-success text-decoration-none">
-                                            <i class="fab fa-whatsapp me-1"></i>
-                                            <?= $pelanggan['nomor_wa'] ?>
+                                    <?php else: ?>
+                                        <span class="text-muted" style="font-size: 0.75rem;">Belum ada transaksi</span>
+                                    <?php endif; ?>
+                                </td>
+                                
+                                <td>
+                                    <a href="<?= whatsappLink($pelanggan['nomor_wa']) ?>" target="_blank" class="badge-wa badge-clean">
+                                        <i class="fab fa-whatsapp"></i> <?= $pelanggan['nomor_wa'] ?>
+                                    </a>
+                                </td>
+                                
+                                <td>
+                                    <div class="text-dark fw-bold" style="font-size: 0.85rem;"><?= formatDate($pelanggan['tanggal_daftar'], 'd M Y') ?></div>
+                                    <div class="text-muted" style="font-size: 0.75rem;"><?= formatDate($pelanggan['tanggal_daftar'], 'H:i') ?> WIB</div>
+                                </td>
+                                
+                                <td class="text-center">
+                                    <?php if ($stats['total_transaksi'] == 0): ?>
+                                        <span class="badge-clean" style="background: #F3F4F6; color: #4B5563;">Baru</span>
+                                    <?php elseif ($stats['transaksi_terakhir'] && (strtotime($stats['transaksi_terakhir']) > (time() - 2592000))): ?>
+                                        <span class="badge-clean" style="background: #EFF6FF; color: #2563EB;">Aktif</span>
+                                    <?php else: ?>
+                                        <span class="badge-clean" style="background: #FFFBEB; color: #D97706;">Lama</span>
+                                    <?php endif; ?>
+                                </td>
+                                
+                                <td class="text-end pe-4">
+                                    <div class="d-flex justify-content-end gap-1">
+                                        <a href="histori.php?id=<?= $pelanggan['id'] ?>" class="btn-action-icon embed" title="Histori Pembelian">
+                                            <i class="fas fa-history"></i>
                                         </a>
-                                    </td>
-                                    <td>
-                                        <span title="<?= formatDate($pelanggan['tanggal_daftar'], 'd/m/Y H:i') ?>">
-                                            <?= formatDate($pelanggan['tanggal_daftar']) ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <?php if ($stats['total_transaksi'] == 0): ?>
-                                            <span class="badge bg-secondary">Baru</span>
-                                        <?php elseif ($stats['transaksi_terakhir'] && (strtotime($stats['transaksi_terakhir']) > (time() - 2592000))): ?>
-                                            <span class="badge bg-success">Aktif</span>
-                                        <?php else: ?>
-                                            <span class="badge bg-warning text-dark">Lama</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <a href="histori.php?id=<?= $pelanggan['id'] ?>" 
-                                               class="btn btn-info" title="Histori Pembelian">
-                                                <i class="fas fa-history"></i>
-                                            </a>
-                                            <a href="edit.php?id=<?= $pelanggan['id'] ?>" 
-                                               class="btn btn-warning" title="Edit">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <a href="delete.php?id=<?= $pelanggan['id'] ?>" 
-                                               class="btn btn-danger" 
-                                               onclick="return confirm('Hapus pelanggan <?= safeHtml($pelanggan['nama']) ?>?\n\nSemua transaksi terkait akan ikut dihapus!')"
-                                               title="Hapus">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <?php if ($total_pages > 1): ?>
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <div class="text-muted">
-                                Menampilkan <?= $start_record ?> - <?= $end_record ?> dari <?= $total_records ?> pelanggan
-                            </div>
-                            
-                            <?php 
-                            // Gunakan base_url yang sudah dibersihkan
-                            echo generatePagination($current_page, $total_pages, $base_url);
-                            ?>
+                                        <a href="edit.php?id=<?= $pelanggan['id'] ?>" class="btn-action-icon edit" title="Edit">
+                                            <i class="fas fa-pen"></i>
+                                        </a>
+                                        <button type="button" class="btn-action-icon delete" title="Hapus"
+                                                onclick="showDeleteModal(<?= $pelanggan['id'] ?>, '<?= addslashes(safeHtml($pelanggan['nama'])) ?>')">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <?php if ($total_pages > 1): ?>
+                    <div class="p-3 border-top d-flex flex-column flex-md-row justify-content-between align-items-center gap-3" style="background: #F9FAFB;">
+                        <div class="text-muted small fw-bold text-uppercase" style="letter-spacing: 0.05em;">
+                            Data <?= $start_record ?> - <?= $end_record ?> dari <?= $total_records ?>
                         </div>
-                    <?php endif; ?>
+                        <div class="d-flex gap-1">
+                            <?php echo generatePagination($current_page, $total_pages, $base_url); ?>
+                        </div>
+                    </div>
                 <?php endif; ?>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content" style="border-radius: 24px; border: none; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+            <div class="modal-body text-center p-4">
+                <div style="width: 64px; height: 64px; background: #FEF2F2; color: #EF4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                    <i class="fas fa-user-times" style="font-size: 1.75rem;"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">Hapus Pelanggan?</h5>
+                <p class="text-muted small mb-4" style="line-height: 1.5;">
+                    Yakin ingin menghapus <strong id="deleteCustName" class="text-dark"></strong>? 
+                    Semua transaksi dan riwayat yang terkait dengan pelanggan ini akan ikut terhapus.
+                </p>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-light w-50 fw-bold" data-bs-dismiss="modal" style="border-radius: 12px;">Batal</button>
+                    <a href="#" id="confirmDeleteBtn" class="btn btn-danger w-50 fw-bold" style="border-radius: 12px; background: #EF4444; border: none;">Hapus</a>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+function showDeleteModal(id, nama) {
+    document.getElementById('deleteCustName').textContent = nama;
+    document.getElementById('confirmDeleteBtn').href = 'delete.php?id=' + id;
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    deleteModal.show();
+}
+
+document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Proses...';
+    this.style.opacity = '0.8';
+    this.style.pointerEvents = 'none';
+});
+</script>
 
 <?php require_once __DIR__ . '/../../includes/footer.php'; ?>

@@ -1,6 +1,7 @@
 <?php
 $page_title = 'Rekening';
 require_once '../../includes/header.php';
+include '../../includes/sidebar.php';
 require_once 'functions.php';
 
 // Get parameters
@@ -19,257 +20,306 @@ if ($search) $baseUrl .= 'search=' . urlencode($search) . '&';
 ?>
 
 <div class="d-flex">
-    <?php include '../../includes/sidebar.php'; ?>
     
-    <div class="main-content flex-grow-1">
-        <div class="content-area">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="main-content dashboard-wrapper flex-grow-1">
+        <div class="form-container" style="max-width: 1200px;">
+            
+            <?php
+            // Eksekusi query statistik sebelum merender HTML
+            $bankCount = fetchRow("SELECT COUNT(*) as total FROM rekening WHERE nama_bank != 'QRIS' AND nama_bank NOT LIKE '%qris%'")['total'] ?? 0;
+            $qrisCount = fetchRow("SELECT COUNT(*) as total FROM rekening WHERE nama_bank = 'QRIS' OR nama_bank LIKE '%qris%'")['total'] ?? 0;
+            ?>
+
+            <div class="dash-header mb-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                 <div>
-                    <h2><i class="fas fa-university me-2"></i>Rekening</h2>
-                    <p class="text-muted mb-0">Kelola rekening bank dan QRIS</p>
+                    <h1 class="dash-title d-flex align-items-center gap-2">
+                        <i class="fas fa-wallet text-primary"></i> Rekening Penerima
+                    </h1>
+                    <div class="text-muted mt-1" style="font-weight: 500; font-size: 0.95rem;">
+                        Kelola nomor rekening bank dan QRIS untuk pembayaran pelanggan.
+                    </div>
                 </div>
-                <a href="create.php" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Tambah Rekening
-                </a>
+                <div>
+                    <a href="create.php" class="btn btn-dark fw-bold rounded-pill px-4" style="box-shadow: 0 4px 12px rgba(17, 24, 39, 0.15);">
+                        <i class="fas fa-plus me-2"></i> Tambah Rekening
+                    </a>
+                </div>
             </div>
 
-            <!-- Search -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <form method="GET" class="row g-3">
-                        <div class="col-md-8">
-                            <input type="text" name="search" class="form-control" 
-                                   placeholder="Cari nama pemilik, nomor rekening, atau bank..." 
-                                   value="<?= htmlspecialchars($search) ?>">
-                        </div>
-                        <div class="col-md-4">
-                            <button type="submit" class="btn btn-outline-primary w-100">
-                                <i class="fas fa-search"></i> Cari
-                            </button>
-                        </div>
+            <div class="panel-editorial d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 p-3 px-4" style="background: var(--bg-surface);">
+                <div class="d-flex align-items-center gap-3 pe-4 border-end flex-grow-1">
+                    <div style="width: 44px; height: 44px; background: #F3F4F6; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                        <i class="fas fa-university text-dark"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted" style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Total Tersimpan</div>
+                        <div class="fw-bold text-dark fs-5" style="line-height: 1;"><?= $total ?></div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-3 pe-4 border-end flex-grow-1">
+                    <div style="width: 44px; height: 44px; background: #EFF6FF; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                        <i class="fas fa-credit-card text-primary"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted" style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Transfer Bank</div>
+                        <div class="fw-bold text-primary fs-5" style="line-height: 1;"><?= $bankCount ?></div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-3 flex-grow-1">
+                    <div style="width: 44px; height: 44px; background: #ECFDF5; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                        <i class="fas fa-qrcode text-success"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted" style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">QRIS Aktif</div>
+                        <div class="fw-bold text-success fs-5" style="line-height: 1;"><?= $qrisCount ?></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-editorial p-0 overflow-hidden mb-5">
+                
+                <div class="p-3 bg-light border-bottom d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                    <h3 class="panel-title m-0" style="font-size: 1rem;"><i class="fas fa-list text-primary me-2"></i> Daftar Metode Pembayaran</h3>
+                    
+                    <form method="GET" class="m-0 position-relative" style="width: 300px; max-width: 100%;">
+                        <i class="fas fa-search position-absolute text-muted" style="top: 50%; left: 14px; transform: translateY(-50%); font-size: 0.85rem;"></i>
+                        <input type="text" name="search" class="form-control bg-white fw-bold text-dark border-0 shadow-sm" 
+                               placeholder="Cari nama, nomor, atau bank..." value="<?= htmlspecialchars($search) ?>" 
+                               style="font-size: 0.85rem; padding-left: 36px; border-radius: 100px;">
+                        <?php if (!empty($search)): ?>
+                            <a href="index.php" class="position-absolute text-danger" style="top: 50%; right: 14px; transform: translateY(-50%);"><i class="fas fa-times-circle"></i></a>
+                        <?php endif; ?>
                     </form>
                 </div>
-            </div>
 
-            <!-- Stats -->
-            <div class="row mb-4">
-                <div class="col-md-4">
-                    <div class="card border-primary">
-                        <div class="card-body text-center">
-                            <h3 class="text-primary"><?= $total ?></h3>
-                            <small class="text-muted">Total Rekening</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card border-info">
-                        <div class="card-body text-center">
-                            <?php
-                            $bankCount = fetchRow("SELECT COUNT(*) as total FROM rekening WHERE nama_bank != 'QRIS' AND nama_bank NOT LIKE '%qris%'")['total'] ?? 0;
-                            ?>
-                            <h3 class="text-info"><?= $bankCount ?></h3>
-                            <small class="text-muted">Rekening Bank</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card border-success">
-                        <div class="card-body text-center">
-                            <?php
-                            $qrisCount = fetchRow("SELECT COUNT(*) as total FROM rekening WHERE nama_bank = 'QRIS' OR nama_bank LIKE '%qris%'")['total'] ?? 0;
-                            ?>
-                            <h3 class="text-success"><?= $qrisCount ?></h3>
-                            <small class="text-muted">QRIS</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Rekening List -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Daftar Rekening</h5>
-                </div>
-                <div class="card-body p-0">
-                    <?php if ($rekening): ?>
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead class="table-light">
+                <div class="table-responsive">
+                    <table class="table-editorial mb-0">
+                        <thead>
+                            <tr>
+                                <th width="25%">Nama Pemilik</th>
+                                <th width="20%">Provider / Bank</th>
+                                <th width="25%">No. Rek / Merchant ID</th>
+                                <th width="15%" class="text-center">Tipe</th>
+                                <th width="15%" class="text-end pe-4">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if ($rekening): ?>
+                                <?php foreach ($rekening as $r): ?>
                                     <tr>
-                                        <th>Pemilik</th>
-                                        <th>Nomor</th>
-                                        <th>Bank/Metode</th>
-                                        <th>Tipe</th>
-                                        <th>Tanggal</th>
-                                        <th width="120">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($rekening as $r): ?>
-                                        <tr>
-                                            <td>
-                                                <strong><?= htmlspecialchars($r['nama_pemilik']) ?></strong>
-                                            </td>
-                                            <td>
+                                        <td>
+                                            <div class="fw-bold text-dark" style="font-size: 0.95rem;"><?= htmlspecialchars($r['nama_pemilik']) ?></div>
+                                            <div class="text-muted" style="font-size: 0.75rem;">Ditambahkan: <?= formatDate($r['created_at'], 'd/m/Y') ?></div>
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold text-dark" style="font-size: 0.9rem;"><?= htmlspecialchars($r['nama_bank']) ?></div>
+                                        </td>
+                                        <td>
+                                            <div style="font-family: 'Consolas', monospace; font-size: 0.95rem; font-weight: 700; color: #111827; letter-spacing: 1px;">
                                                 <?php if (isQRIS($r)): ?>
-                                                    <code class="text-success"><?= htmlspecialchars($r['nomor_rekening']) ?></code>
-                                                    <br><small class="text-muted">Merchant ID</small>
+                                                    <span class="text-success"><?= htmlspecialchars($r['nomor_rekening']) ?></span>
                                                 <?php else: ?>
                                                     <?php
                                                     $masked = strlen($r['nomor_rekening']) > 8 ? 
-                                                        substr($r['nomor_rekening'], 0, 4) . '****' . substr($r['nomor_rekening'], -4) : 
+                                                        substr($r['nomor_rekening'], 0, 4) . ' •••• ' . substr($r['nomor_rekening'], -4) : 
                                                         $r['nomor_rekening'];
                                                     ?>
-                                                    <code><?= htmlspecialchars($masked) ?></code>
+                                                    <?= htmlspecialchars($masked) ?>
                                                 <?php endif; ?>
-                                            </td>
-                                            <td>
-                                                <?= htmlspecialchars($r['nama_bank']) ?>
-                                            </td>
-                                            <td>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <?php if (isQRIS($r)): ?>
+                                                <span class="badge-clean" style="background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0;">
+                                                    <i class="fas fa-qrcode me-1"></i> QRIS
+                                                </span>
+                                            <?php else: ?>
+                                                <span class="badge-clean" style="background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE;">
+                                                    <i class="fas fa-university me-1"></i> Bank
+                                                </span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <div class="d-flex justify-content-end gap-1">
                                                 <?php if (isQRIS($r)): ?>
-                                                    <span class="badge bg-success">
-                                                        <i class="fas fa-qrcode"></i> QRIS
-                                                    </span>
                                                     <?php if (!empty($r['qr_image'])): ?>
-                                                        <button class="btn btn-sm btn-outline-success ms-1" 
+                                                        <button class="btn-action-icon embed" 
                                                                 onclick="showQRISImage('<?= htmlspecialchars($r['qr_image']) ?>', '<?= htmlspecialchars($r['nama_pemilik']) ?>')"
                                                                 title="Lihat QR Code">
-                                                            <i class="fas fa-eye"></i>
+                                                            <i class="fas fa-eye text-success"></i>
                                                         </button>
                                                     <?php else: ?>
-                                                        <span class="badge bg-warning text-dark ms-1" title="Belum ada gambar QR">
-                                                            <i class="fas fa-exclamation-triangle"></i>
-                                                        </span>
+                                                        <button class="btn-action-icon embed" style="opacity: 0.5; cursor: not-allowed;" title="Gambar QR belum diupload">
+                                                            <i class="fas fa-image text-muted"></i>
+                                                        </button>
                                                     <?php endif; ?>
-                                                <?php else: ?>
-                                                    <span class="badge bg-primary">
-                                                        <i class="fas fa-university"></i> Bank
-                                                    </span>
                                                 <?php endif; ?>
-                                            </td>
-                                            <td>
-                                                <small class="text-muted">
-                                                    <?= formatDate($r['created_at'], 'd/m/Y H:i') ?>
-                                                </small>
-                                            </td>
-                                            <td>
-                                                <div class="btn-group btn-group-sm">
-                                                    <a href="edit.php?id=<?= $r['id'] ?>" 
-                                                       class="btn btn-outline-primary" title="Edit">
-                                                        <i class="fas fa-edit"></i>
-                                                    </a>
-                                                    <a href="delete.php?id=<?= $r['id'] ?>" 
-                                                       class="btn btn-outline-danger" title="Hapus"
-                                                       onclick="return confirm('Yakin hapus rekening ini?')">
-                                                        <i class="fas fa-trash"></i>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
 
-                        <!-- Pagination -->
-                        <?php if ($totalPages > 1): ?>
-                            <div class="p-3 border-top">
-                                <?= pagination($page, $totalPages, $baseUrl) ?>
-                            </div>
-                        <?php endif; ?>
-
-                    <?php else: ?>
-                        <div class="text-center py-5">
-                            <i class="fas fa-university fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">Belum ada rekening</h5>
-                            <p class="text-muted">Tambahkan rekening bank atau QRIS untuk menerima pembayaran</p>
-                            <a href="add.php" class="btn btn-primary">
-                                <i class="fas fa-plus"></i> Tambah Rekening Pertama
-                            </a>
-                        </div>
-                    <?php endif; ?>
+                                                <a href="edit.php?id=<?= $r['id'] ?>" class="btn-action-icon edit" title="Edit Data">
+                                                    <i class="fas fa-pen"></i>
+                                                </a>
+                                                <button type="button" class="btn-action-icon delete" title="Hapus Permanen"
+                                                        onclick="showDeleteModal(<?= $r['id'] ?>, '<?= htmlspecialchars(addslashes($r['nama_pemilik'])) ?>', '<?= htmlspecialchars(addslashes($r['nama_bank'])) ?>')">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="5" class="text-center py-5">
+                                        <div style="width: 80px; height: 80px; background: #F3F4F6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                                            <i class="fas fa-wallet text-muted fs-2"></i>
+                                        </div>
+                                        <h5 class="fw-bold text-dark mb-1">Data Rekening Kosong</h5>
+                                        <p class="text-muted mb-4" style="max-width: 400px; margin: 0 auto;">Belum ada metode pembayaran yang terdaftar. Tambahkan rekening bank atau QRIS sekarang.</p>
+                                        <a href="create.php" class="btn btn-dark rounded-pill fw-bold px-4">
+                                            <i class="fas fa-plus me-2"></i>Tambah Rekening Pertama
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
                 </div>
+
+                <?php if ($totalPages > 1): ?>
+                    <div class="p-3 border-top bg-light">
+                        <?= pagination($page, $totalPages, $baseUrl) ?>
+                    </div>
+                <?php endif; ?>
+
             </div>
         </div>
     </div>
 </div>
 
-<!-- QRIS Modal -->
-<div class="modal fade" id="qrisModal" tabindex="-1" aria-labelledby="qrisModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white;">
-                <h5 class="modal-title" id="qrisModalLabel">
-                    <i class="fas fa-qrcode me-2"></i>QR Code QRIS
-                </h5>
+<div class="modal fade" id="qrisModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1), opacity 200ms cubic-bezier(0.16, 1, 0.3, 1); max-width: 380px;">
+        <div class="modal-content" style="border-radius: 24px; border: none; box-shadow: 0 20px 40px rgba(0,0,0,0.15); overflow: hidden;">
+            
+            <div class="modal-header border-0 pb-0 d-flex justify-content-between align-items-center" style="background: #10B981; padding: 1.5rem;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-qrcode text-white fs-4"></i>
+                    <h5 class="modal-title text-white fw-bold m-0" style="font-size: 1.1rem; letter-spacing: 0.02em;">Scan QRIS</h5>
+                </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <div class="text-center">
-                    <img id="qris-image-display" src="" alt="QRIS QR Code" class="img-fluid mb-3" style="max-width: 300px; border: 2px solid #28a745; border-radius: 8px;">
-                    <h6 class="fw-bold mb-2" id="qris-merchant-display"></h6>
-                    <div class="alert alert-info">
-                        <small>
-                            <i class="fas fa-info-circle me-1"></i>
-                            Scan QR Code dengan aplikasi pembayaran (DANA, OVO, GoPay, dll)
-                        </small>
-                    </div>
-                    <div class="alert alert-success">
-                        <small>
-                            <i class="fas fa-mobile-alt me-1"></i>
-                            Buka aplikasi → Scan QR → Bayar
-                        </small>
-                    </div>
+            
+            <div class="modal-body text-center p-4" style="background: #ECFDF5;">
+                <div class="bg-white p-3 rounded-4 shadow-sm d-inline-block position-relative w-100">
+                    <img id="qris-image-display" src="" alt="QRIS QR Code" class="img-fluid rounded-3" style="width: 100%; aspect-ratio: 1/1; object-fit: contain;">
+                </div>
+                <h5 class="fw-bold text-dark mt-4 mb-1" id="qris-merchant-display" style="letter-spacing: -0.02em;">Nama Merchant</h5>
+                <div class="text-success fw-bold mb-3" style="font-size: 0.85rem;"><i class="fas fa-check-circle me-1"></i> Terverifikasi QRIS Nasional</div>
+                
+                <div class="bg-white rounded-3 p-3 text-start border shadow-sm mt-3" style="border-color: #A7F3D0 !important;">
+                    <div class="text-muted fw-bold text-uppercase mb-2" style="font-size: 0.7rem;"><i class="fas fa-info-circle me-1"></i> Cara Pembayaran</div>
+                    <ul class="text-dark mb-0 ps-3" style="font-size: 0.8rem; line-height: 1.6;">
+                        <li>Buka aplikasi Bank / E-Wallet.</li>
+                        <li>Pilih menu <strong>Scan QR</strong>.</li>
+                        <li>Arahkan kamera ke kode di atas.</li>
+                    </ul>
                 </div>
             </div>
-            <div class="modal-footer justify-content-center">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-1"></i>Tutup
-                </button>
-                <a id="downloadQR" class="btn btn-success" download>
-                    <i class="fas fa-download me-1"></i>Download QR
+            
+            <div class="modal-footer border-0 p-3 bg-white d-flex flex-nowrap gap-2 justify-content-center">
+                <button type="button" class="btn btn-light fw-bold w-50 rounded-pill" data-bs-dismiss="modal">Tutup</button>
+                <a id="downloadQR" class="btn btn-success fw-bold w-50 rounded-pill" download>
+                    <i class="fas fa-download me-1"></i> Simpan
                 </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" style="transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1), opacity 200ms cubic-bezier(0.16, 1, 0.3, 1);">
+        <div class="modal-content" style="border-radius: 24px; border: none; box-shadow: 0 20px 40px rgba(0,0,0,0.15);">
+            <div class="modal-body text-center p-4">
+                <div style="width: 64px; height: 64px; background: #FEF2F2; color: #EF4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                    <i class="fas fa-trash-alt" style="font-size: 1.75rem;"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">Hapus Rekening?</h5>
+                <p class="text-muted small mb-4" style="line-height: 1.5;">
+                    Yakin ingin menghapus <strong id="delBankName" class="text-dark"></strong> a.n <strong id="delOwnerName" class="text-dark"></strong>? 
+                    Aksi ini tidak dapat dibatalkan.
+                </p>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-light w-50 fw-bold" data-bs-dismiss="modal" style="border-radius: 12px;">Batal</button>
+                    <a href="#" id="confirmDeleteBtn" class="btn btn-danger w-50 fw-bold" style="border-radius: 12px; background: #EF4444; border: none;">Hapus</a>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-// Show QRIS Image in Modal
-function showQRISImage(imagePath, merchantName) {
-    console.log('🎯 Showing QRIS Image:', imagePath);
+// Fungsi untuk memunculkan modal hapus
+function showDeleteModal(id, owner, bank) {
+    document.getElementById('delOwnerName').textContent = owner;
+    document.getElementById('delBankName').textContent = bank;
+    document.getElementById('confirmDeleteBtn').href = 'delete.php?id=' + id;
     
-    // Check if image path exists
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    deleteModal.show();
+}
+
+// Efek Loading saat tombol hapus di dalam modal ditekan
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    if(confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', function() {
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Proses...';
+            this.style.opacity = '0.8';
+            this.style.pointerEvents = 'none';
+        });
+    }
+});
+
+function showQRISImage(imagePath, merchantName) {
     if (!imagePath || imagePath.trim() === '' || imagePath === 'null') {
-        alert('Gambar QRIS belum diupload untuk rekening ini.');
+        alert('Data QRIS belum tersedia untuk rekening ini.');
         return;
     }
     
-    // Set image and data
-    const imageUrl = '../../' + imagePath + '?t=' + Date.now(); // Cache buster
+    let imageUrl = '';
+    
+    // LOGIKA PINTAR: Cek apakah string mengandung ekstensi file gambar (.png, .jpg, dll)
+    if (imagePath.match(/\.(jpeg|jpg|gif|png)$/i)) {
+        // JIKA FILE GAMBAR: Bersihkan path dan muat dari server kamu
+        let cleanPath = imagePath.replace(/^(\.\.\/)+/, ''); 
+        cleanPath = cleanPath.replace(/^(\.\/)+/, '');       
+        cleanPath = cleanPath.replace(/^\/+/, '');           
+        imageUrl = '<?= BASE_URL ?>' + cleanPath + '?t=' + Date.now(); 
+    } else {
+        // JIKA TEKS MENTAH QRIS: Generate jadi gambar Barcode secara instan (Real-time) via API
+        imageUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=15&data=' + encodeURIComponent(imagePath.trim());
+    }
+    
+    console.log("🔗 Render gambar dari:", imageUrl); 
+    
+    // Tampilkan ke Modal
     document.getElementById('qris-image-display').src = imageUrl;
     document.getElementById('qris-merchant-display').textContent = merchantName;
     
-    // Set download link
+    // Update tombol Download agar pengguna bisa mendownload QR yang baru digenerate
     document.getElementById('downloadQR').href = imageUrl;
-    document.getElementById('downloadQR').download = `qris_${merchantName.replace(/\s+/g, '_')}.png`;
+    document.getElementById('downloadQR').download = `QRIS_${merchantName.replace(/\s+/g, '_')}.png`;
     
-    // Show modal
+    // Buka Modal
     const modal = new bootstrap.Modal(document.getElementById('qrisModal'));
     modal.show();
     
-    // Handle image load error
+    // Fallback jika internet mati atau server gagal
     document.getElementById('qris-image-display').onerror = function() {
-        alert('Gagal memuat gambar QRIS. File mungkin tidak ditemukan.');
-        modal.hide();
+        this.src = 'https://via.placeholder.com/300x300/FFE4E6/EF4444?text=Gagal+Membuat+QR';
+        console.error("🚨 GAMBAR GAGAL DIMUAT dari URL:", imageUrl);
     };
 }
-
-// Auto refresh page when modal is hidden (optional)
-document.getElementById('qrisModal').addEventListener('hidden.bs.modal', function () {
-    // Optional: refresh data atau clear cache
-});
 </script>
 
 <?php require_once '../../includes/footer.php'; ?>

@@ -39,100 +39,164 @@ require_once __DIR__ . '/../../includes/header.php';
 require_once __DIR__ . '/../../includes/sidebar.php';
 ?>
 
-<div class="main-content">
-    <div class="bg-white border-bottom p-3 mb-4">
-        <div class="d-flex justify-content-between align-items-center">
+<div class="main-content dashboard-wrapper">
+    <div class="form-container" style="max-width: 1000px;">
+        
+        <div class="dash-header mb-4">
             <div>
-                <h1 class="h3 mb-1">Tambah Kupon Baru</h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="index.php">Kupon</a></li>
-                        <li class="breadcrumb-item active">Tambah</li>
-                    </ol>
-                </nav>
+                <a href="index.php" class="text-muted text-decoration-none fw-bold" style="font-size: 0.85rem;">
+                    <i class="fas fa-arrow-left me-1"></i> Kembali ke Daftar Kupon
+                </a>
+                <h1 class="dash-title mt-2">Buat Kupon Promo</h1>
             </div>
         </div>
-    </div>
 
-    <div class="container-fluid px-4">
         <?php if ($msg = getMessage()): ?>
-            <div class="alert alert-<?= $msg[1] ?> alert-dismissible fade show">
-                <?= $msg[0] ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="alert alert-editorial mb-4" style="border-left-color: <?= $msg[1] === 'error' || $msg[1] === 'danger' ? 'var(--danger-color)' : 'var(--success-color)' ?>;">
+                <div class="d-flex align-items-center">
+                    <i class="fas <?= $msg[1] === 'error' || $msg[1] === 'danger' ? 'fa-exclamation-circle text-danger' : 'fa-check-circle text-success' ?> me-2 fs-5"></i>
+                    <span class="fw-bold text-dark"><?= clean($msg[0]) ?></span>
+                </div>
             </div>
         <?php endif; ?>
 
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <form action="" method="POST">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Kode Kupon</label>
-                            <input type="text" name="kode_kupon" class="form-control" placeholder="Contoh: PROMO2025" required>
-                            <small class="text-muted">Huruf kapital tanpa spasi.</small>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Tipe Diskon</label>
-                            <select name="tipe_diskon" class="form-select" required>
-                                <option value="nominal">Nominal (Rupiah)</option>
-                                <option value="persentase">Persentase (%)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Besar Diskon</label>
-                            <input type="number" name="nilai_diskon" class="form-control" required>
-                            <small class="text-muted">Isi angka tanpa titik (contoh: 10000 atau 15).</small>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Maksimal Potongan</label>
-                            <input type="number" name="max_potongan" class="form-control" placeholder="Opsional, khusus persentase">
+        <form action="" method="POST" id="kuponForm">
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    
+                    <div class="panel-editorial">
+                        <h3 class="panel-title"><i class="fas fa-tag text-primary"></i> Identitas Kupon</h3>
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Kode Promo <span class="text-danger">*</span></label>
+                                <input type="text" name="kode_kupon" class="form-control-editorial text-uppercase" 
+                                       placeholder="Contoh: SUPER2025" required autocomplete="off">
+                                <div class="text-muted mt-2" style="font-size: 0.75rem;">Gunakan huruf kapital tanpa spasi.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Target Produk</label>
+                                <select name="produk_id" class="form-control-editorial" style="appearance: auto;">
+                                    <option value="">-- Berlaku Semua Produk --</option>
+                                    <?php foreach ($produk_list as $p): ?>
+                                        <option value="<?= $p['id'] ?>"><?= clean($p['nama']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Khusus Produk</label>
-                            <select name="produk_id" class="form-select">
-                                <option value="">-- Berlaku Semua Produk --</option>
-                                <?php foreach ($produk_list as $p): ?>
-                                    <option value="<?= $p['id'] ?>"><?= clean($p['nama']) ?></option>
-                                <?php endforeach; ?>
-                            </select>
+                    <div class="panel-editorial">
+                        <h3 class="panel-title"><i class="fas fa-percent text-success"></i> Skema Diskon</h3>
+                        
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Tipe Potongan <span class="text-danger">*</span></label>
+                                <select name="tipe_diskon" id="tipe_diskon" class="form-control-editorial" required style="appearance: auto;">
+                                    <option value="nominal">Nominal (Rp)</option>
+                                    <option value="persentase">Persentase (%)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Besar Diskon <span class="text-danger">*</span></label>
+                                <input type="number" name="nilai_diskon" class="form-control-editorial" min="1" placeholder="Ex: 50000 / 20" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Maksimal Potongan</label>
+                                <input type="number" name="max_potongan" id="max_potongan" class="form-control-editorial bg-light" placeholder="Rp 0" disabled>
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Kuota Penggunaan</label>
-                            <input type="number" name="kuota" class="form-control" required value="100">
-                            <small class="text-muted text-danger">Isi angka 0 jika ingin kupon tanpa batas (unlimited).</small>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Tanggal Mulai</label>
-                            <input type="datetime-local" name="tgl_mulai" class="form-control" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Tanggal Selesai</label>
-                            <input type="datetime-local" name="tgl_selesai" class="form-control" required>
+                        <div class="text-muted mt-2" style="font-size: 0.75rem;">
+                            <i class="fas fa-info-circle me-1"></i> Maksimal potongan hanya berlaku jika tipe diskon adalah <strong>Persentase</strong>.
                         </div>
                     </div>
 
-                    <div class="mb-4 form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked value="1">
-                        <label class="form-check-label" for="is_active">Langsung Aktifkan Kupon</label>
+                    <div class="panel-editorial mb-4 mb-lg-0">
+                        <h3 class="panel-title"><i class="fas fa-calendar-alt text-warning"></i> Masa Berlaku</h3>
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Waktu Mulai <span class="text-danger">*</span></label>
+                                <input type="datetime-local" name="tgl_mulai" class="form-control-editorial" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Waktu Berakhir <span class="text-danger">*</span></label>
+                                <input type="datetime-local" name="tgl_selesai" class="form-control-editorial" required>
+                            </div>
+                        </div>
                     </div>
 
-                    <hr>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Simpan Kupon</button>
-                    <a href="index.php" class="btn btn-secondary">Batal</a>
-                </form>
+                </div>
+
+                <div class="col-lg-4">
+                    
+                    <div class="panel-editorial mb-4">
+                        <h3 class="panel-title" style="font-size: 1rem;"><i class="fas fa-users text-info"></i> Limitasi Kuota</h3>
+                        <label class="form-label">Kuota Penggunaan <span class="text-danger">*</span></label>
+                        <input type="number" name="kuota" class="form-control-editorial fw-bold" required value="100" min="0" style="font-size: 1.2rem;">
+                        <div class="text-muted mt-2" style="font-size: 0.75rem; line-height: 1.5;">
+                            Isi angka <strong class="text-danger">0</strong> jika ingin kupon bisa dipakai tanpa batas (unlimited).
+                        </div>
+                    </div>
+
+                    <div class="panel-editorial mb-4">
+                        <h3 class="panel-title" style="font-size: 1rem;"><i class="fas fa-toggle-on text-success"></i> Status Promo</h3>
+                        
+                        <label class="toggle-switch m-0" style="padding: 0.75rem 1rem;">
+                            <div>
+                                <div class="toggle-label" style="font-size: 0.85rem;">Langsung Aktif</div>
+                                <div class="toggle-desc" style="font-size: 0.7rem;">Kupon bisa langsung dipakai</div>
+                            </div>
+                            <input type="checkbox" name="is_active" value="1" checked class="switch-input">
+                            <div class="switch-slider"></div>
+                        </label>
+                    </div>
+
+                    <div class="d-flex flex-column gap-2">
+                        <button type="submit" class="btn-submit">
+                            <i class="fas fa-save me-2"></i> Simpan Kupon
+                        </button>
+                        <a href="index.php" class="btn-cancel">Batal</a>
+                    </div>
+
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Interaksi pintar: Kolom Maksimal Potongan otomatis mati jika diskon = Nominal
+    const tipeDiskon = document.getElementById('tipe_diskon');
+    const maxPotongan = document.getElementById('max_potongan');
+
+    function checkTipeDiskon() {
+        if (tipeDiskon.value === 'persentase') {
+            maxPotongan.disabled = false;
+            maxPotongan.classList.remove('bg-light');
+            maxPotongan.placeholder = "Max nominal Rp";
+        } else {
+            maxPotongan.disabled = true;
+            maxPotongan.value = '';
+            maxPotongan.classList.add('bg-light');
+            maxPotongan.placeholder = "Rp 0";
+        }
+    }
+
+    tipeDiskon.addEventListener('change', checkTipeDiskon);
+    checkTipeDiskon(); // Jalankan saat pertama kali diload
+    
+    // Auto submit UX feedback
+    document.getElementById('kuponForm').addEventListener('submit', function() {
+        const btn = this.querySelector('.btn-submit');
+        if(btn) {
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...';
+            btn.style.opacity = '0.8';
+            btn.style.pointerEvents = 'none';
+        }
+    });
+});
+</script>
 
 <?php require_once __DIR__ . '/../../includes/footer.php'; ?>

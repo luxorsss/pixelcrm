@@ -76,235 +76,185 @@ try {
 ?>
 
 <!-- Main Content -->
-<div class="main-content">
-    <!-- Top Header -->
-    <div class="bg-white border-bottom p-3 mb-4">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="h3 mb-1">Dashboard</h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item active">Dashboard</li>
-                    </ol>
-                </nav>
-            </div>
-            <div class="text-muted">
-                <i class="fas fa-calendar me-1"></i><?= date('d F Y') ?>
-            </div>
+<div class="main-content dashboard-wrapper">
+    <div class="dash-header flex-column flex-md-row align-items-start align-items-md-center gap-3">
+        <div>
+            <h1 class="dash-title">Ringkasan Bisnis</h1>
+            <div class="text-muted" style="font-weight: 500; font-size: 0.95rem;">Selamat datang kembali di Pixel CRM.</div>
+        </div>
+        <div class="dash-date">
+            <i class="fas fa-calendar-day me-2 text-muted"></i><?= date('d F Y') ?>
         </div>
     </div>
 
-    <!-- Content Area -->
-    <div class="container-fluid px-4">
-        
-        <!-- Statistics Cards -->
-        <div class="row mb-4">
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <div class="display-4 text-primary mb-2"><?= $total_produk ?></div>
-                        <h6 class="text-muted mb-3">Total Produk</h6>
-                        <a href="<?= BASE_URL ?>modules/produk/" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-box me-1"></i>Kelola
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <div class="display-4 text-success mb-2"><?= $total_pelanggan ?></div>
-                        <h6 class="text-muted mb-3">Total Pelanggan</h6>
-                        <a href="<?= BASE_URL ?>modules/pelanggan/" class="btn btn-outline-success btn-sm">
-                            <i class="fas fa-users me-1"></i>Kelola
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <div class="display-4 text-info mb-2"><?= $transaksi_bulan_ini ?></div>
-                        <h6 class="text-muted mb-3">Transaksi Bulan Ini</h6>
-                        <a href="<?= BASE_URL ?>modules/transaksi/?date_from=<?= $tanggal_awal_bulan ?>&date_to=<?= $tanggal_akhir_bulan ?>&search=" class="btn btn-outline-info btn-sm">
-                            <i class="fas fa-shopping-cart me-1"></i>Kelola
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 🆕 Follow-up Stats Card -->
-            <?php if ($followup_stats): ?>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <div class="display-4 text-warning mb-2"><?= $followup_stats['ready_to_send'] ?></div>
-                        <h6 class="text-muted mb-3">Follow-up Siap Kirim</h6>
-                        <div class="small mb-2">
-                            <span class="badge bg-warning me-1"><?= $followup_stats['pending'] ?></span> Pending
-                            <span class="badge bg-success"><?= $followup_stats['sent'] ?></span> Terkirim
-                        </div>
-                        <a href="<?= BASE_URL ?>modules/followup/" class="btn btn-outline-warning btn-sm">
-                            <i class="fas fa-clock me-1"></i>Kelola
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <?php else: ?>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <div class="h4 text-success mb-2"><?= formatCurrency($pendapatan_bulan_ini) ?></div>
-                        <h6 class="text-muted mb-3">Pendapatan Bulan Ini</h6>
-                        <small class="text-success">
-                            <i class="fas fa-check-circle me-1"></i>Transaksi Selesai
-                        </small>
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
+    <?php if ($transaksi_pending > 0): ?>
+    <div class="alert alert-editorial alert-dismissible fade show mb-4 d-flex align-items-center justify-content-between" role="alert">
+        <div>
+            <i class="fas fa-exclamation-circle text-warning me-2"></i>
+            Terdapat <strong class="text-dark"><?= $transaksi_pending ?> transaksi</strong> yang menunggu konfirmasi pembayaran.
         </div>
-        
-        <!-- Alert untuk transaksi pending -->
-        <?php if ($transaksi_pending > 0): ?>
-        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            Ada <strong><?= $transaksi_pending ?></strong> transaksi yang masih pending. 
-            <a href="<?= BASE_URL ?>modules/transaksi/?status=pending" class="alert-link">Lihat sekarang</a>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <a href="<?= BASE_URL ?>modules/transaksi/?status=pending" class="btn btn-sm btn-dark rounded-pill px-3 fw-bold">Tinjau</a>
+    </div>
+    <?php endif; ?>
+
+    <?php if ($followup_stats && $followup_stats['ready_to_send'] > 0): ?>
+    <div class="alert alert-editorial alert-dismissible fade show mb-4 d-flex align-items-center justify-content-between" style="border-left-color: #3B82F6;" role="alert">
+        <div>
+            <i class="fas fa-paper-plane text-primary me-2"></i>
+            <strong><?= $followup_stats['ready_to_send'] ?> pesan follow-up</strong> siap untuk dikirimkan hari ini.
+        </div>
+        <a href="<?= BASE_URL ?>modules/followup/processor.php?key=followup_2024_secure_key" target="_blank" class="btn btn-sm btn-dark rounded-pill px-3 fw-bold">Kirim Sekarang</a>
+    </div>
+    <?php endif; ?>
+
+    <div class="row g-3 mb-4">
+        <?php if ($followup_stats): ?>
+        <div class="col-xl-3 col-sm-6">
+            <a href="<?= BASE_URL ?>modules/followup/" class="stat-card">
+                <div>
+                    <div class="stat-icon" style="background: #FEF3C7; color: #D97706;"><i class="fas fa-clock"></i></div>
+                    <div class="stat-value text-dark"><?= $followup_stats['ready_to_send'] ?></div>
+                    <div class="stat-label">Follow-up Antre</div>
+                </div>
+                <div class="mt-3 pt-3 border-top d-flex gap-2" style="font-size: 0.75rem; font-weight: 700;">
+                    <span style="color: #6B7280;"><span class="text-warning"><?= $followup_stats['pending'] ?></span> Pending</span>
+                    <span style="color: #6B7280;">•</span>
+                    <span style="color: #6B7280;"><span class="text-success"><?= $followup_stats['sent'] ?></span> Terkirim</span>
+                </div>
+            </a>
+        </div>
+        <?php else: ?>
+        <div class="col-xl-3 col-sm-6">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-icon" style="background: #ECFDF5; color: #059669;"><i class="fas fa-wallet"></i></div>
+                    <div class="stat-value text-dark" style="font-size: 1.5rem;"><?= formatCurrency($pendapatan_bulan_ini) ?></div>
+                    <div class="stat-label">Pendapatan Bulan Ini</div>
+                </div>
+                <div class="mt-3 pt-3 border-top" style="font-size: 0.8rem; font-weight: 600; color: #059669;">
+                    <i class="fas fa-arrow-trend-up me-1"></i> Transaksi Selesai
+                </div>
+            </div>
         </div>
         <?php endif; ?>
-        
-        <!-- 🆕 Alert untuk follow-up yang siap kirim -->
-        <?php if ($followup_stats && $followup_stats['ready_to_send'] > 0): ?>
-        <div class="alert alert-info alert-dismissible fade show" role="alert">
-            <i class="fas fa-clock me-2"></i>
-            Ada <strong><?= $followup_stats['ready_to_send'] ?></strong> follow-up message yang siap dikirim. 
-            <a href="<?= BASE_URL ?>modules/followup/processor.php?key=followup_2024_secure_key" class="alert-link" target="_blank">Proses sekarang</a>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        <?php endif; ?>
-        
-        <!-- Content Row -->
-        <div class="row">
-            <!-- Produk Terlaris -->
-            <div class="col-lg-6 mb-4">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-white border-bottom">
-                        <h5 class="mb-0"><i class="fas fa-trophy text-warning me-2"></i>Produk Terlaris Bulan Ini</h5>
-                    </div>
-                    <div class="card-body">
-                        <?php if (empty($produk_terlaris)): ?>
-                            <div class="text-center py-4">
-                                <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
-                                <p class="text-muted mb-0">Belum ada data penjualan bulan ini</p>
-                                <a href="<?= BASE_URL ?>modules/transaksi/create.php" class="btn btn-primary btn-sm mt-2">
-                                    <i class="fas fa-plus me-1"></i>Buat Transaksi Pertama
-                                </a>
-                            </div>
-                        <?php else: ?>
-                            <?php foreach ($produk_terlaris as $index => $produk): ?>
-                            <div class="d-flex justify-content-between align-items-center py-2 <?= $index < count($produk_terlaris) - 1 ? 'border-bottom' : '' ?>">
-                                <div class="d-flex align-items-center">
-                                    <span class="badge bg-primary me-3"><?= $index + 1 ?></span>
-                                    <strong><?= clean($produk['nama']) ?></strong>
-                                </div>
-                                <span class="badge bg-success"><?= $produk['jumlah_terjual'] ?> terjual</span>
-                            </div>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </div>
+
+        <div class="col-xl-3 col-sm-6">
+            <a href="<?= BASE_URL ?>modules/transaksi/?date_from=<?= $tanggal_awal_bulan ?>&date_to=<?= $tanggal_akhir_bulan ?>" class="stat-card">
+                <div>
+                    <div class="stat-icon" style="background: #EFF6FF; color: #2563EB;"><i class="fas fa-shopping-cart"></i></div>
+                    <div class="stat-value" style="color: #2563EB;"><?= $transaksi_bulan_ini ?></div>
+                    <div class="stat-label">Transaksi Bulan Ini</div>
                 </div>
-            </div>
-            
-            <!-- Transaksi Terbaru -->
-            <div class="col-lg-6 mb-4">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-white border-bottom">
-                        <h5 class="mb-0"><i class="fas fa-clock text-primary me-2"></i>Transaksi Terbaru</h5>
+            </a>
+        </div>
+
+        <div class="col-xl-3 col-sm-6">
+            <a href="<?= BASE_URL ?>modules/pelanggan/" class="stat-card">
+                <div>
+                    <div class="stat-icon" style="background: #F3E8FF; color: #9333EA;"><i class="fas fa-users"></i></div>
+                    <div class="stat-value" style="color: #9333EA;"><?= $total_pelanggan ?></div>
+                    <div class="stat-label">Total Pelanggan</div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-xl-3 col-sm-6">
+            <a href="<?= BASE_URL ?>modules/produk/" class="stat-card">
+                <div>
+                    <div class="stat-icon" style="background: #F1F5F9; color: #475569;"><i class="fas fa-box"></i></div>
+                    <div class="stat-value" style="color: #475569;"><?= $total_produk ?></div>
+                    <div class="stat-label">Total Produk Aktif</div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-lg-3 col-sm-6">
+            <a href="<?= BASE_URL ?>modules/transaksi/create.php" class="action-btn">
+                <i class="fas fa-cart-plus text-primary fs-5"></i> Kasir / Transaksi Baru
+            </a>
+        </div>
+        <div class="col-lg-3 col-sm-6">
+            <a href="<?= BASE_URL ?>modules/produk/create.php" class="action-btn">
+                <i class="fas fa-box-open text-success fs-5"></i> Tambah Produk Baru
+            </a>
+        </div>
+        <div class="col-lg-3 col-sm-6">
+            <a href="<?= BASE_URL ?>modules/pelanggan/create.php" class="action-btn">
+                <i class="fas fa-user-plus text-info fs-5"></i> Database Pelanggan
+            </a>
+        </div>
+        <div class="col-lg-3 col-sm-6">
+            <a href="<?= BASE_URL ?>modules/laporan/analitik.php" class="action-btn">
+                <i class="fas fa-chart-pie text-warning fs-5"></i> Analisis & Laporan
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="list-container h-100">
+                <h2 class="list-header"><i class="fas fa-bolt text-primary"></i> Transaksi Terakhir</h2>
+                
+                <?php if (empty($transaksi_terbaru)): ?>
+                    <div class="text-center py-5">
+                        <div class="text-muted mb-2"><i class="fas fa-inbox fs-2"></i></div>
+                        <div class="fw-bold text-dark">Belum ada transaksi</div>
+                        <p class="text-muted small">Pecah telur pertama kamu hari ini!</p>
                     </div>
-                    <div class="card-body">
-                        <?php if (empty($transaksi_terbaru)): ?>
-                            <div class="text-center py-4">
-                                <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
-                                <p class="text-muted mb-0">Belum ada transaksi</p>
-                                <a href="<?= BASE_URL ?>modules/transaksi/create.php" class="btn btn-primary btn-sm mt-2">
-                                    <i class="fas fa-plus me-1"></i>Buat Transaksi Pertama
-                                </a>
+                <?php else: ?>
+                    <div class="d-flex flex-column">
+                        <?php foreach ($transaksi_terbaru as $transaksi): ?>
+                        <div class="row-item">
+                            <div class="d-flex flex-column gap-1">
+                                <span class="fw-bold text-dark" style="font-size: 0.95rem;"><?= clean($transaksi['nama_pelanggan']) ?></span>
+                                <span class="text-muted" style="font-size: 0.8rem; font-weight: 500;">
+                                    <?= formatDate($transaksi['tanggal_transaksi'], 'd/m/Y H:i') ?>
+                                </span>
                             </div>
-                        <?php else: ?>
-                            <?php foreach ($transaksi_terbaru as $index => $transaksi): ?>
-                            <div class="py-2 <?= $index < count($transaksi_terbaru) - 1 ? 'border-bottom' : '' ?>">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <h6 class="mb-1"><?= clean($transaksi['nama_pelanggan']) ?></h6>
-                                        <p class="mb-1 fw-bold text-primary"><?= formatCurrency($transaksi['total_harga']) ?></p>
-                                        <small class="text-muted">
-                                            <i class="fas fa-calendar me-1"></i>
-                                            <?= formatDate($transaksi['tanggal_transaksi'], 'd/m/Y H:i') ?>
-                                        </small>
-                                        <?php if ($transaksi['status'] === 'selesai' && !empty($transaksi['waktu_selesai'])): ?>
-                                            <br><small class="text-success">
-                                                <i class="fas fa-check-circle me-1"></i>
-                                                Selesai: <?= formatDate($transaksi['waktu_selesai'], 'd/m/Y H:i') ?>
-                                            </small>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div>
-                                        <?= statusBadge($transaksi['status']) ?>
-                                    </div>
+                            <div class="d-flex flex-column align-items-end gap-1">
+                                <span class="fw-bold text-dark"><?= formatCurrency($transaksi['total_harga']) ?></span>
+                                <div style="transform: scale(0.85); transform-origin: right center;">
+                                    <?= statusBadge($transaksi['status']) ?>
                                 </div>
                             </div>
-                            <?php endforeach; ?>
-                            <div class="text-center mt-3">
-                                <a href="<?= BASE_URL ?>modules/transaksi/" class="btn btn-outline-primary btn-sm">
-                                    <i class="fas fa-eye me-1"></i>Lihat Semua Transaksi
-                                </a>
-                            </div>
-                        <?php endif; ?>
+                        </div>
+                        <?php endforeach; ?>
                     </div>
-                </div>
+                    <a href="<?= BASE_URL ?>modules/transaksi/" class="btn btn-light text-dark fw-bold w-100 mt-4" style="border-radius: 12px;">Lihat Semua Transaksi</a>
+                <?php endif; ?>
             </div>
         </div>
-        
-        <!-- Quick Actions -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-white border-bottom">
-                        <h5 class="mb-0"><i class="fas fa-rocket text-success me-2"></i>Aksi Cepat</h5>
+
+        <div class="col-lg-5">
+            <div class="list-container h-100">
+                <h2 class="list-header"><i class="fas fa-fire text-danger"></i> Terlaris Bulan Ini</h2>
+                
+                <?php if (empty($produk_terlaris)): ?>
+                    <div class="text-center py-5">
+                        <div class="text-muted mb-2"><i class="fas fa-box-open fs-2"></i></div>
+                        <div class="fw-bold text-dark">Belum ada data</div>
                     </div>
-                    <div class="card-body">
-                        <div class="row text-center">
-                            <div class="col-lg-3 col-md-6 mb-3">
-                                <a href="<?= BASE_URL ?>modules/produk/create.php" class="btn btn-outline-primary w-100 py-3 text-decoration-none">
-                                    <i class="fas fa-plus fa-2x mb-2 d-block"></i>
-                                    <div>Tambah Produk</div>
-                                </a>
+                <?php else: ?>
+                    <div class="d-flex flex-column">
+                        <?php foreach ($produk_terlaris as $index => $produk): ?>
+                        <div class="row-item">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="fw-bold" style="color: #9CA3AF; width: 1.5rem; text-align: center;">
+                                    <?= $index + 1 ?>
+                                </div>
+                                <div class="fw-bold text-dark" style="font-size: 0.95rem;">
+                                    <?= clean($produk['nama']) ?>
+                                </div>
                             </div>
-                            <div class="col-lg-3 col-md-6 mb-3">
-                                <a href="<?= BASE_URL ?>modules/pelanggan/create.php" class="btn btn-outline-success w-100 py-3 text-decoration-none">
-                                    <i class="fas fa-user-plus fa-2x mb-2 d-block"></i>
-                                    <div>Tambah Pelanggan</div>
-                                </a>
-                            </div>
-                            <div class="col-lg-3 col-md-6 mb-3">
-                                <a href="<?= BASE_URL ?>modules/transaksi/create.php" class="btn btn-outline-info w-100 py-3 text-decoration-none">
-                                    <i class="fas fa-shopping-cart fa-2x mb-2 d-block"></i>
-                                    <div>Buat Transaksi</div>
-                                </a>
-                            </div>
-                            <div class="col-lg-3 col-md-6 mb-3">
-                                <a href="<?= BASE_URL ?>modules/laporan/analitik.php" class="btn btn-outline-warning w-100 py-3 text-decoration-none">
-                                    <i class="fas fa-chart-line fa-2x mb-2 d-block"></i>
-                                    <div>Lihat Laporan</div>
-                                </a>
-                            </div>
+                            <span class="badge-soft" style="background: #ECFDF5; color: #059669;">
+                                <?= $produk['jumlah_terjual'] ?> terjual
+                            </span>
                         </div>
+                        <?php endforeach; ?>
                     </div>
-                </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

@@ -14,162 +14,139 @@ require_once __DIR__ . '/../../includes/header.php';
 require_once __DIR__ . '/../../includes/sidebar.php';
 ?>
 
-<div class="main-content">
-    <!-- Top Header -->
-    <div class="bg-white border-bottom p-3 mb-4">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="h3 mb-1">Kelola Produk</h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>">Dashboard</a></li>
-                        <li class="breadcrumb-item active">Produk</li>
-                    </ol>
-                </nav>
+<div class="main-content dashboard-wrapper">
+    
+    <!-- Header -->
+    <div class="dash-header flex-column flex-md-row align-items-start align-items-md-center gap-3">
+        <div>
+            <h1 class="dash-title">Katalog Produk</h1>
+            <div class="text-muted mt-1" style="font-weight: 500; font-size: 0.95rem;">Kelola daftar produk, harga, dan embed code checkout.</div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <div class="dash-date d-none d-sm-block">
+                <i class="fas fa-box me-2 text-muted"></i><?= $total_records ?> Produk Aktif
             </div>
-            <div class="text-muted">
-                <i class="fas fa-calendar me-1"></i><?= date('d F Y') ?>
-            </div>
+            <a href="create.php" class="btn btn-primary d-flex align-items-center gap-2" style="border-radius: 12px; font-weight: 700; padding: 0.75rem 1.25rem;">
+                <i class="fas fa-plus"></i> Tambah Produk
+            </a>
         </div>
     </div>
 
-    <div class="container-fluid px-4">
-        <!-- Header Actions -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="fas fa-box me-2"></i>Kelola Produk</h2>
-            <a href="create.php" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>Tambah Produk
-            </a>
-        </div>
-        
-        <!-- Main Card -->
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-bottom">
-                <h5 class="mb-0">Daftar Produk (<?= $total_records ?> produk)</h5>
-            </div>
-            <div class="card-body p-0">
-                <?php if (empty($produk_list)): ?>
-                    <div class="text-center py-5">
-                        <i class="fas fa-box fa-3x text-muted mb-3"></i>
-                        <h5 class="text-muted">Belum ada produk</h5>
-                        <p class="text-muted">Klik tombol "Tambah Produk" untuk menambahkan produk pertama.</p>
-                        <a href="create.php" class="btn btn-primary">
-                            <i class="fas fa-plus me-2"></i>Tambah Produk Pertama
-                        </a>
+    <!-- Main Content -->
+    <div class="product-list-container shadow-sm">
+        <?php if (empty($produk_list)): ?>
+            <div class="text-center py-5">
+                <div class="mb-3">
+                    <div style="width: 80px; height: 80px; background: #F3F4F6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-box-open text-muted fs-1"></i>
                     </div>
-                <?php else: ?>
-                    <!-- Tabel dengan scroll vertikal untuk menampilkan semua produk -->
-                    <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light sticky-top">
-                                <tr>
-                                    <th width="60">ID</th>
-                                    <th>Nama Produk</th>
-									<th>Profit</th>
-                                    <th width="120">Harga</th>
-                                    <th width="150">Admin WA</th>
-                                    <th width="120">OneSender</th>
-                                    <th width="130">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($produk_list as $produk): ?>
-                                <tr>
-                                    <td class="fw-bold"><?= $produk['id'] ?></td>
-                                    <td>
-                                        <div class="fw-bold"><?= clean($produk['nama']) ?></div>
-                                        <?php if ($produk['deskripsi']): ?>
-                                            <small class="text-muted"><?= truncateText($produk['deskripsi'], 50) ?></small>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td class="fw-bold"><?= formatCurrency($produk['profit']) ?></td>
-									<td class="fw-bold text-primary"><?= formatCurrency($produk['harga']) ?></td>
-                                    <td>
-                                        <?php if ($produk['admin_wa']): ?>
-                                            <a href="<?= whatsappLink($produk['admin_wa']) ?>" target="_blank" class="text-success text-decoration-none">
-                                                <i class="fab fa-whatsapp"></i> <?= clean($produk['admin_wa']) ?>
-                                            </a>
-                                        <?php else: ?>
-                                            <span class="text-muted">-</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-info"><?= clean($produk['onesender_account']) ?></span>
-                                    </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-											<a href="<?= BASE_URL ?>co.php?id=<?= $produk['id'] ?>" class="btn btn-outline-success" title="Checkout" target="_blank">
-                                                <i class="fas fa-shopping-cart"></i>
-                                            </a>
-
-                                            <?php
-                                            // Cari data bundling yang aktif untuk produk ini
-                                            $bundling_data = fetchAll("
-                                                SELECT b.id, b.deskripsi as deskripsi_bundling, p.nama, p.harga, b.diskon 
-                                                FROM bundling b 
-                                                JOIN produk p ON b.produk_bundling_id = p.id 
-                                                WHERE b.produk_id = ? AND b.is_active = 1
-                                            ", [$produk['id']]);
-
-                                            // Ubah data menjadi JSON yang aman
-                                            $bundling_json = htmlspecialchars(json_encode($bundling_data), ENT_QUOTES, 'UTF-8');
-                                            ?>
-
-                                            <button type="button" class="btn btn-outline-info" 
-                                                    title="Copy HTML Embed"
-                                                    data-bundling="<?= $bundling_json ?>"
-                                                    onclick="copyEmbedCode(
-                                                        <?= $produk['id'] ?>, 
-                                                        '<?= addslashes(clean($produk['nama'])) ?>', 
-                                                        <?= $produk['harga'] ?>, 
-                                                        <?= isset($produk['show_email']) && $produk['show_email'] == 1 ? 1 : 0 ?>, 
-                                                        <?= isset($produk['show_kupon']) && $produk['show_kupon'] == 1 ? 1 : 0 ?>, 
-                                                        this
-                                                    )">
-                                                <i class="fas fa-code"></i>
-                                            </button>
-
-                                            <a href="edit.php?id=<?= $produk['id'] ?>" 
-                                               class="btn btn-outline-warning" 
-                                               title="Edit">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <a href="delete.php?id=<?= $produk['id'] ?>" 
-                                               class="btn btn-outline-danger btn-delete" 
-                                               title="Hapus"
-                                               data-name="<?= clean($produk['nama']) ?>"
-                                               onclick="return confirm('Yakin ingin menghapus produk \'<?= clean($produk['nama']) ?>\'?')">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                <?php endif; ?>
+                </div>
+                <h5 class="fw-bold text-dark mb-1">Katalog Kosong</h5>
+                <p class="text-muted mb-4">Kamu belum memiliki produk untuk dijual.</p>
+                <a href="create.php" class="btn btn-dark rounded-pill fw-bold px-4">
+                    <i class="fas fa-plus me-2"></i>Buat Produk Pertama
+                </a>
             </div>
-        </div>
-    </div>    
+        <?php else: ?>
+            <div class="table-responsive" style="max-height: calc(100vh - 250px); overflow-y: auto;">
+                <table class="table-editorial">
+                    <thead>
+                        <tr>
+                            <th width="50" class="text-center">ID</th>
+                            <th>Nama & Detail Produk</th>
+                            <th>Harga Jual</th>
+                            <th>Profit</th>
+                            <th>Koneksi Admin</th>
+                            <th width="160" class="text-end pe-4">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($produk_list as $produk): ?>
+                        <tr>
+                            <td class="text-center fw-bold text-muted" style="font-size: 0.85rem;">#<?= $produk['id'] ?></td>
+                            <td>
+                                <div class="fw-bold text-dark" style="font-size: 1rem; letter-spacing: -0.01em;"><?= clean($produk['nama']) ?></div>
+                                <?php if ($produk['deskripsi']): ?>
+                                    <div class="text-muted mt-1" style="font-size: 0.85rem; line-height: 1.4;">
+                                        <?= truncateText($produk['deskripsi'], 60) ?>
+                                    </div>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark" style="font-size: 1.05rem;"><?= formatCurrency($produk['harga']) ?></div>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-success" style="font-size: 0.95rem;"><?= formatCurrency($produk['profit']) ?></div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column gap-2 align-items-start">
+                                    <?php if ($produk['admin_wa']): ?>
+                                        <a href="<?= whatsappLink($produk['admin_wa']) ?>" target="_blank" class="badge-clean badge-wa">
+                                            <i class="fab fa-whatsapp"></i> <?= clean($produk['admin_wa']) ?>
+                                        </a>
+                                    <?php else: ?>
+                                        <span class="text-muted small">-</span>
+                                    <?php endif; ?>
+                                    
+                                    <span class="badge-clean badge-os" title="OneSender Account">
+                                        <i class="fas fa-robot"></i> <?= clean($produk['onesender_account']) ?>
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="d-flex justify-content-end gap-1">
+                                    <a href="<?= BASE_URL ?>co.php?id=<?= $produk['id'] ?>" class="btn-action-icon checkout" title="Lihat Halaman Checkout" target="_blank">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+
+                                    <?php
+                                    $bundling_data = fetchAll("
+                                        SELECT b.id, b.deskripsi as deskripsi_bundling, p.nama, p.harga, b.diskon 
+                                        FROM bundling b 
+                                        JOIN produk p ON b.produk_bundling_id = p.id 
+                                        WHERE b.produk_id = ? AND b.is_active = 1
+                                    ", [$produk['id']]);
+
+                                    $bundling_json = htmlspecialchars(json_encode($bundling_data), ENT_QUOTES, 'UTF-8');
+                                    ?>
+
+                                    <button type="button" class="btn-action-icon embed" 
+                                            title="Copy HTML Embed Kasir"
+                                            data-bundling="<?= $bundling_json ?>"
+                                            onclick="copyEmbedCode(
+                                                <?= $produk['id'] ?>, 
+                                                '<?= addslashes(clean($produk['nama'])) ?>', 
+                                                <?= $produk['harga'] ?>, 
+                                                <?= isset($produk['show_email']) && $produk['show_email'] == 1 ? 1 : 0 ?>, 
+                                                <?= isset($produk['show_kupon']) && $produk['show_kupon'] == 1 ? 1 : 0 ?>, 
+                                                this
+                                            )">
+                                        <i class="fas fa-code"></i>
+                                    </button>
+
+                                    <a href="edit.php?id=<?= $produk['id'] ?>" class="btn-action-icon edit" title="Edit Produk">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+                                    
+                                    <button type="button" class="btn-action-icon delete" title="Hapus Produk"
+                                            onclick="showDeleteModal(<?= $produk['id'] ?>, '<?= addslashes(clean($produk['nama'])) ?>')">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </div>
 </div>
 
-<style>
-/* CSS untuk header tabel yang tetap terlihat saat scroll */
-.table-responsive thead th {
-    position: sticky;
-    top: 0;
-    background-color: #f8f9fa;
-    z-index: 10;
-    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
-}
-</style>
-
 <script>
+// Fungsi copy embed JS
 function copyEmbedCode(produkId, namaProduk, hargaRaw, showEmail, showKupon, btnElement) {
     const formatRp = (angka) => 'Rp ' + new Intl.NumberFormat('id-ID').format(angka);
-    
-    // AMBIL DATA DARI ATRIBUT HTML (Jauh lebih aman dari error kutip/enter)
     const bundlingJsonStr = btnElement.getAttribute('data-bundling');
     
     let dataBundling = [];
@@ -205,7 +182,6 @@ function copyEmbedCode(produkId, namaProduk, hargaRaw, showEmail, showKupon, btn
         </div>`;
     }
 
-    // URUTAN 2: BUNDLING DINAMIS DARI DATABASE
     if (dataBundling.length > 0) {
         htmlCode += `
         <div style="margin-bottom: 25px; margin-top: 20px;">
@@ -246,7 +222,6 @@ function copyEmbedCode(produkId, namaProduk, hargaRaw, showEmail, showKupon, btn
         htmlCode += `</div>`;
     }
 
-    // URUTAN 3: RINGKASAN PESANAN
     htmlCode += `
         <div style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 18px; margin-bottom: 20px;">
             <div style="font-weight: bold; font-size: 15px; margin-bottom: 12px; color: #333;">Ringkasan Pesanan</div>
@@ -300,7 +275,6 @@ function copyEmbedCode(produkId, namaProduk, hargaRaw, showEmail, showKupon, btn
             const summaryKupon = document.getElementById('summary-kupon-${produkId}');
             const totalEl = document.getElementById('total-price-${produkId}');
             
-            // Logika Toggle Deskripsi Bundling
             const toggles = document.querySelectorAll('.btn-toggle-desc-${produkId}');
             toggles.forEach(btn => {
                 btn.addEventListener('click', function(e) {
@@ -406,20 +380,65 @@ function copyEmbedCode(produkId, namaProduk, hargaRaw, showEmail, showKupon, btn
 
     navigator.clipboard.writeText(htmlCode).then(() => {
         const originalHTML = btnElement.innerHTML;
-        const originalClass = btnElement.className;
+        const originalColor = btnElement.style.color;
         
-        btnElement.innerHTML = '<i class="fas fa-check"></i> Tersalin!';
-        btnElement.className = 'btn btn-sm btn-success';
+        btnElement.innerHTML = '<i class="fas fa-check"></i>';
+        btnElement.style.color = '#10B981';
+        btnElement.style.borderColor = '#10B981';
+        btnElement.style.background = '#ECFDF5';
         
         setTimeout(() => {
             btnElement.innerHTML = originalHTML;
-            btnElement.className = originalClass;
-        }, 2000);
+            btnElement.style.color = originalColor;
+            btnElement.style.borderColor = 'transparent';
+            btnElement.style.background = 'transparent';
+        }, 1500);
     }).catch(err => {
         alert('Gagal menyalin kode HTML: ' + err);
-        console.error(err);
     });
 }
 </script>
 
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content" style="border-radius: 24px; border: none; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+            <div class="modal-body text-center p-4">
+                <div style="width: 64px; height: 64px; background: #FEF2F2; color: #EF4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 1.75rem;"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">Hapus Produk?</h5>
+                <p class="text-muted small mb-4" style="line-height: 1.5;">
+                    Yakin ingin menghapus <strong id="deleteProductName" class="text-dark"></strong>? 
+                    Semua data yang terkait dengan produk ini tidak dapat dikembalikan.
+                </p>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-light w-50 fw-bold" data-bs-dismiss="modal" style="border-radius: 12px; transition: all 0.2s;">Batal</button>
+                    <a href="#" id="confirmDeleteBtn" class="btn btn-danger w-50 fw-bold" style="border-radius: 12px; background: #EF4444; border: none; transition: transform 0.2s;">Hapus</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Micro-interaction JS untuk Modal Delete
+function showDeleteModal(id, namaProduk) {
+    // Inject nama produk ke dalam teks modal
+    document.getElementById('deleteProductName').textContent = namaProduk;
+    
+    // Inject ID produk ke tombol konfirmasi Hapus
+    document.getElementById('confirmDeleteBtn').href = 'delete.php?id=' + id;
+    
+    // Tampilkan modal
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    deleteModal.show();
+}
+
+// Tambahkan sedikit feedback visual saat tombol hapus ditekan
+document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menghapus...';
+    this.style.opacity = '0.8';
+    this.style.pointerEvents = 'none'; // Mencegah double click
+});
+</script>
 <?php require_once __DIR__ . '/../../includes/footer.php'; ?>

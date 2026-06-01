@@ -26,339 +26,289 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 ?>
 
 <!-- Main Content -->
-<div class="main-content">
-    <!-- Top Header -->
-    <div class="top-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="page-title mb-0">Kelola Transaksi</h1>
-                <nav class="breadcrumb">
-                    <a href="<?= BASE_URL ?>" class="breadcrumb-item text-decoration-none">Dashboard</a>
-                    <span class="breadcrumb-item active">Transaksi</span>
-                </nav>
-            </div>
-            <div class="d-flex gap-2">
-                <a href="bulk.php" class="btn btn-success">
-                    <i class="fas fa-upload me-2"></i>Bulk Import
-                </a>
-                <a href="bulk_delete_old.php" class="btn btn-outline-warning">
-                    <i class="fas fa-trash-alt me-2"></i>Hapus Pesan
-                </a>
-                <a href="create.php" class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i>Tambah Transaksi
-                </a>
-            </div>
+<div class="main-content dashboard-wrapper">
+    <div class="dash-header flex-column flex-md-row align-items-start align-items-md-center gap-3 mb-4">
+        <div>
+            <h1 class="dash-title">Semua Transaksi</h1>
+            <div class="text-muted mt-1" style="font-weight: 500; font-size: 0.95rem;">Kelola order masuk, ubah status, dan pantau omzet.</div>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="bulk.php" class="btn btn-light text-dark fw-bold border" style="border-radius: 12px;">
+                <i class="fas fa-file-upload me-1"></i> Import Order
+            </a>
+            <a href="bulk_delete_old.php" class="btn btn-light text-danger fw-bold border" style="border-radius: 12px;">
+                <i class="fas fa-trash-alt me-1"></i> Bersihkan Data
+            </a>
+            <a href="create.php" class="btn btn-primary fw-bold" style="border-radius: 12px;">
+                <i class="fas fa-plus me-1"></i> Transaksi Baru
+            </a>
         </div>
     </div>
 
-    <!-- Content Area -->
-    <div class="content-area">
+    <div class="w-100">
         <?php displaySessionMessage(); ?>
         
-        <!-- Statistics Cards -->
-        <div class="row mb-4">
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card dashboard-card">
-                    <div class="card-body text-center">
-                        <div class="h4 text-primary"><?= number_format($stats['total_transaksi']) ?></div>
-                        <small class="text-muted">Total Transaksi</small>
-                    </div>
+        <div class="panel-editorial d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 p-3 px-4" style="background: var(--bg-surface);">
+            
+            <div class="d-flex align-items-center gap-3 pe-4 border-end">
+                <div style="width: 44px; height: 44px; background: #F3F4F6; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                    <i class="fas fa-receipt text-primary"></i>
+                </div>
+                <div>
+                    <div class="text-muted" style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Total Order</div>
+                    <div class="fw-bold text-dark fs-5" style="line-height: 1;"><?= number_format($stats['total_transaksi']) ?></div>
                 </div>
             </div>
-            
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card dashboard-card">
-                    <div class="card-body text-center">
-                        <div class="h4 text-warning"><?= number_format($stats['status_pending']) ?></div>
-                        <small class="text-muted">Pending</small>
+
+            <div class="d-flex align-items-center gap-3 pe-4 border-end">
+                <div style="width: 44px; height: 44px; background: #FFFBEB; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                    <i class="fas fa-clock text-warning"></i>
+                </div>
+                <div>
+                    <div class="text-muted" style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Menunggu</div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-bold text-dark fs-5" style="line-height: 1;"><?= number_format($stats['status_pending']) ?></span>
                         <?php if ($stats['status_pending'] > 0): ?>
-                            <br><a href="<?= buildFilterUrl(['status' => 'pending']) ?>" class="btn btn-outline-warning btn-sm mt-1">Lihat</a>
+                            <a href="<?= buildFilterUrl(['status' => 'pending']) ?>" class="badge-clean bg-light text-warning border border-warning" style="font-size: 0.65rem; padding: 0.15rem 0.5rem; text-decoration: none;">Cek <i class="fas fa-arrow-right ms-1"></i></a>
                         <?php endif; ?>
                     </div>
                 </div>
             </div>
-            
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card dashboard-card">
-                    <div class="card-body text-center">
-                        <div class="h4 text-success"><?= number_format($stats['status_selesai']) ?></div>
-                        <small class="text-muted">Selesai</small>
-                    </div>
+
+            <div class="d-flex align-items-center gap-3 pe-4 border-end">
+                <div style="width: 44px; height: 44px; background: #ECFDF5; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                    <i class="fas fa-check-circle text-success"></i>
+                </div>
+                <div>
+                    <div class="text-muted" style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Sukses</div>
+                    <div class="fw-bold text-dark fs-5" style="line-height: 1;"><?= number_format($stats['status_selesai']) ?></div>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+                <div style="width: 44px; height: 44px; background: #EFF6FF; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                    <i class="fas fa-coins text-primary"></i>
+                </div>
+                <div>
+                    <div class="text-muted" style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Total Pendapatan</div>
+                    <div class="fw-bold text-success fs-5" style="line-height: 1;"><?= formatCurrency($stats['total_pendapatan']) ?></div>
                 </div>
             </div>
             
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card dashboard-card">
-                    <div class="card-body text-center">
-                        <div class="h4 text-success"><?= formatCurrency($stats['total_pendapatan']) ?></div>
-                        <small class="text-muted">Total Pendapatan</small>
-                    </div>
-                </div>
-            </div>
         </div>
         
-        <!-- Filters -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Filter Transaksi</h6>
-                    <?php if (!empty($clean_filters)): ?>
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="text-muted small">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Menampilkan <?= number_format($total_records) ?> dari <?= number_format($stats['total_transaksi']) ?> transaksi
-                            </span>
-                            <a href="index.php" class="btn btn-outline-secondary btn-sm">
-                                <i class="fas fa-times me-1"></i>Reset
-                            </a>
-                        </div>
-                    <?php endif; ?>
+        <div class="list-container p-3 mb-4 d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+            <form method="GET" class="d-flex flex-wrap align-items-center gap-2 m-0 w-100">
+                
+                <div class="d-flex align-items-center bg-light rounded-pill px-3 py-1 border border-light flex-grow-1" style="max-width: 300px;">
+                    <i class="fas fa-search text-muted me-2" style="font-size: 0.85rem;"></i>
+                    <input type="text" name="search" class="form-control border-0 bg-transparent p-0 text-dark fw-bold" 
+                           placeholder="Cari pelanggan..." value="<?= $filters['search'] ?? '' ?>" style="font-size: 0.85rem; outline: none; box-shadow: none;">
                 </div>
-            </div>
-            <div class="card-body">
-                <form method="GET" class="row g-3">
-                    <div class="col-md-3">
-                        <label class="form-label">Status</label>
-                        <select name="status" class="form-select" onchange="this.form.submit()">
-                            <option value="">Semua Status</option>
-                            <option value="pending" <?= ($filters['status'] ?? '') === 'pending' ? 'selected' : '' ?>>Pending</option>
-                            <option value="diproses" <?= ($filters['status'] ?? '') === 'diproses' ? 'selected' : '' ?>>Diproses</option>
-                            <option value="selesai" <?= ($filters['status'] ?? '') === 'selesai' ? 'selected' : '' ?>>Selesai</option>
-                            <option value="batal" <?= ($filters['status'] ?? '') === 'batal' ? 'selected' : '' ?>>Batal</option>
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-3">
-                        <label class="form-label">Dari Tanggal</label>
-                        <input type="date" name="date_from" class="form-control" value="<?= $filters['date_from'] ?? '' ?>" onchange="this.form.submit()">
-                    </div>
-                    
-                    <div class="col-md-3">
-                        <label class="form-label">Sampai Tanggal</label>
-                        <input type="date" name="date_to" class="form-control" value="<?= $filters['date_to'] ?? '' ?>" onchange="this.form.submit()">
-                    </div>
-                    
-                    <div class="col-md-3">
-                        <label class="form-label">Cari Pelanggan</label>
-                        <div class="input-group">
-                            <input type="text" name="search" class="form-control" 
-                                   placeholder="Nama atau nomor WA..." value="<?= $filters['search'] ?? '' ?>">
-                            <button type="submit" class="btn btn-outline-secondary">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
+
+                <div class="d-flex align-items-center bg-light rounded-pill px-3 py-1 border border-light">
+                    <i class="fas fa-calendar-alt text-muted me-2" style="font-size: 0.85rem;"></i>
+                    <input type="date" name="date_from" class="form-control border-0 bg-transparent p-0 text-muted fw-bold" style="width: 110px; font-size: 0.85rem;" value="<?= $filters['date_from'] ?? '' ?>" onchange="this.form.submit()">
+                    <span class="mx-2 text-muted">-</span>
+                    <input type="date" name="date_to" class="form-control border-0 bg-transparent p-0 text-muted fw-bold" style="width: 110px; font-size: 0.85rem;" value="<?= $filters['date_to'] ?? '' ?>" onchange="this.form.submit()">
+                </div>
+
+                <div class="bg-light rounded-pill px-3 py-1 border border-light d-flex align-items-center">
+                    <select name="status" class="form-select border-0 bg-transparent p-0 text-dark fw-bold" style="width: auto; min-width: 110px; font-size: 0.85rem; cursor: pointer;" onchange="this.form.submit()">
+                        <option value="">Semua Status</option>
+                        <option value="pending" <?= ($filters['status'] ?? '') === 'pending' ? 'selected' : '' ?>>Menunggu</option>
+                        <option value="diproses" <?= ($filters['status'] ?? '') === 'diproses' ? 'selected' : '' ?>>Diproses</option>
+                        <option value="selesai" <?= ($filters['status'] ?? '') === 'selesai' ? 'selected' : '' ?>>Selesai</option>
+                        <option value="batal" <?= ($filters['status'] ?? '') === 'batal' ? 'selected' : '' ?>>Batal</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-dark btn-sm rounded-pill fw-bold px-3 ms-auto ms-lg-0" style="padding-top: 0.4rem; padding-bottom: 0.4rem;">
+                    Cari
+                </button>
+            </form>
         </div>
         
-        <!-- Transaksi Table -->
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-shopping-cart me-2"></i>
-                    Daftar Transaksi 
-                    <span class="badge bg-primary ms-2"><?= number_format($total_records) ?></span>
+        <div class="product-list-container shadow-sm mb-4">
+            <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-white">
+                <h5 class="mb-0 fw-bold list-header m-0 p-1">
+                    Histori Order Masuk
+                    <span class="badge bg-light text-muted border ms-2" style="font-size: 0.75rem;"><?= number_format($total_records) ?> Data</span>
                 </h5>
-            </div>
-            <div class="card-body p-0">
-                <?php if (empty($transaksi_list)): ?>
-                    <div class="text-center py-5">
-                        <?php if (!empty($clean_filters)): ?>
-                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">Tidak ada transaksi sesuai filter</h5>
-                            <p class="text-muted">Coba ubah kriteria pencarian atau filter.</p>
-                            <a href="index.php" class="btn btn-outline-primary">Reset Filter</a>
-                        <?php else: ?>
-                            <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">Belum ada transaksi</h5>
-                            <p class="text-muted">Mulai dengan membuat transaksi pertama.</p>
-                            <a href="create.php" class="btn btn-primary">
-                                <i class="fas fa-plus me-2"></i>Buat Transaksi
-                            </a>
-                        <?php endif; ?>
-                    </div>
-                <?php else: ?>
-                    <!-- Tabel dengan scroll vertikal -->
-                    <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
-                        <table class="table table-hover mb-0">
-							<thead class="table-light sticky-top">
-								<tr>
-									<th width="80">ID</th>
-									<th>Pelanggan</th>
-									<th width="120">Total</th>
-									<th width="80">Items</th>
-									<th width="100">Followup</th>
-									<th width="120">Tanggal</th>
-									<th width="180">Status & Aksi Cepat</th>
-									<th width="120">Menu</th>
-								</tr>
-							</thead>
-							<tbody>
-								<?php 
-								// Get followup progress untuk semua transaksi sekaligus (optimized)
-								$transaksi_ids = array_column($transaksi_list, 'id');
-								$followup_progress = getMultipleFollowupProgress($transaksi_ids);
-
-								foreach ($transaksi_list as $transaksi): 
-								?>
-								<tr>
-									<td>
-										<span class="badge bg-light text-dark">#<?= $transaksi['id'] ?></span>
-									</td>
-									<td>
-										<div>
-											<strong><?= safeHtml($transaksi['nama_pelanggan']) ?></strong>
-											<br>
-											<small class="text-muted">
-												<a href="<?= whatsappLink($transaksi['nomor_wa']) ?>" target="_blank" class="text-success text-decoration-none">
-													<i class="fab fa-whatsapp me-1"></i><?= $transaksi['nomor_wa'] ?>
-												</a>
-											</small>
-										</div>
-									</td>
-									<td>
-										<strong class="text-success"><?= formatCurrency($transaksi['total_harga']) ?></strong>
-									</td>
-									<td>
-										<span class="badge bg-info"><?= $transaksi['jumlah_item'] ?> item</span>
-									</td>
-									<td>
-										<?php
-										if ($transaksi['status'] === 'pending') {
-											$progress = $followup_progress[$transaksi['id']] ?? [
-												'total' => 0, 'terkirim' => 0, 'pending' => 0, 'gagal' => 0, 
-												'progress_percent' => 0, 'status' => 'none'
-											];
-											echo renderFollowupProgressBadge($progress);
-										} else {
-											echo '<span class="badge bg-light text-muted">Status: ' . ucfirst($transaksi['status']) . '</span>';
-										}
-										?>
-									</td>
-									<td>
-										<div><?= formatDate($transaksi['tanggal_transaksi']) ?></div>
-										<small class="text-muted"><?= formatDate($transaksi['tanggal_transaksi'], 'H:i') ?></small>
-										<?php if ($transaksi['status'] === 'selesai' && $transaksi['waktu_selesai']): ?>
-											<br><small class="text-success">
-												<i class="fas fa-check-circle me-1"></i>
-												Selesai: <?= formatDate($transaksi['waktu_selesai'], 'd/m/Y H:i') ?>
-											</small>
-										<?php endif; ?>
-									</td>
-									<td>
-										<?php
-										$current_status = $transaksi['status'];
-										// Build URL dengan filter untuk maintain state
-										$url_params = $clean_filters;
-										$query_suffix = !empty($url_params) ? '&' . http_build_query($url_params) : '';
-										$base_url = "update_status.php?id={$transaksi['id']}&status=";
-										?>
-
-										<!-- Status Badge -->
-										<div class="mb-1">
-											<span class="badge fs-6 <?php
-												switch($current_status) {
-													case 'pending': echo 'bg-warning text-dark'; break;
-													case 'diproses': echo 'bg-info'; break;
-													case 'selesai': echo 'bg-success'; break;
-													case 'batal': echo 'bg-danger'; break;
-													default: echo 'bg-secondary';
-												}
-											?>">
-												<?= ucfirst($current_status) ?>
-											</span>
-										</div>
-
-										<!-- Quick Action Buttons -->
-										<?php if ($current_status === 'pending'): ?>
-											<div class="btn-group btn-group-sm d-flex flex-wrap gap-1">
-												<a href="<?= $base_url ?>diproses<?= $query_suffix ?>" 
-												   class="btn btn-outline-info btn-sm flex-fill" 
-												   title="Set ke Diproses">
-													<i class="fas fa-clock"></i>
-												</a>
-												<a href="<?= $base_url ?>selesai<?= $query_suffix ?>" 
-												   class="btn btn-outline-success btn-sm flex-fill" 
-												   title="Set ke Selesai">
-													<i class="fas fa-check"></i>
-												</a>
-												<a href="<?= $base_url ?>batal<?= $query_suffix ?>" 
-												   class="btn btn-outline-danger btn-sm flex-fill" 
-												   title="Batalkan"
-												   onclick="return confirm('Batalkan transaksi #<?= $transaksi['id'] ?>?')">
-													<i class="fas fa-times"></i>
-												</a>
-											</div>
-										<?php elseif ($current_status === 'diproses'): ?>
-											<div class="btn-group btn-group-sm d-flex gap-1">
-												<a href="<?= $base_url ?>selesai<?= $query_suffix ?>" 
-												   class="btn btn-outline-success btn-sm flex-fill" 
-												   title="Set ke Selesai">
-													<i class="fas fa-check me-1"></i>Selesai
-												</a>
-												<a href="<?= $base_url ?>batal<?= $query_suffix ?>" 
-												   class="btn btn-outline-danger btn-sm" 
-												   title="Batalkan"
-												   onclick="return confirm('Batalkan transaksi #<?= $transaksi['id'] ?>?')">
-													<i class="fas fa-times"></i>
-												</a>
-											</div>
-										<?php else: ?>
-											<small class="text-muted">Status final</small>
-										<?php endif; ?>
-									</td>
-									<td>
-										<div class="btn-group-vertical btn-group-sm d-grid gap-1">
-											<a href="detail.php?id=<?= $transaksi['id'] ?>" 
-											   class="btn btn-outline-primary btn-sm" title="Detail">
-												<i class="fas fa-eye me-1"></i>Detail
-											</a>
-											
-											<a href="<?= BASE_URL ?>invoice.php?<?= !empty($transaksi['uuid']) ? 'uuid=' . $transaksi['uuid'] : 'id=' . $transaksi['id'] ?>" 
-											   target="_blank" 
-											   class="btn btn-outline-info btn-sm" title="Buka Halaman Invoice">
-												<i class="fas fa-file-invoice me-1"></i>Invoice
-											</a>
-											<?php if ($transaksi['status'] === 'pending'): ?>
-												<a href="edit.php?id=<?= $transaksi['id'] ?>" 
-												   class="btn btn-outline-warning btn-sm" title="Edit">
-													<i class="fas fa-edit me-1"></i>Edit
-												</a>
-											<?php endif; ?>
-											<a href="delete.php?id=<?= $transaksi['id'] ?>" 
-											   class="btn btn-outline-danger btn-sm" 
-											   onclick="return confirm('Hapus transaksi #<?= $transaksi['id'] ?>?')"
-											   title="Hapus">
-												<i class="fas fa-trash me-1"></i>Hapus
-											</a>
-										</div>
-									</td>
-								</tr>
-								<?php endforeach; ?>
-							</tbody>
-						</table>
-                    </div>
+                <?php if (!empty($clean_filters)): ?>
+                    <a href="index.php" class="text-danger text-decoration-none fw-bold" style="font-size: 0.8rem;"><i class="fas fa-times-circle me-1"></i>Reset Filter</a>
                 <?php endif; ?>
+            </div>
+
+            <?php if (empty($transaksi_list)): ?>
+                <div class="text-center py-5">
+                    <div style="width: 80px; height: 80px; background: #F3F4F6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                        <i class="fas fa-shopping-basket text-muted fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-1">Tidak Ada Transaksi</h5>
+                    <p class="text-muted mb-4" style="max-width: 400px; margin: 0 auto;">Belum ada pesanan yang sesuai dengan filter yang kamu pilih.</p>
+                </div>
+            <?php else: ?>
+                <div class="table-responsive" style="max-height: calc(100vh - 280px); overflow-y: auto;">
+                    <table class="table-editorial mb-0">
+                        <thead class="sticky-top">
+                            <tr>
+                                <th width="60" class="text-center">#ID</th>
+                                <th width="200">Klien / Pembeli</th>
+                                <th width="150" class="text-end">Nominal Order</th>
+                                <th>Item</th>
+                                <th width="140">Waktu Order</th>
+                                <th width="130" class="text-center">Status Final</th>
+                                <th width="180" class="text-end pe-4">Manage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php 
+                            // Ambil progress dari variabel PHP asli kamu
+                            $transaksi_ids = array_column($transaksi_list, 'id');
+                            $followup_progress = getMultipleFollowupProgress($transaksi_ids);
+
+                            foreach ($transaksi_list as $transaksi): 
+                                $current_status = $transaksi['status'];
+                                $url_params = $clean_filters;
+                                $query_suffix = !empty($url_params) ? '&' . http_build_query($url_params) : '';
+                                $base_url = "update_status.php?id={$transaksi['id']}&status=";
+                            ?>
+                            <tr>
+                                <td class="text-center">
+                                    <span class="fw-bold text-muted" style="font-size: 0.85rem;"><?= $transaksi['id'] ?></span>
+                                </td>
+                                
+                                <td>
+                                    <div class="fw-bold text-dark" style="font-size: 0.95rem; line-height: 1.2;"><?= safeHtml($transaksi['nama_pelanggan']) ?></div>
+                                    <a href="<?= whatsappLink($transaksi['nomor_wa']) ?>" target="_blank" class="text-muted text-decoration-none mt-1 d-inline-block" style="font-size: 0.75rem; transition: var(--transition);">
+                                        <i class="fab fa-whatsapp text-success me-1"></i><span class="hover-text-primary"><?= $transaksi['nomor_wa'] ?></span>
+                                    </a>
+                                </td>
+                                
+                                <td class="text-end">
+                                    <div class="fw-bold text-success" style="font-size: 1.05rem;"><?= formatCurrency($transaksi['total_harga']) ?></div>
+                                </td>
+                                
+                                <td>
+                                    <span class="badge-clean bg-light text-muted border">
+                                        <i class="fas fa-box me-1"></i> <?= $transaksi['jumlah_item'] ?>
+                                    </span>
+                                    
+                                    <?php if ($current_status === 'pending'): ?>
+                                        <div class="mt-2" style="transform: scale(0.9); transform-origin: left;">
+                                            <?php 
+                                            $progress = $followup_progress[$transaksi['id']] ?? [
+                                                'total' => 0, 'terkirim' => 0, 'pending' => 0, 'gagal' => 0, 
+                                                'progress_percent' => 0, 'status' => 'none'
+                                            ];
+                                            echo renderFollowupProgressBadge($progress); 
+                                            ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </td>
+                                
+                                <td>
+                                    <div class="text-dark fw-bold" style="font-size: 0.85rem;"><?= formatDate($transaksi['tanggal_transaksi'], 'd M Y') ?></div>
+                                    <div class="text-muted" style="font-size: 0.75rem;"><?= formatDate($transaksi['tanggal_transaksi'], 'H:i') ?> WIB</div>
+                                </td>
+                                
+                                <td class="text-center">
+                                    <?php 
+                                        $s_bg = '#F3F4F6'; $s_col = '#6B7280'; $s_icon = 'fa-circle';
+                                        if($current_status == 'selesai') { $s_bg = '#ECFDF5'; $s_col = '#059669'; $s_icon = 'fa-check-circle'; }
+                                        if($current_status == 'pending') { $s_bg = '#FFFBEB'; $s_col = '#D97706'; $s_icon = 'fa-clock'; }
+                                        if($current_status == 'diproses') { $s_bg = '#EFF6FF'; $s_col = '#2563EB'; $s_icon = 'fa-sync-alt'; }
+                                        if($current_status == 'batal') { $s_bg = '#FEF2F2'; $s_col = '#EF4444'; $s_icon = 'fa-times-circle'; }
+                                    ?>
+                                    <span class="badge-clean" style="background: <?= $s_bg ?>; color: <?= $s_col ?>; border: 1px solid <?= $s_bg ?>;">
+                                        <i class="fas <?= $s_icon ?> me-1"></i><?= ucfirst($current_status) ?>
+                                    </span>
+                                </td>
+                                
+                                <td class="text-end pe-4">
+                                    <div class="d-flex justify-content-end gap-1 flex-wrap">
+                                        <a href="detail.php?id=<?= $transaksi['id'] ?>" class="btn-action-icon embed" title="Buka Detail">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </a>
+                                        
+                                        <a href="<?= BASE_URL ?>invoice.php?<?= !empty($transaksi['uuid']) ? 'uuid=' . $transaksi['uuid'] : 'id=' . $transaksi['id'] ?>" target="_blank" class="btn-action-icon" style="background: #F9FAFB; color: #4B5563;" title="Cetak Invoice">
+                                            <i class="fas fa-file-invoice"></i>
+                                        </a>
+                                        
+                                        <?php if ($current_status === 'pending'): ?>
+                                            <a href="<?= $base_url ?>diproses<?= $query_suffix ?>" class="btn-action-icon embed" style="background: #EFF6FF;" title="Tandai Sedang Diproses">
+                                                <i class="fas fa-box-open"></i>
+                                            </a>
+                                            <a href="<?= $base_url ?>selesai<?= $query_suffix ?>" class="btn-action-icon checkout" style="background: #ECFDF5;" title="Tandai Sukses">
+                                                <i class="fas fa-check"></i>
+                                            </a>
+                                            
+                                            <a href="edit.php?id=<?= $transaksi['id'] ?>" class="btn-action-icon edit" title="Edit Order">
+                                                <i class="fas fa-pen"></i>
+                                            </a>
+                                        <?php elseif ($current_status === 'diproses'): ?>
+                                            <a href="<?= $base_url ?>selesai<?= $query_suffix ?>" class="btn-action-icon checkout" style="background: #ECFDF5;" title="Tandai Sukses">
+                                                <i class="fas fa-check"></i>
+                                            </a>
+                                        <?php endif; ?>
+                                        
+                                        <button type="button" class="btn-action-icon delete" title="Hapus Permanen"
+                                                onclick="showDeleteModal(<?= $transaksi['id'] ?>)">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" style="transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1), opacity 200ms cubic-bezier(0.16, 1, 0.3, 1);">
+        <div class="modal-content" style="border-radius: 24px; border: none; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+            <div class="modal-body text-center p-4">
+                <div style="width: 64px; height: 64px; background: #FEF2F2; color: #EF4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                    <i class="fas fa-trash-alt" style="font-size: 1.75rem;"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">Hapus Transaksi?</h5>
+                <p class="text-muted small mb-4" style="line-height: 1.5;">
+                    Yakin ingin menghapus Order <strong id="deleteOrderId" class="text-dark"></strong>? 
+                    Ini akan menghilangkan riwayat omzet dan performa.
+                </p>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-light w-50 fw-bold" data-bs-dismiss="modal" style="border-radius: 12px;">Batal</button>
+                    <a href="#" id="confirmDeleteBtn" class="btn btn-danger w-50 fw-bold" style="border-radius: 12px; background: #EF4444; border: none;">Hapus</a>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-/* CSS untuk header tabel yang tetap terlihat saat scroll */
-.table-responsive thead th {
-    position: sticky;
-    top: 0;
-    background-color: #f8f9fa;
-    z-index: 10;
-    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
-}
+/* Hover animation untuk link wa di dalam tabel */
+.hover-text-primary { transition: color 0.2s ease; }
+a:hover .hover-text-primary { color: var(--success-color); text-decoration: underline; }
 </style>
 
 <script>
-console.log('Simple buttons version loaded - no dropdown dependencies needed!');
-console.log('Found status action buttons:', document.querySelectorAll('[href*="update_status.php"]').length);
+function showDeleteModal(id) {
+    document.getElementById('deleteOrderId').textContent = '#' + id;
+    document.getElementById('confirmDeleteBtn').href = 'delete.php?id=' + id;
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    deleteModal.show();
+}
+
+document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Proses...';
+    this.style.opacity = '0.8';
+    this.style.pointerEvents = 'none';
+});
 </script>
 
 <?php require_once __DIR__ . '/../../includes/footer.php'; ?>

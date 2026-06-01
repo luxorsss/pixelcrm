@@ -45,190 +45,189 @@ foreach ($data_jam as $d) {
 }
 ?>
 
-<div class="main-content">
-    <div class="top-header mb-4">
+<div class="main-content dashboard-wrapper">
+    <div class="dash-header flex-column flex-md-row align-items-start align-items-md-center gap-3 mb-4">
         <div>
-            <h1 class="page-title mb-0">Analisa Waktu Market Aktif</h1>
-            <nav class="breadcrumb">
-                <a href="<?= BASE_URL ?>" class="breadcrumb-item text-decoration-none">Dashboard</a>
-                <a href="analitik.php" class="breadcrumb-item text-decoration-none">Analytics</a>
-                <span class="breadcrumb-item active">Jam Checkout</span>
-            </nav>
+            <a href="analitik.php" class="text-muted text-decoration-none fw-bold" style="font-size: 0.85rem;">
+                <i class="fas fa-arrow-left me-1"></i> Kembali ke Ringkasan Analitik
+            </a>
+            <h1 class="dash-title mt-2">Waktu Market Aktif</h1>
+            <div class="text-muted mt-1" style="font-weight: 500; font-size: 0.95rem;">Analisa perilaku jam *checkout* untuk optimasi jadwal iklan (Ads Scheduling).</div>
+        </div>
+        <div class="d-flex align-items-center">
+            <div class="badge-clean" style="background: #FFFBEB; border: 1px solid #FDE68A; color: #D97706; padding: 0.75rem 1.25rem; font-size: 0.85rem;">
+                <i class="fas fa-fire me-2"></i> Jam Teramai: <strong class="ms-1"><?= $peak_hour_label ?>:00 - <?= $peak_hour_label ?>:59</strong>
+            </div>
         </div>
     </div>
 
-    <div class="content-area">
-        
-        <div class="card mb-4 border-0 shadow-sm">
-            <div class="card-body">
-                <form method="GET">
-                    <div class="row g-2 align-items-end">
-                        <div class="col-md-2">
-                            <label class="form-label small text-muted">Dari Tanggal</label>
-                            <input type="date" name="tanggal_awal" class="form-control form-control-sm" value="<?= $tanggal_awal ?>">
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label small text-muted">Sampai Tanggal</label>
-                            <input type="date" name="tanggal_akhir" class="form-control form-control-sm" value="<?= $tanggal_akhir ?>">
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label small text-muted">Filter Hari</label>
-                            <select name="hari_pekan" class="form-select form-select-sm">
-                                <option value="">Semua Hari</option>
-                                <?php foreach ($list_hari as $k => $v): ?>
-                                    <option value="<?= $k ?>" <?= $hari_pekan == $k ? 'selected' : '' ?>><?= $v ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label small text-muted">Filter Produk</label>
-                            <select name="produk_id" class="form-select form-select-sm">
-                                <option value="">Semua Produk</option>
-                                <?php foreach ($produk_list as $p): ?>
-                                    <option value="<?= $p['id'] ?>" <?= $produk_id == $p['id'] ? 'selected' : '' ?>>
-                                        <?= safeHtml($p['nama']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-sm btn-primary w-100">
-                                <i class="fas fa-filter me-1"></i> Terapkan
-                            </button>
-                        </div>
-                    </div>
-                </form>
+    <div class="list-container p-3 mb-4 d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-3">
+        <form method="GET" class="d-flex flex-wrap align-items-center gap-2 m-0 w-100">
+            
+            <div class="d-flex align-items-center bg-light rounded-pill px-3 py-1 border border-light">
+                <i class="fas fa-calendar-alt text-muted me-2" style="font-size: 0.85rem;"></i>
+                <input type="date" name="tanggal_awal" class="form-control border-0 bg-transparent p-0 text-muted fw-bold" style="width: 110px; font-size: 0.85rem;" value="<?= $tanggal_awal ?>">
+                <span class="mx-2 text-muted">-</span>
+                <input type="date" name="tanggal_akhir" class="form-control border-0 bg-transparent p-0 text-muted fw-bold" style="width: 110px; font-size: 0.85rem;" value="<?= $tanggal_akhir ?>">
+            </div>
+
+            <div class="bg-light rounded-pill px-3 py-1 border border-light d-flex align-items-center">
+                <select name="hari_pekan" class="form-select border-0 bg-transparent p-0 text-dark fw-bold" style="width: auto; min-width: 110px; font-size: 0.85rem; cursor: pointer;">
+                    <option value="">Semua Hari</option>
+                    <?php foreach ($list_hari as $k => $v): ?>
+                        <option value="<?= $k ?>" <?= $hari_pekan == $k ? 'selected' : '' ?>><?= $v ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="bg-light rounded-pill px-3 py-1 border border-light d-flex align-items-center flex-grow-1" style="max-width: 300px;">
+                <select name="produk_id" class="form-select border-0 bg-transparent p-0 text-dark fw-bold text-truncate" style="font-size: 0.85rem; cursor: pointer;">
+                    <option value="">Semua Produk</option>
+                    <?php foreach ($produk_list as $p): ?>
+                        <option value="<?= $p['id'] ?>" <?= $produk_id == $p['id'] ? 'selected' : '' ?>>
+                            <?= safeHtml($p['nama']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-dark btn-sm rounded-pill fw-bold px-4 ms-auto ms-xl-0" style="padding-top: 0.4rem; padding-bottom: 0.4rem;">
+                Terapkan Filter
+            </button>
+        </form>
+    </div>
+
+    <div class="list-container mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="list-header mb-0"><i class="fas fa-chart-bar text-primary me-2"></i>Pola Jam Checkout</h2>
+            <div class="d-flex gap-3 text-muted" style="font-size: 0.8rem; font-weight: 600;">
+                <div><span style="display:inline-block; width:10px; height:10px; background:#10B981; border-radius:3px; margin-right:5px;"></span>Selesai (Closing)</div>
+                <div><span style="display:inline-block; width:10px; height:10px; background:#F59E0B; border-radius:3px; margin-right:5px;"></span>Pending (Leads)</div>
             </div>
         </div>
+        <div style="height: 350px; position: relative;">
+            <canvas id="jamChart"></canvas>
+        </div>
+    </div>
 
-        <div class="row">
-            <div class="col-lg-12 mb-4">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="mb-0 text-primary"><i class="fas fa-clock me-2"></i>Pola Jam Checkout</h5>
-                            <small class="text-muted">
-                                <?= $hari_pekan ? 'Khusus Hari <strong>' . $list_hari[$hari_pekan] . '</strong>' : 'Semua Hari' ?> 
-                                (<?= date('d M', strtotime($tanggal_awal)) ?> - <?= date('d M', strtotime($tanggal_akhir)) ?>)
-                            </small>
-                        </div>
-                        <div class="text-end">
-                            <span class="badge bg-warning text-dark p-2">
-                                <i class="fas fa-fire me-1"></i> Jam Teramai: <strong><?= $peak_hour_label ?>:00 - <?= $peak_hour_label ?>:59</strong>
+    <div class="product-list-container shadow-sm mb-4">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center p-4 border-bottom">
+            <h2 class="list-header mb-0"><i class="fas fa-list text-dark me-2"></i>Detail Aktivitas Per Jam</h2>
+            <button onclick="copyTableForAI()" id="btnCopyAI" class="btn btn-light text-primary fw-bold mt-3 mt-sm-0" style="border-radius: 12px; font-size: 0.85rem; border: 1px solid #BFDBFE; background: #EFF6FF;">
+                <i class="fas fa-robot me-2"></i>Copy Data untuk AI
+            </button>
+        </div>
+        
+        <div class="table-responsive">
+            <table id="tableDataJam" class="table-editorial mb-0">
+                <thead>
+                    <tr>
+                        <th width="80" class="text-center">Jam</th>
+                        <th class="text-center">Total Checkout</th>
+                        <th class="text-center text-success">Selesai (Bayar)</th>
+                        <th class="text-center text-warning">Pending (Follow Up)</th>
+                        <th class="text-end">Potensi Omzet</th>
+                        <th width="180">Intensitas Transaksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php 
+                    $sum_checkout = 0; $sum_selesai = 0; $sum_pending = 0; $sum_omzet = 0;
+
+                    foreach ($data_jam as $row): 
+                        $sum_checkout += $row['total_transaksi'];
+                        $sum_selesai += $row['total_selesai'];
+                        $sum_pending += $row['total_pending'];
+                        $sum_omzet += $row['potensi_omzet'];
+
+                        $percent = $peak_trx > 0 ? ($row['total_transaksi'] / $peak_trx) * 100 : 0;
+                        
+                        // Map color logic cleanly
+                        $bar_color = '#9CA3AF'; // Secondary
+                        if ($percent > 75) $bar_color = '#EF4444'; // Danger
+                        elseif ($percent > 50) $bar_color = '#F59E0B'; // Warning
+                        elseif ($percent > 25) $bar_color = '#3B82F6'; // Info
+                    ?>
+                    <tr>
+                        <td class="text-center fw-bold text-dark" style="font-size: 0.95rem;"><?= $row['label'] ?></td>
+                        
+                        <td class="text-center">
+                            <span class="badge-clean" style="background: #F3F4F6; color: #374151; font-size: 0.85rem;">
+                                <?= number_format($row['total_transaksi']) ?> Leads
                             </span>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div style="height: 400px;">
-                            <canvas id="jamChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-12">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Detail Aktivitas Per Jam</h5>
-                        <button onclick="copyTableForAI()" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-copy me-1"></i>Copy Data untuk AI
-                        </button>
-                    </div>
-                    
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table id="tableDataJam" class="table table-hover table-striped mb-0 align-middle">
-                                <thead class="bg-light">
-                                    <tr>
-                                        <th class="text-center">Jam</th>
-                                        <th class="text-center">Total Checkout</th>
-                                        <th class="text-center text-success">Selesai (Bayar)</th>
-                                        <th class="text-center text-warning">Pending (Follow Up)</th>
-                                        <th class="text-end">Potensi Omzet</th>
-                                        <th class="text-center" width="20%">Intensitas</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php 
-                                    $sum_checkout = 0; $sum_selesai = 0; $sum_pending = 0; $sum_omzet = 0;
-
-                                    foreach ($data_jam as $row): 
-                                        $sum_checkout += $row['total_transaksi'];
-                                        $sum_selesai += $row['total_selesai'];
-                                        $sum_pending += $row['total_pending'];
-                                        $sum_omzet += $row['potensi_omzet'];
-
-                                        $percent = $peak_trx > 0 ? ($row['total_transaksi'] / $peak_trx) * 100 : 0;
-                                        $bar_class = 'bg-secondary';
-                                        if ($percent > 75) $bar_class = 'bg-danger'; 
-                                        elseif ($percent > 50) $bar_class = 'bg-warning'; 
-                                        elseif ($percent > 25) $bar_class = 'bg-info'; 
-                                    ?>
-                                    <tr>
-                                        <td class="text-center fw-bold"><?= $row['label'] ?></td>
-                                        <td class="text-center">
-                                            <span class="badge bg-primary rounded-pill px-3 fs-6"><?= number_format($row['total_transaksi']) ?></span>
-                                        </td>
-                                        <td class="text-center text-success fw-bold">
-                                            <?= number_format($row['total_selesai']) ?>
-                                        </td>
-                                        <td class="text-center text-warning fw-bold">
-                                            <?= number_format($row['total_pending']) ?>
-                                        </td>
-                                        <td class="text-end text-muted">
-                                            <?= formatNumber($row['potensi_omzet']) ?>
-                                        </td>
-                                        <td class="px-4">
-                                            <div class="progress" style="height: 8px;">
-                                                <div class="progress-bar <?= $bar_class ?>" role="progressbar" style="width: <?= $percent ?>%"></div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                                
-                                <tfoot class="bg-light fw-bold" style="border-top: 2px solid #dee2e6;">
-                                    <tr>
-                                        <td class="text-center py-3">TOTAL</td>
-                                        <td class="text-center py-3 fs-5"><?= number_format($sum_checkout) ?></td>
-                                        <td class="text-center py-3 fs-5 text-success">
-                                            <?= number_format($sum_selesai) ?>
-                                            <div class="small text-muted fw-normal" style="font-size: 0.75rem;">Closing</div>
-                                        </td>
-                                        <td class="text-center py-3 fs-5 text-warning">
-                                            <?= number_format($sum_pending) ?>
-                                            <div class="small text-muted fw-normal" style="font-size: 0.75rem;">Leads</div>
-                                        </td>
-                                        <td class="text-end py-3 text-dark">
-                                            <?= formatNumber($sum_omzet) ?>
-                                        </td>
-                                        <td class="text-center py-3">
-                                            <?php 
-                                                $cr = $sum_checkout > 0 ? ($sum_selesai / $sum_checkout) * 100 : 0;
-                                                $badge_color = $cr > 50 ? 'bg-success' : ($cr > 20 ? 'bg-warning' : 'bg-danger');
-                                            ?>
-                                            <span class="badge <?= $badge_color ?> text-white p-2">
-                                                Eff: <?= round($cr, 1) ?>%
-                                            </span>
-                                        </td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        </td>
+                        
+                        <td class="text-center fw-bold" style="color: #10B981;">
+                            <?= number_format($row['total_selesai']) ?>
+                        </td>
+                        
+                        <td class="text-center fw-bold" style="color: #F59E0B;">
+                            <?= number_format($row['total_pending']) ?>
+                        </td>
+                        
+                        <td class="text-end fw-bold text-dark">
+                            <?= formatNumber($row['potensi_omzet']) ?>
+                        </td>
+                        
+                        <td class="pe-4">
+                            <div style="width: 100%; height: 6px; background: #F3F4F6; border-radius: 4px; overflow: hidden; display: flex;">
+                                <div style="width: <?= $percent ?>%; height: 100%; background: <?= $bar_color ?>; border-radius: 4px;"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+                
+                <tfoot style="background: #F9FAFB;">
+                    <tr>
+                        <td class="text-center py-4 text-muted fw-bold" style="font-size: 0.85rem; text-transform: uppercase;">Total</td>
+                        
+                        <td class="text-center py-4">
+                            <div class="fw-bold text-dark fs-5"><?= number_format($sum_checkout) ?></div>
+                        </td>
+                        
+                        <td class="text-center py-4">
+                            <div class="fw-bold text-success fs-5"><?= number_format($sum_selesai) ?></div>
+                            <div class="text-muted" style="font-size: 0.75rem; font-weight: 600;">Total Closing</div>
+                        </td>
+                        
+                        <td class="text-center py-4">
+                            <div class="fw-bold text-warning fs-5"><?= number_format($sum_pending) ?></div>
+                            <div class="text-muted" style="font-size: 0.75rem; font-weight: 600;">Total Pending</div>
+                        </td>
+                        
+                        <td class="text-end py-4">
+                            <div class="fw-bold text-dark fs-5"><?= formatNumber($sum_omzet) ?></div>
+                        </td>
+                        
+                        <td class="text-center py-4 pe-4">
+                            <?php 
+                                $cr = $sum_checkout > 0 ? ($sum_selesai / $sum_checkout) * 100 : 0;
+                                $cr_bg = $cr > 50 ? '#ECFDF5' : ($cr > 20 ? '#FFFBEB' : '#FEF2F2');
+                                $cr_color = $cr > 50 ? '#059669' : ($cr > 20 ? '#D97706' : '#DC2626');
+                            ?>
+                            <div class="badge-clean d-inline-flex px-3 py-2" style="background: <?= $cr_bg ?>; color: <?= $cr_color ?>; font-size: 0.85rem;">
+                                Efisiensi: <?= round($cr, 1) ?>%
+                            </div>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
         </div>
     </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 <script>
+// Fungsi untuk Prompt AI (dipertahankan logic-nya, disempurnakan UX-nya)
 function copyTableForAI() {
+    const btn = document.getElementById("btnCopyAI");
+    const originalContent = btn.innerHTML;
     const table = document.getElementById("tableDataJam");
+    
     let textToCopy = "DATA ANALISA WAKTU TRANSAKSI\n";
     textToCopy += "Periode: <?= $tanggal_awal ?> s/d <?= $tanggal_akhir ?> (<?= $hari_pekan ? $list_hari[$hari_pekan] : 'Semua Hari' ?>)\n";
-    textToCopy += "Tujuan: Analisa waktu efektif untuk jadwal iklan (Ads Scheduling).\n\n";
+    textToCopy += "Tujuan: Tolong buatkan analisa waktu efektif untuk jadwal tayang iklan (Ads Scheduling) berdasarkan data berikut.\n\n";
     
     const headers = [];
     table.querySelectorAll("thead th").forEach(th => headers.push(th.innerText.trim()));
@@ -249,11 +248,22 @@ function copyTableForAI() {
     }
 
     navigator.clipboard.writeText(textToCopy).then(() => {
-        alert("Data berhasil dicopy! Siap untuk analisa AI.");
+        btn.innerHTML = '<i class="fas fa-check me-2"></i>Tersalin!';
+        btn.style.background = '#ECFDF5';
+        btn.style.color = '#10B981';
+        btn.style.borderColor = '#A7F3D0';
+        
+        setTimeout(() => {
+            btn.innerHTML = originalContent;
+            btn.style.background = '#EFF6FF';
+            btn.style.color = '#3B82F6';
+            btn.style.borderColor = '#BFDBFE';
+        }, 2000);
     });
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
     const ctx = document.getElementById('jamChart').getContext('2d');
     
     new Chart(ctx, {
@@ -262,19 +272,19 @@ document.addEventListener('DOMContentLoaded', function() {
             labels: <?= json_encode($chart_labels) ?>,
             datasets: [
                 {
-                    label: 'Pending (Leads)',
-                    data: <?= json_encode($chart_pending) ?>,
-                    backgroundColor: 'rgba(255, 193, 7, 0.7)',
-                    borderColor: '#ffc107',
-                    borderWidth: 1,
+                    label: 'Selesai (Closing)',
+                    data: <?= json_encode($chart_selesai) ?>,
+                    backgroundColor: '#10B981', // Emerald
+                    borderRadius: 4,
+                    borderSkipped: false,
                     stack: 'Stack 0',
                 },
                 {
-                    label: 'Selesai (Closing)',
-                    data: <?= json_encode($chart_selesai) ?>,
-                    backgroundColor: 'rgba(40, 167, 69, 0.7)',
-                    borderColor: '#28a745',
-                    borderWidth: 1,
+                    label: 'Pending (Leads)',
+                    data: <?= json_encode($chart_pending) ?>,
+                    backgroundColor: '#FCD34D', // Amber (softer yellow/orange)
+                    borderRadius: 4,
+                    borderSkipped: false,
                     stack: 'Stack 0',
                 }
             ]
@@ -283,16 +293,35 @@ document.addEventListener('DOMContentLoaded', function() {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                x: { grid: { display: false } },
+                x: { 
+                    grid: { display: false }, 
+                    border: { display: false } 
+                },
                 y: {
                     beginAtZero: true,
-                    title: { display: true, text: 'Jumlah Checkout (Orang)' },
-                    stacked: true
+                    stacked: true,
+                    grid: { color: '#F3F4F6', drawBorder: false },
+                    border: { display: false }
                 }
             },
             plugins: {
-                tooltip: { mode: 'index', intersect: false },
-                legend: { position: 'top' }
+                legend: { display: false }, // Disembunyikan karena sudah buat custom legend di HTML
+                tooltip: { 
+                    mode: 'index', 
+                    intersect: false,
+                    backgroundColor: '#111827',
+                    padding: 12,
+                    titleFont: { size: 13, weight: 'bold' },
+                    bodyFont: { size: 14 },
+                    callbacks: {
+                        title: function(context) { return 'Pukul ' + context[0].label; }
+                    }
+                }
+            },
+            interaction: {
+                mode: 'nearest',
+                axis: 'x',
+                intersect: false
             }
         }
     });

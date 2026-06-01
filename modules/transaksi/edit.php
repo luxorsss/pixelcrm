@@ -102,265 +102,244 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 ?>
 
 <!-- Main Content -->
-<div class="main-content">
-    <!-- Top Header -->
-    <div class="top-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="page-title mb-0">Edit Transaksi #<?= $transaksi['id'] ?></h1>
-                <nav class="breadcrumb">
-                    <a href="<?= BASE_URL ?>" class="breadcrumb-item text-decoration-none">Dashboard</a>
-                    <a href="index.php" class="breadcrumb-item text-decoration-none">Transaksi</a>
-                    <span class="breadcrumb-item active">Edit</span>
-                </nav>
-            </div>
-            <div class="d-flex gap-2">
-                <a href="detail.php?id=<?= $transaksi_id ?>" class="btn btn-info">
-                    <i class="fas fa-eye me-2"></i>Detail
-                </a>
-                <a href="index.php" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Kembali
-                </a>
-            </div>
+<div class="main-content dashboard-wrapper">
+    <div class="dash-header mb-4 d-flex justify-content-between align-items-center">
+        <div>
+            <a href="index.php" class="text-muted text-decoration-none fw-bold" style="font-size: 0.85rem;">
+                <i class="fas fa-arrow-left me-1"></i> Kembali ke Daftar Transaksi
+            </a>
+            <h1 class="dash-title mt-2">Edit Transaksi #<?= $transaksi['id'] ?></h1>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="detail.php?id=<?= $transaksi_id ?>" class="btn btn-dark fw-bold rounded-pill">
+                <i class="fas fa-external-link-alt me-2"></i>Lihat Detail
+            </a>
         </div>
     </div>
 
-    <!-- Content Area -->
-    <div class="content-area">
+    <div class="w-100">
+        <?php displaySessionMessage(); ?>
+        
         <?php if (!empty($errors)): ?>
-            <div class="alert alert-danger">
-                <ul class="mb-0">
+            <div class="alert alert-editorial mb-4" style="border-left-color: var(--danger-color); background: #FEF2F2;">
+                <ul class="mb-0 text-danger fw-bold" style="font-size: 0.9rem; list-style-type: none; padding-left: 0;">
                     <?php foreach ($errors as $error): ?>
-                        <li><?= $error ?></li>
+                        <li><i class="fas fa-exclamation-circle me-2"></i><?= safeHtml($error) ?></li>
                     <?php endforeach; ?>
                 </ul>
             </div>
         <?php endif; ?>
         
-        <div class="row">
-            <!-- Form Edit -->
+        <div class="row g-4">
             <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Form Edit Transaksi</h5>
+                <form method="POST" id="transaksiForm">
+                    
+                    <div class="panel-editorial mb-4">
+                        <h3 class="panel-title"><i class="fas fa-user-edit text-primary"></i> Data Pelanggan</h3>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
+                                <input type="text" name="nama_pelanggan" class="form-control-editorial fw-bold text-dark" 
+                                       value="<?= safeHtml(post('nama_pelanggan', $transaksi['nama_pelanggan'] ?? '')) ?>" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Nomor WhatsApp <span class="text-danger">*</span></label>
+                                <div class="input-group-editorial">
+                                    <span class="addon"><i class="fab fa-whatsapp text-success"></i></span>
+                                    <input type="text" name="nomor_wa" class="form-control-editorial fw-bold text-dark" 
+                                           value="<?= safeHtml(post('nomor_wa', $transaksi['nomor_wa'] ?? '')) ?>" required>
+                                </div>
+                                <div class="text-muted mt-2" style="font-size: 0.75rem;">Akan otomatis disesuaikan ke format 62.</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <form method="POST" class="needs-validation" novalidate>
-                            <!-- Customer Information -->
-                            <div class="card border-primary mb-4">
-                                <div class="card-header bg-primary text-white">
-                                    <h6 class="mb-0"><i class="fas fa-user me-2"></i>Informasi Pelanggan</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="nama_pelanggan" class="form-label">Nama Pelanggan <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="nama_pelanggan" name="nama_pelanggan" 
-                                                       value="<?= safeHtml(post('nama_pelanggan', '')) ?>" required>
-                                            </div>
-                                        </div>
+
+                    <div class="panel-editorial mb-4">
+                        <h3 class="panel-title"><i class="fas fa-box-open text-warning"></i> Keranjang Belanja <span class="text-danger">*</span></h3>
+                        
+                        <?php if (empty($all_products)): ?>
+                            <div class="text-center py-4 bg-light rounded-4 border">
+                                <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                                <p class="text-muted fw-bold">Belum ada produk untuk dijual.</p>
+                            </div>
+                        <?php else: ?>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+                                <?php 
+                                    // Ambil array ID produk yang terpilih
+                                    $selected_items = post('produk_items', []);
+                                    // Kalau ini load pertama (post kosong), isi pakai data asli transaksi
+                                    if(empty($_POST) && !empty($detail_items)) {
+                                        $selected_items = array_column($detail_items, 'produk_id');
+                                    }
+                                ?>
+                                <?php foreach ($all_products as $produk): ?>
+                                    <label class="product-selector-card" for="produk_<?= $produk['id'] ?>" style="cursor: pointer; display: block; position: relative;">
+                                        <input class="form-check-input produk-checkbox position-absolute" type="checkbox" 
+                                               name="produk_items[]" value="<?= $produk['id'] ?>" 
+                                               id="produk_<?= $produk['id'] ?>" data-harga="<?= $produk['harga'] ?>"
+                                               <?= in_array($produk['id'], $selected_items) ? 'checked' : '' ?>
+                                               style="opacity: 0; width: 0; height: 0;">
                                         
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="nomor_wa" class="form-label">Nomor WhatsApp <span class="text-danger">*</span></label>
-                                                <div class="input-group">
-                                                    <span class="input-group-text">
-                                                        <i class="fab fa-whatsapp text-success"></i>
-                                                    </span>
-                                                    <input type="text" class="form-control" id="nomor_wa" name="nomor_wa" 
-                                                           value="<?= safeHtml(post('nomor_wa', '')) ?>" required>
-                                                </div>
+                                        <div class="p-3 border rounded-3 transition-all" style="background: #F9FAFB; border-color: #E5E7EB; min-height: 80px; display: flex; align-items: center;">
+                                            <div class="me-3 check-indicator" style="width: 24px; height: 24px; border-radius: 6px; border: 2px solid #D1D5DB; display: flex; align-items: center; justify-content: center; background: white; transition: all 0.2s;">
+                                                <i class="fas fa-check text-white" style="font-size: 0.7rem; opacity: 0; transform: scale(0.5); transition: all 0.2s;"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-dark" style="font-size: 0.95rem; line-height: 1.2;"><?= safeHtml($produk['nama']) ?></div>
+                                                <div class="text-success fw-bold mt-1" style="font-size: 0.9rem;"><?= formatCurrency($produk['harga']) ?></div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
+                                    </label>
+                                <?php endforeach; ?>
                             </div>
-                            
-                            <!-- Product Selection -->
-                            <div class="card border-success mb-4">
-                                <div class="card-header bg-success text-white">
-                                    <h6 class="mb-0"><i class="fas fa-shopping-cart me-2"></i>Pilih Produk</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row" id="productSelection">
-                                        <?php foreach ($all_products as $produk): ?>
-                                            <div class="col-md-6 col-lg-4 mb-3">
-                                                <div class="card product-card">
-                                                    <div class="card-body">
-                                                        <div class="form-check">
-                                                            <input class="form-check-input" type="checkbox" 
-                                                                   name="produk_items[]" 
-                                                                   value="<?= $produk['id'] ?>" 
-                                                                   id="produk_<?= $produk['id'] ?>"
-                                                                   data-harga="<?= $produk['harga'] ?>"
-                                                                   data-nama="<?= safeHtml($produk['nama']) ?>"
-                                                                   <?= (is_array(post('produk_items', [])) && in_array($produk['id'], post('produk_items', []))) ? 'checked' : '' ?>>
-                                                            <label class="form-check-label w-100" for="produk_<?= $produk['id'] ?>">
-                                                                <div class="d-flex justify-content-between align-items-start">
-                                                                    <div>
-                                                                        <strong><?= safeHtml($produk['nama']) ?></strong>
-                                                                        <?php if ($produk['deskripsi']): ?>
-                                                                            <br><small class="text-muted"><?= safeHtml(truncateText($produk['deskripsi'], 50)) ?></small>
-                                                                        <?php endif; ?>
-                                                                    </div>
-                                                                    <div class="text-end">
-                                                                        <div class="h6 text-primary mb-0"><?= formatCurrency($produk['harga']) ?></div>
-                                                                    </div>
-                                                                </div>
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Transaction Details -->
-                            <div class="card border-info mb-4">
-                                <div class="card-header bg-info text-white">
-                                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Detail Transaksi</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="tanggal_transaksi" class="form-label">Tanggal Transaksi</label>
-                                                <input type="datetime-local" class="form-control" id="tanggal_transaksi" name="tanggal_transaksi" 
-                                                       value="<?= post('tanggal_transaksi', '') ?>">
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="status" class="form-label">Status Transaksi</label>
-                                                <select class="form-select" id="status" name="status">
-                                                    <option value="pending" <?= post('status') === 'pending' ? 'selected' : '' ?>>Pending</option>
-                                                    <option value="diproses" <?= post('status') === 'diproses' ? 'selected' : '' ?>>Diproses</option>
-                                                    <option value="selesai" <?= post('status') === 'selesai' ? 'selected' : '' ?>>Selesai</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="d-flex justify-content-end gap-2">
-                                <a href="detail.php?id=<?= $transaksi_id ?>" class="btn btn-secondary">Batal</a>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save me-2"></i>Update Transaksi
-                                </button>
-                            </div>
-                        </form>
+                        <?php endif; ?>
                     </div>
+
+                    <div class="panel-editorial mb-4 mb-lg-0">
+                        <h3 class="panel-title"><i class="fas fa-cog text-info"></i> Pengaturan Sistem</h3>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Status Transaksi</label>
+                                <select name="status" class="form-control-editorial fw-bold" style="appearance: auto;">
+                                    <?php $current_status = post('status', $transaksi['status'] ?? 'pending'); ?>
+                                    <option value="pending" <?= $current_status === 'pending' ? 'selected' : '' ?>>Pending</option>
+                                    <option value="diproses" <?= $current_status === 'diproses' ? 'selected' : '' ?>>Diproses</option>
+                                    <option value="selesai" <?= $current_status === 'selesai' ? 'selected' : '' ?>>Selesai</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Waktu Transaksi (Opsional)</label>
+                                <input type="datetime-local" name="tanggal_transaksi" class="form-control-editorial text-muted" 
+                                       value="<?= clean(post('tanggal_transaksi', date('Y-m-d\TH:i', strtotime($transaksi['tanggal_transaksi'])))) ?>">
+                            </div>
+                        </div>
+                    </div>
+                    
                 </div>
-            </div>
-            
-            <!-- Summary Panel -->
-            <div class="col-lg-4">
-                <!-- Order Summary -->
-                <div class="card">
-                    <div class="card-header">
-                        <h6 class="mb-0"><i class="fas fa-receipt me-2"></i>Ringkasan Pesanan</h6>
+
+                <div class="col-lg-4">
+                    
+                    <div class="panel-editorial p-4 mb-4" style="background: #FFFBEB; border: 1px dashed #F59E0B;">
+                        <h3 class="panel-title text-dark" style="font-size: 1rem;"><i class="fas fa-exclamation-triangle text-warning"></i> Perhatian Khusus</h3>
+                        <div class="text-muted" style="font-size: 0.8rem; line-height: 1.6;">
+                            Secara sistem, <strong>Transaksi ini hanya dapat diedit sepenuhnya jika status masih "Pending".</strong><br><br>
+                            Apabila status sudah berubah menjadi Diproses/Selesai/Batal, sistem akan mengunci data agar histori omzet tetap valid dan akurat.
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div id="orderSummary">
-                            <p class="text-muted">Loading...</p>
+
+                    <div class="panel-editorial sticky-top" style="top: 2rem; background: #F9FAFB; border: 1px dashed var(--border-light);">
+                        <h3 class="panel-title" style="font-size: 1rem;"><i class="fas fa-receipt text-success"></i> Kalkulasi Ulang</h3>
+                        
+                        <div id="summary" class="mt-3">
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-shopping-basket fa-2x mb-2 opacity-50"></i>
+                                <div style="font-size: 0.85rem;">Pilih produk untuk melihat ringkasan.</div>
+                            </div>
                         </div>
                         
-                        <hr>
-                        
-                        <div class="d-flex justify-content-between align-items-center">
-                            <strong>Total:</strong>
-                            <strong class="h5 text-primary" id="totalAmount">Rp 0</strong>
+                        <div id="total-section" class="d-none mt-3">
+                            <div class="d-flex justify-content-between align-items-center pt-3 mt-3" style="border-top: 2px dashed #D1D5DB;">
+                                <span class="text-muted fw-bold" style="font-size: 0.85rem; text-transform: uppercase;">Total Tagihan</span>
+                                <div class="text-success fw-bold" id="total-harga" style="font-size: 1.5rem; letter-spacing: -0.02em;">Rp 0</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-column gap-2 mt-4">
+                            <button type="button" class="btn-submit" onclick="document.getElementById('transaksiForm').submit()">
+                                <i class="fas fa-save me-2"></i> Simpan Perubahan
+                            </button>
+                            <a href="detail.php?id=<?= $transaksi_id ?>" class="btn-cancel">Batal Edit</a>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Info -->
-                <div class="card mt-3 border-warning">
-                    <div class="card-header bg-warning text-dark">
-                        <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Perhatian</h6>
-                    </div>
-                    <div class="card-body">
-                        <p class="mb-2">Transaksi hanya dapat diedit jika status masih <strong>pending</strong>.</p>
-                        <p class="mb-0">Setelah status berubah ke diproses/selesai/batal, transaksi tidak dapat diedit lagi.</p>
-                    </div>
-                </div>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    updateOrderSummary();
-    
-    // Update summary when products are selected/deselected
-    document.querySelectorAll('input[name="produk_items[]"]').forEach(checkbox => {
-        checkbox.addEventListener('change', updateOrderSummary);
-    });
-});
-
-function updateOrderSummary() {
-    const selectedProducts = document.querySelectorAll('input[name="produk_items[]"]:checked');
-    const summaryDiv = document.getElementById('orderSummary');
-    const totalDiv = document.getElementById('totalAmount');
-    
-    if (selectedProducts.length === 0) {
-        summaryDiv.innerHTML = '<p class="text-muted">Pilih produk untuk melihat ringkasan...</p>';
-        totalDiv.textContent = 'Rp 0';
-        return;
-    }
-    
-    let html = '<div class="list-group list-group-flush">';
-    let total = 0;
-    
-    selectedProducts.forEach(checkbox => {
-        const harga = parseInt(checkbox.dataset.harga);
-        const nama = checkbox.dataset.nama;
-        total += harga;
-        
-        html += `
-            <div class="list-group-item d-flex justify-content-between align-items-center p-2">
-                <span>${nama}</span>
-                <strong>${formatCurrency(harga)}</strong>
-            </div>
-        `;
-    });
-    
-    html += '</div>';
-    summaryDiv.innerHTML = html;
-    totalDiv.textContent = formatCurrency(total);
-}
-
-function formatCurrency(amount) {
-    return new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
-        minimumFractionDigits: 0
-    }).format(amount);
-}
-</script>
-
 <style>
-.product-card {
-    transition: all 0.2s;
-    border: 2px solid transparent;
-    cursor: pointer;
+/* Interaksi UI untuk Product Card Selector */
+.product-selector-card input:checked ~ div {
+    background: #ECFDF5 !important;
+    border-color: #34D399 !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
 }
-
-.product-card:hover {
-    border-color: #007bff;
-    transform: translateY(-2px);
+.product-selector-card input:checked ~ div .check-indicator {
+    background: #10B981 !important;
+    border-color: #10B981 !important;
 }
-
-.product-card:has(input:checked) {
-    border-color: #28a745;
-    background-color: #f8fff9;
+.product-selector-card input:checked ~ div .check-indicator i {
+    opacity: 1 !important;
+    transform: scale(1) !important;
+}
+.product-selector-card:hover div {
+    border-color: #9CA3AF;
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.produk-checkbox');
+    const summary = document.getElementById('summary');
+    const totalSection = document.getElementById('total-section');
+    const totalHarga = document.getElementById('total-harga');
+    
+    function updateSummary() {
+        const selected = Array.from(checkboxes).filter(cb => cb.checked);
+        
+        if (selected.length === 0) {
+            summary.innerHTML = `
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-shopping-basket fa-2x mb-2 opacity-50"></i>
+                    <div style="font-size: 0.85rem;">Pilih produk di samping untuk memulai.</div>
+                </div>
+            `;
+            totalSection.classList.add('d-none');
+            return;
+        }
+        
+        let total = 0;
+        let html = '<div class="d-flex flex-column gap-2">';
+        
+        selected.forEach(checkbox => {
+            const harga = parseInt(checkbox.dataset.harga);
+            const labelNode = checkbox.parentElement.querySelector('div.fw-bold.text-dark');
+            const label = labelNode ? labelNode.textContent : 'Produk';
+            total += harga;
+            
+            html += `
+                <div class="d-flex justify-content-between align-items-start pb-2" style="border-bottom: 1px solid #E5E7EB;">
+                    <div class="pe-2 text-dark" style="font-size: 0.85rem; line-height: 1.4; font-weight: 500;">${label}</div>
+                    <div class="text-success fw-bold" style="font-size: 0.85rem; white-space: nowrap;">${formatCurrency(harga)}</div>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        summary.innerHTML = html;
+        totalHarga.textContent = formatCurrency(total);
+        totalSection.classList.remove('d-none');
+    }
+    
+    function formatCurrency(amount) {
+        return 'Rp ' + amount.toLocaleString('id-ID');
+    }
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSummary);
+    });
+    
+    // Inisialisasi awal saat load (untuk mendeteksi data produk lama)
+    updateSummary();
+
+    // UX Feedback saat form disubmit
+    document.getElementById('transaksiForm').addEventListener('submit', function() {
+        const btn = document.querySelector('.btn-submit');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...';
+        btn.style.opacity = '0.8';
+        btn.style.pointerEvents = 'none';
+    });
+});
+</script>
 
 <?php require_once __DIR__ . '/../../includes/footer.php'; ?>

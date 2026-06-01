@@ -97,283 +97,248 @@ require_once __DIR__ . '/../../includes/header.php';
 require_once __DIR__ . '/../../includes/sidebar.php';
 ?>
 
-<div class="main-content">
-    <!-- Top Header -->
-    <div class="top-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="page-title mb-0">Hapus Transaksi Pending Lama</h1>
-                <nav class="breadcrumb">
-                    <a href="<?= BASE_URL ?>" class="breadcrumb-item text-decoration-none">Dashboard</a>
-                    <a href="<?= BASE_URL ?>modules/transaksi/" class="breadcrumb-item text-decoration-none">Transaksi</a>
-                    <span class="breadcrumb-item active">Hapus Pending Lama</span>
-                </nav>
+<div class="main-content dashboard-wrapper">
+    <div class="form-container" style="max-width: 800px; margin: 0 auto;">
+        
+        <div class="dash-header mb-4 text-center">
+            <div class="mb-3">
+                <div style="width: 72px; height: 72px; background: #FEF2F2; color: #EF4444; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 2rem;">
+                    <i class="fas fa-trash-alt"></i>
+                </div>
             </div>
-            <a href="index.php" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Kembali
-            </a>
+            <h1 class="dash-title">Bersihkan Transaksi Lama</h1>
+            <div class="text-muted mt-2 mx-auto" style="font-weight: 500; font-size: 0.95rem; max-width: 500px;">
+                Hapus transaksi berstatus <strong>Pending</strong> yang umurnya sudah melebihi 3 bulan untuk meringankan beban database.
+            </div>
         </div>
-    </div>
 
-    <!-- Content Area -->
-    <div class="content-area">
         <?php displaySessionMessage(); ?>
         
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-header bg-warning text-dark">
-                        <h5 class="mb-0">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            Hapus Transaksi Pending Lama
-                        </h5>
+        <div class="panel-editorial p-0" style="overflow: hidden;">
+            <?php if ($total_to_delete > 0): ?>
+                
+                <div class="bg-light p-4 border-bottom text-center">
+                    <div class="text-dark fw-bold fs-4 mb-1">
+                        Ditemukan <span class="text-danger"><?= number_format($total_to_delete) ?></span> Transaksi
                     </div>
-                    <div class="card-body">
-                        <?php if ($total_to_delete > 0): ?>
-                            <div class="alert alert-warning">
-                                <h6><i class="fas fa-info-circle me-2"></i>Informasi</h6>
-                                <p class="mb-0">
-                                    Ditemukan <strong><?= number_format($total_to_delete) ?> transaksi pending</strong> 
-                                    yang lebih dari 3 bulan dan akan dihapus.
-                                </p>
-                            </div>
-                            
-                            <!-- Sample Data -->
-                            <?php if (!empty($sample_data)): ?>
-                                <h6 class="mb-3">Preview Transaksi yang Akan Dihapus:</h6>
-                                <div class="table-responsive mb-4">
-                                    <table class="table table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>Pelanggan</th>
-                                                <th>Total</th>
-                                                <th>Tanggal</th>
-                                                <th>Umur</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php foreach ($sample_data as $item): ?>
-                                            <tr>
-                                                <td>#<?= $item['id'] ?></td>
-                                                <td><?= safeHtml($item['nama_pelanggan']) ?></td>
-                                                <td><?= formatCurrency($item['total_harga']) ?></td>
-                                                <td><?= formatDate($item['tanggal_transaksi']) ?></td>
-                                                <td>
-                                                    <?php
-                                                    $days = (strtotime('now') - strtotime($item['tanggal_transaksi'])) / (60*60*24);
-                                                    echo floor($days) . ' hari';
-                                                    ?>
-                                                </td>
-                                            </tr>
-                                            <?php endforeach; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                
-                                <?php if ($total_to_delete > 10): ?>
-                                    <p class="text-muted small">
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        Menampilkan 10 dari <?= number_format($total_to_delete) ?> transaksi.
-                                    </p>
-                                <?php endif; ?>
-                            <?php endif; ?>
-                            
-                            <!-- Konfirmasi -->
-                            <div class="alert alert-danger">
-                                <h6><i class="fas fa-exclamation-triangle me-2"></i>Peringatan!</h6>
-                                <ul class="mb-0">
-                                    <li>Aksi ini <strong>tidak dapat dibatalkan</strong></li>
-                                    <li>Semua transaksi pending > 3 bulan akan dihapus permanent</li>
-                                    <li>Detail transaksi juga akan ikut terhapus</li>
-                                </ul>
-                            </div>
-                            
-                            <form method="POST" class="text-center" id="deleteForm">
-                                <div class="form-check d-inline-block mb-3">
-                                    <input class="form-check-input" type="checkbox" id="confirmCheck" required>
-                                    <label class="form-check-label" for="confirmCheck">
-                                        Saya memahami risiko dan ingin melanjutkan
-                                    </label>
-                                </div>
-                                <br>
-                                <div class="d-flex gap-2 justify-content-center">
-                                    <button type="submit" name="confirm" value="yes" 
-                                            class="btn btn-danger" id="deleteBtn" disabled>
-                                        <i class="fas fa-trash me-2"></i>
-                                        Hapus <?= number_format($total_to_delete) ?> Transaksi
-                                    </button>
-                                    <button type="button" class="btn btn-warning" id="deleteAjaxBtn" disabled>
-                                        <i class="fas fa-bolt me-2"></i>
-                                        Hapus (Cepat)
-                                    </button>
-                                    <a href="index.php" class="btn btn-secondary">Batal</a>
-                                </div>
-                                <small class="text-muted d-block mt-2">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    "Hapus (Cepat)" menggunakan AJAX tanpa reload halaman
-                                </small>
-                            </form>
-                            
-                        <?php else: ?>
-                            <div class="alert alert-success text-center">
-                                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                                <h5>Tidak Ada Transaksi Pending Lama</h5>
-                                <p class="mb-0">
-                                    Semua transaksi pending masih dalam periode 3 bulan terakhir.
-                                </p>
-                                <a href="index.php" class="btn btn-primary mt-3">
-                                    <i class="fas fa-arrow-left me-2"></i>Kembali ke Transaksi
-                                </a>
+                    <div class="text-muted" style="font-size: 0.85rem;">Transaksi ini akan dihapus secara permanen dari sistem.</div>
+                </div>
+
+                <?php if (!empty($sample_data)): ?>
+                    <div class="p-4">
+                        <div class="text-muted fw-bold text-uppercase mb-3" style="font-size: 0.75rem; letter-spacing: 0.05em;">Cuplikan Data yang Akan Terhapus</div>
+                        <div class="table-responsive rounded-3 border">
+                            <table class="table-editorial mb-0">
+                                <thead style="background: #F9FAFB;">
+                                    <tr>
+                                        <th width="80">Order ID</th>
+                                        <th>Pelanggan</th>
+                                        <th class="text-end">Nominal</th>
+                                        <th width="150" class="text-end">Umur Transaksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($sample_data as $item): ?>
+                                    <tr>
+                                        <td><span class="text-muted fw-bold" style="font-size: 0.85rem;">#<?= $item['id'] ?></span></td>
+                                        <td>
+                                            <div class="fw-bold text-dark" style="font-size: 0.9rem;"><?= safeHtml($item['nama_pelanggan']) ?></div>
+                                            <div class="text-muted" style="font-size: 0.75rem;"><?= formatDate($item['tanggal_transaksi'], 'd/m/Y') ?></div>
+                                        </td>
+                                        <td class="text-end fw-bold text-success" style="font-size: 0.9rem;">
+                                            <?= formatCurrency($item['total_harga']) ?>
+                                        </td>
+                                        <td class="text-end">
+                                            <?php
+                                            $days = (strtotime('now') - strtotime($item['tanggal_transaksi'])) / (60*60*24);
+                                            ?>
+                                            <span class="badge-clean" style="background: #FEF2F2; color: #EF4444;">
+                                                <?= floor($days) ?> hari
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        <?php if ($total_to_delete > 10): ?>
+                            <div class="text-center mt-3 text-muted" style="font-size: 0.8rem;">
+                                <i class="fas fa-ellipsis-v"></i><br>
+                                Menampilkan 10 data terlama dari total <?= number_format($total_to_delete) ?>.
                             </div>
                         <?php endif; ?>
                     </div>
+                <?php endif; ?>
+
+                <div class="p-4" style="background: #FAFAFA; border-top: 1px dashed #D1D5DB;">
+                    <form method="POST" id="deleteForm" class="d-flex flex-column align-items-center">
+                        
+                        <label class="toggle-switch w-100 mb-4" style="max-width: 450px; background: white; border-color: #EF4444; cursor: pointer;">
+                            <div class="text-start pe-3">
+                                <div class="toggle-label text-danger">Konfirmasi Penghapusan</div>
+                                <div class="toggle-desc" style="line-height: 1.4;">Saya mengerti bahwa aksi ini tidak bisa dibatalkan dan detail transaksi akan ikut hilang.</div>
+                            </div>
+                            <input type="checkbox" id="confirmCheck" class="switch-input" required>
+                            <div class="switch-slider" style="background-color: #FCA5A5;"></div>
+                        </label>
+                        
+                        <div class="d-flex flex-column flex-sm-row gap-2 w-100" style="max-width: 450px;">
+                            <button type="submit" name="confirm" value="yes" class="btn btn-danger flex-grow-1 fw-bold" id="deleteBtn" disabled style="padding: 0.85rem; border-radius: 12px; transition: all 0.2s;">
+                                Hapus Standard
+                            </button>
+                            <?php if(isset($deleteAjaxBtn)): /* Menjaga kompatibilitas jika var di set di PHP */ ?>
+                            <button type="button" class="btn btn-dark flex-grow-1 fw-bold" id="deleteAjaxBtn" disabled style="padding: 0.85rem; border-radius: 12px; transition: all 0.2s;">
+                                <i class="fas fa-bolt text-warning me-1"></i> Fast Delete
+                            </button>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <a href="index.php" class="text-muted mt-4 text-decoration-none fw-bold hover-text-dark" style="font-size: 0.85rem; transition: color 0.2s;">
+                            Batalkan dan Kembali
+                        </a>
+                    </form>
                 </div>
-            </div>
+
+            <?php else: ?>
+                <div class="p-5 text-center">
+                    <div style="width: 80px; height: 80px; background: #ECFDF5; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                        <i class="fas fa-check-circle text-success fs-2"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-2">Database Bersih</h4>
+                    <p class="text-muted mb-4" style="max-width: 400px; margin: 0 auto;">
+                        Tidak ada transaksi pending yang melebihi batas waktu 3 bulan. Sistem kamu berjalan dengan optimal.
+                    </p>
+                    <a href="index.php" class="btn btn-dark rounded-pill px-4 fw-bold">
+                        <i class="fas fa-arrow-left me-2"></i>Kembali ke Transaksi
+                    </a>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>
 
-<script>
-// Enable/disable buttons berdasarkan checkbox
-const confirmCheck = document.getElementById('confirmCheck');
-const deleteBtn = document.getElementById('deleteBtn');
-const deleteAjaxBtn = document.getElementById('deleteAjaxBtn');
+<style>
+/* CSS khusus untuk mewarnai slider toggle bahaya */
+#confirmCheck:checked + .switch-slider { background-color: #EF4444 !important; }
+.hover-text-dark:hover { color: #111827 !important; }
+</style>
 
-if (confirmCheck && deleteBtn) {
-    confirmCheck.addEventListener('change', function() {
-        const isChecked = this.checked;
-        deleteBtn.disabled = !isChecked;
-        
-        if (deleteAjaxBtn) {
-            deleteAjaxBtn.disabled = !isChecked;
-        }
-        
-        // Update button appearance
-        if (isChecked) {
-            deleteBtn.classList.remove('btn-secondary');
-            deleteBtn.classList.add('btn-danger');
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmCheck = document.getElementById('confirmCheck');
+    const deleteBtn = document.getElementById('deleteBtn');
+    const deleteAjaxBtn = document.getElementById('deleteAjaxBtn');
+
+    if (confirmCheck && deleteBtn) {
+        // Toggle Buttons Logic
+        confirmCheck.addEventListener('change', function() {
+            const isChecked = this.checked;
+            
+            // Visual Update for Submit Button
+            deleteBtn.disabled = !isChecked;
+            if (isChecked) {
+                deleteBtn.style.opacity = '1';
+                deleteBtn.style.transform = 'translateY(-2px)';
+                deleteBtn.style.boxShadow = '0 8px 15px rgba(239, 68, 68, 0.2)';
+            } else {
+                deleteBtn.style.opacity = '0.5';
+                deleteBtn.style.transform = 'none';
+                deleteBtn.style.boxShadow = 'none';
+            }
+
+            // Visual Update for Fast Delete Button (If exists)
             if (deleteAjaxBtn) {
-                deleteAjaxBtn.classList.remove('btn-secondary');
-                deleteAjaxBtn.classList.add('btn-warning');
-            }
-        } else {
-            deleteBtn.classList.remove('btn-danger');
-            deleteBtn.classList.add('btn-secondary');
-            if (deleteAjaxBtn) {
-                deleteAjaxBtn.classList.remove('btn-warning');
-                deleteAjaxBtn.classList.add('btn-secondary');
-            }
-        }
-    });
-    
-    // Form submit handler (tombol hapus biasa)
-    const form = document.getElementById('deleteForm');
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            if (!confirmCheck.checked) {
-                e.preventDefault();
-                alert('Harap centang checkbox konfirmasi terlebih dulu.');
-                return false;
-            }
-            
-            const totalCount = deleteBtn.textContent.match(/\d+/)[0];
-            const confirmed = confirm(
-                `PERINGATAN!\n\n` +
-                `Anda akan menghapus ${totalCount} transaksi pending yang lebih dari 3 bulan.\n\n` +
-                `Aksi ini TIDAK DAPAT DIBATALKAN!\n\n` +
-                `Apakah Anda yakin ingin melanjutkan?`
-            );
-            
-            if (!confirmed) {
-                e.preventDefault();
-                return false;
-            }
-            
-            // Show loading state
-            deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menghapus...';
-            deleteBtn.disabled = true;
-            
-            // Disable semua form elements
-            const formElements = form.querySelectorAll('input, button');
-            formElements.forEach(element => element.disabled = true);
-        });
-    }
-    
-    // AJAX delete handler (tombol hapus cepat)
-    if (deleteAjaxBtn) {
-        deleteAjaxBtn.addEventListener('click', function() {
-            if (!confirmCheck.checked) {
-                alert('Harap centang checkbox konfirmasi terlebih dulu.');
-                return;
-            }
-            
-            const totalCount = deleteBtn.textContent.match(/\d+/)[0];
-            const confirmed = confirm(
-                `PERINGATAN!\n\n` +
-                `Anda akan menghapus ${totalCount} transaksi pending yang lebih dari 3 bulan.\n\n` +
-                `Aksi ini TIDAK DAPAT DIBATALKAN!\n\n` +
-                `Apakah Anda yakin ingin melanjutkan?`
-            );
-            
-            if (!confirmed) return;
-            
-            // Show loading state
-            const originalText = this.innerHTML;
-            this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menghapus...';
-            this.disabled = true;
-            deleteBtn.disabled = true;
-            
-            // AJAX request
-            fetch('bulk_delete_process.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'confirm=yes'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Show success message
-                    const alertDiv = document.createElement('div');
-                    alertDiv.className = 'alert alert-success alert-dismissible fade show';
-                    alertDiv.innerHTML = `
-                        <i class="fas fa-check-circle me-2"></i>
-                        ${data.message}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    `;
-                    
-                    document.querySelector('.content-area').insertBefore(alertDiv, document.querySelector('.row'));
-                    
-                    // Redirect setelah 2 detik
-                    setTimeout(() => {
-                        window.location.href = 'index.php';
-                    }, 2000);
+                deleteAjaxBtn.disabled = !isChecked;
+                if (isChecked) {
+                    deleteAjaxBtn.style.opacity = '1';
+                    deleteAjaxBtn.style.transform = 'translateY(-2px)';
+                    deleteAjaxBtn.style.boxShadow = '0 8px 15px rgba(17, 24, 39, 0.2)';
                 } else {
-                    throw new Error(data.message);
+                    deleteAjaxBtn.style.opacity = '0.5';
+                    deleteAjaxBtn.style.transform = 'none';
+                    deleteAjaxBtn.style.boxShadow = 'none';
                 }
-            })
-            .catch(error => {
-                // Show error message
-                const alertDiv = document.createElement('div');
-                alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-                alertDiv.innerHTML = `
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    Error: ${error.message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                `;
-                
-                document.querySelector('.content-area').insertBefore(alertDiv, document.querySelector('.row'));
-                
-                // Restore button state
-                this.innerHTML = originalText;
-                this.disabled = false;
-                deleteBtn.disabled = false;
-            });
+            }
         });
+        
+        // Setup initial disabled state visual
+        deleteBtn.style.opacity = '0.5';
+        if(deleteAjaxBtn) deleteAjaxBtn.style.opacity = '0.5';
+
+        // Form Standard Submit Handler
+        const form = document.getElementById('deleteForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                if (!confirmCheck.checked) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                // FIX: Suntikkan input rahasia agar PHP tetap membaca "confirm=yes" 
+                // meskipun tombol aslinya kita matikan untuk animasi.
+                const hiddenConfirm = document.createElement('input');
+                hiddenConfirm.type = 'hidden';
+                hiddenConfirm.name = 'confirm';
+                hiddenConfirm.value = 'yes';
+                form.appendChild(hiddenConfirm);
+                
+                // Animasi Loading
+                deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Membersihkan Database...';
+                deleteBtn.disabled = true;
+                if(deleteAjaxBtn) deleteAjaxBtn.style.display = 'none'; // Sembunyikan tombol lain
+                
+                // Cegah double submit untuk input lain
+                const formElements = form.querySelectorAll('input');
+                formElements.forEach(element => {
+                    // Jangan disable checkbox dan input hidden yang baru dibuat
+                    if(element.type !== 'checkbox' && element.type !== 'hidden') element.disabled = true;
+                });
+            });
+        }
+
+        // AJAX Fast Delete Handler
+        if (deleteAjaxBtn) {
+            deleteAjaxBtn.addEventListener('click', function() {
+                if (!confirmCheck.checked) return;
+                
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin text-warning me-2"></i>Menghapus...';
+                this.disabled = true;
+                deleteBtn.style.display = 'none'; // Sembunyikan tombol standard
+                
+                fetch('bulk_delete_process.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'confirm=yes'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const panel = document.querySelector('.panel-editorial');
+                        panel.innerHTML = `
+                            <div class="p-5 text-center">
+                                <div style="width: 80px; height: 80px; background: #ECFDF5; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                                    <i class="fas fa-check-circle text-success fs-2"></i>
+                                </div>
+                                <h4 class="fw-bold text-dark mb-2">Sukses Dibersihkan</h4>
+                                <p class="text-muted mb-4 mx-auto" style="max-width: 400px;">${data.message}</p>
+                            </div>
+                        `;
+                        setTimeout(() => window.location.href = 'index.php', 2000);
+                    } else {
+                        throw new Error(data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Gagal: ' + error.message);
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                    deleteBtn.style.display = 'block';
+                });
+            });
+        }
     }
-}
+});
 </script>
 
 <?php require_once __DIR__ . '/../../includes/footer.php'; ?>
