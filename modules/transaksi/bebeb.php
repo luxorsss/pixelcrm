@@ -75,7 +75,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
                     <i class="fas fa-check-double text-muted fs-2"></i>
                 </div>
                 <h4 class="fw-bold text-dark mb-2">Semua Selesai!</h4>
-                <p class="text-muted mx-auto" style="max-width: 400px; font-size: 0.95rem;">' . 
+                <p class="text-muted mx-auto px-3" style="max-width: 400px; font-size: 0.95rem;">' . 
                     (!empty($search) ? 
                     'Tidak ada transaksi pending yang cocok dengan "<strong>' . htmlspecialchars($search) . '</strong>".' : 
                     'Luar biasa! Saat ini tidak ada pesanan yang menunggu untuk divalidasi.') . 
@@ -83,17 +83,17 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
             </div>
         ';
     } else {
-        // Generate table HTML
+        // Trik Jitu: Hapus min-width dan biarkan tabelnya 100% responsif tanpa scroll
         $table_html = '
-            <div class="table-responsive hide-scrollbar">
-                <table class="table-editorial mb-0" style="min-width: 100%;">
+            <div class="table-responsive" style="overflow-x: hidden;">
+                <table class="table-editorial mb-0" style="width: 100%;">
                     <thead>
                         <tr>
-                            <th width="10%" class="d-none d-md-table-cell">ID</th>
-                            <th width="40%">Info Pelanggan</th>
-                            <th width="20%">Nominal Transfer</th>
-                            <th width="15%" class="d-none d-md-table-cell">Waktu Order</th>
-                            <th width="15%" class="text-end pe-3 pe-md-4">Aksi</th>
+                            <th class="d-none d-md-table-cell" width="10%">ID</th>
+                            <th>Pelanggan</th>
+                            <th>Nominal</th>
+                            <th class="d-none d-md-table-cell" width="20%">Waktu Order</th>
+                            <th class="text-end pe-3 pe-md-4">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>';
@@ -103,20 +103,20 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
                         <tr>
                             <td class="d-none d-md-table-cell"><span class="badge-clean bg-light text-muted border fw-bold" style="font-family: monospace;">#' . htmlspecialchars($trx['id']) . '</span></td>
                             <td>
-                                <div class="fw-bold text-dark text-truncate" style="font-size: 0.95rem; max-width: 180px;">' . htmlspecialchars($trx['nama_customer']) . '</div>
-                                <a href="https://wa.me/' . preg_replace('/[^0-9]/', '', $trx['nomor_wa']) . '" target="_blank" class="badge-clean bg-light text-muted mt-1 border text-decoration-none d-inline-flex" style="font-size: 0.75rem;">
-                                    <i class="fab fa-whatsapp text-success"></i><span class="d-none d-sm-inline ms-1">' . htmlspecialchars($trx['nomor_wa']) . '</span>
+                                <div class="fw-bold text-dark text-truncate custom-max-width" style="font-size: 0.95rem;">' . htmlspecialchars($trx['nama_customer']) . '</div>
+                                <a href="https://wa.me/' . preg_replace('/[^0-9]/', '', $trx['nomor_wa']) . '" target="_blank" class="badge-clean bg-light text-muted mt-1 border text-decoration-none d-inline-flex" style="font-size: 0.7rem; padding: 2px 6px;">
+                                    <i class="fab fa-whatsapp text-success"></i><span class="ms-1">' . htmlspecialchars($trx['nomor_wa']) . '</span>
                                 </a>
-                                <div class="text-muted mt-1 d-md-none" style="font-size: 0.75rem;"><i class="fas fa-clock me-1"></i>' . date('d M, H:i', strtotime($trx['tanggal'])) . '</div>
+                                <div class="text-muted mt-1 d-md-none" style="font-size: 0.7rem;"><i class="fas fa-clock me-1"></i>' . date('d M, H:i', strtotime($trx['tanggal'])) . '</div>
                             </td>
                             <td>
-                                <div class="fw-bold text-success" style="font-size: 1.05rem;">Rp ' . number_format($trx['total_harga'], 0, ',', '.') . '</div>
+                                <div class="fw-bold text-success mobile-nominal">Rp ' . number_format($trx['total_harga'], 0, ',', '.') . '</div>
                             </td>
                             <td class="d-none d-md-table-cell">
                                 <div class="text-dark fw-bold" style="font-size: 0.85rem;">' . date('d M Y', strtotime($trx['tanggal'])) . '</div>
                                 <div class="text-muted" style="font-size: 0.75rem;"><i class="fas fa-clock me-1"></i>' . date('H:i', strtotime($trx['tanggal'])) . ' WIB</div>
                             </td>
-                            <td class="text-end pe-3 pe-md-4">
+                            <td class="text-end pe-2 pe-md-4">
                                 <a 
                                     href="update_status.php?id=' . urlencode($trx['id']) . '&status=selesai" 
                                     class="btn-selesai hover-lift d-inline-flex justify-content-center"
@@ -135,9 +135,8 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
         
         $response['html'] = $table_html;
         
-        // Generate pagination HTML
         if ($total_pages > 1) {
-            $pagination_html = '<div class="d-flex gap-1">';
+            $pagination_html = '<div class="d-flex gap-1 overflow-auto hide-scrollbar" style="max-width: 100%;">';
             
             if ($page > 1) {
                 $pagination_html .= '<a class="btn btn-sm btn-light text-dark fw-bold border-0 flex-shrink-0 page-link-custom" href="#" data-page="' . ($page - 1) . '"><i class="fas fa-chevron-left"></i></a>';
@@ -147,22 +146,16 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
             $end = min($total_pages, $page + 2);
             
             if ($start > 1) {
-                $pagination_html .= '<a class="btn btn-sm btn-light text-muted fw-bold border-0 flex-shrink-0 page-link-custom" style="min-width: 36px; border-radius: 8px;" href="#" data-page="1">1</a>';
-                if ($start > 2) {
-                    $pagination_html .= '<span class="btn btn-sm btn-light text-muted border-0 disabled" style="min-width: 36px;">...</span>';
-                }
+                $pagination_html .= '<a class="btn btn-sm btn-light text-muted fw-bold border-0 flex-shrink-0 page-link-custom" style="min-width: 32px; border-radius: 8px;" href="#" data-page="1">1</a>';
             }
             
             for ($i = $start; $i <= $end; $i++) {
                 $active_class = $i == $page ? 'btn-dark' : 'btn-light text-muted';
-                $pagination_html .= '<a class="btn btn-sm ' . $active_class . ' fw-bold border-0 flex-shrink-0 page-link-custom" style="min-width: 36px; border-radius: 8px;" href="#" data-page="' . $i . '">' . $i . '</a>';
+                $pagination_html .= '<a class="btn btn-sm ' . $active_class . ' fw-bold border-0 flex-shrink-0 page-link-custom" style="min-width: 32px; border-radius: 8px;" href="#" data-page="' . $i . '">' . $i . '</a>';
             }
             
             if ($end < $total_pages) {
-                if ($end < $total_pages - 1) {
-                    $pagination_html .= '<span class="btn btn-sm btn-light text-muted border-0 disabled" style="min-width: 36px;">...</span>';
-                }
-                $pagination_html .= '<a class="btn btn-sm btn-light text-muted fw-bold border-0 flex-shrink-0 page-link-custom" style="min-width: 36px; border-radius: 8px;" href="#" data-page="' . $total_pages . '">' . $total_pages . '</a>';
+                $pagination_html .= '<a class="btn btn-sm btn-light text-muted fw-bold border-0 flex-shrink-0 page-link-custom" style="min-width: 32px; border-radius: 8px;" href="#" data-page="' . $total_pages . '">' . $total_pages . '</a>';
             }
             
             if ($page < $total_pages) {
@@ -170,7 +163,6 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
             }
             
             $pagination_html .= '</div>';
-            
             $response['pagination'] = $pagination_html;
         }
     }
@@ -206,8 +198,9 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
             font-family: var(--font-family);
             color: var(--primary-color);
             min-height: 100vh;
-            padding: 1.5rem 1rem; /* Padding lebih bersahabat di HP */
+            padding: 2rem 1rem;
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
 
         .panel-editorial {
@@ -218,10 +211,11 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
             overflow: hidden;
             margin: 0 auto;
             max-width: 1000px;
+            width: 100%;
         }
 
         .header-section {
-            padding: 1.5rem 2rem;
+            padding: 1.5rem;
             border-bottom: 1px solid var(--border-light);
             background: #FFFFFF;
         }
@@ -237,11 +231,6 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
             transition: all 200ms var(--ease-out);
             border: 1px solid var(--border-light);
             width: 100%;
-        }
-        @media (min-width: 768px) {
-            .search-pill { max-width: 350px; }
-            .header-section { padding: 2rem; }
-            body { padding: 3rem 1.5rem; }
         }
         .search-pill:focus-within {
             background: #FFFFFF;
@@ -279,9 +268,6 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
             border-bottom: 1px solid #F3F4F6;
             transition: background-color 150ms var(--ease-out);
         }
-        @media (hover: hover) and (pointer: fine) {
-            .table-editorial tbody tr:hover td { background-color: #F9FAFB; }
-        }
 
         /* Badges */
         .badge-clean {
@@ -308,7 +294,6 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
             align-items: center;
             gap: 0.5rem;
         }
-        .btn-selesai.disabled { opacity: 0.6; pointer-events: none; }
         
         .hover-lift { transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
         @media (hover: hover) and (pointer: fine) {
@@ -317,24 +302,50 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
             }
         }
 
-        /* Utilities */
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .loading-spinner { display: none; text-align: center; padding: 3rem; }
         .empty-state { text-align: center; padding: 4rem 1rem; }
+
+        /* MAGICAL CSS UNTUK MOBILE PERFECT FIT */
+        @media (max-width: 768px) {
+            body { padding: 0.5rem; background-color: #FFFFFF; }
+            .panel-editorial { border: none; border-radius: 16px; box-shadow: none; }
+            .header-section { padding: 1rem; border-bottom: none; }
+            
+            /* Pangkas Padding Tabel di HP agar lega */
+            .table-editorial th { padding: 0.75rem 0.5rem; font-size: 0.65rem; white-space: normal; }
+            .table-editorial td { padding: 1rem 0.5rem; }
+            
+            /* Squeeze elemen agar tidak melebar */
+            .custom-max-width { max-width: 130px !important; white-space: normal; line-height: 1.3; }
+            .mobile-nominal { font-size: 0.85rem !important; }
+            
+            /* Kecilkan tombol selesai, cuma jadi Icon di layar super sempit */
+            .btn-selesai { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
+        }
+        @media (min-width: 768px) {
+            .search-pill { max-width: 350px; }
+            .header-section { padding: 2rem; }
+            .custom-max-width { max-width: 250px !important; }
+        }
     </style>
 </head>
 <body>
 
 <div class="mx-auto" style="max-width: 1000px;">
     
-    <div class="mb-4 d-flex align-items-center justify-content-between">
+    <div class="mb-4 d-none d-md-flex align-items-center justify-content-between">
         <a href="index.php" class="text-muted text-decoration-none fw-bold hover-lift d-inline-block" style="font-size: 0.9rem;">
             <i class="fas fa-arrow-left me-2"></i>Kembali ke Dashboard Utama
         </a>
     </div>
 
     <div class="panel-editorial">
+        <a href="index.php" class="d-md-none text-muted text-decoration-none fw-bold d-inline-block px-3 pt-3" style="font-size: 0.85rem;">
+            <i class="fas fa-arrow-left me-2"></i>Kembali
+        </a>
+
         <div class="header-section d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
             <div>
                 <h2 class="mb-1 fw-bold text-dark d-flex align-items-center gap-2" style="font-size: 1.25rem;">
@@ -352,7 +363,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
             </div>
         </div>
 
-        <div class="p-0">
+        <div class="p-0 border-top">
             <div id="loading-spinner" class="loading-spinner">
                 <div class="spinner-border text-primary mb-3" style="width: 2.5rem; height: 2.5rem;" role="status"></div>
                 <div class="text-muted fw-bold">Sinkronisasi Data...</div>
@@ -362,7 +373,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
                 <div class="text-center p-5 text-muted"><i class="fas fa-circle-notch fa-spin fs-2"></i></div>
             </div>
 
-            <div class="p-3 border-top bg-light d-flex flex-column flex-md-row justify-content-between align-items-center gap-3" id="pagination-wrapper" style="display: none !important;">
+            <div class="p-3 bg-white d-flex flex-column flex-md-row justify-content-between align-items-center gap-3" id="pagination-wrapper" style="display: none !important;">
                 <div class="text-muted small fw-bold text-uppercase" style="letter-spacing: 0.05em;">
                     Halaman <span id="current-page-display"><?= $page ?></span>
                 </div>
