@@ -14,88 +14,101 @@ require_once __DIR__ . '/../../includes/header.php';
 require_once __DIR__ . '/../../includes/sidebar.php';
 ?>
 
-<div class="main-content dashboard-wrapper">
+<div class="main-content dashboard-wrapper flex-grow-1">
     
-    <!-- Header -->
-    <div class="dash-header flex-column flex-md-row align-items-start align-items-md-center gap-3">
+    <div class="dash-header mb-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
         <div>
-            <h1 class="dash-title">Katalog Produk</h1>
-            <div class="text-muted mt-1" style="font-weight: 500; font-size: 0.95rem;">Kelola daftar produk, harga, dan embed code checkout.</div>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-            <div class="dash-date d-none d-sm-block">
-                <i class="fas fa-box me-2 text-muted"></i><?= $total_records ?> Produk Aktif
+            <h1 class="dash-title d-flex align-items-center gap-2">
+                <i class="fas fa-box-open text-primary"></i> Katalog Produk
+            </h1>
+            <div class="text-muted mt-1" style="font-weight: 500; font-size: 0.95rem;">
+                Kelola daftar produk, harga, dan *embed code* kasir untuk websitemu.
             </div>
-            <a href="create.php" class="btn btn-primary d-flex align-items-center gap-2" style="border-radius: 12px; font-weight: 700; padding: 0.75rem 1.25rem;">
-                <i class="fas fa-plus"></i> Tambah Produk
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <div class="dash-date d-none d-sm-flex align-items-center gap-2 px-3 py-2 bg-white border rounded-pill shadow-sm">
+                <div style="width: 8px; height: 8px; background: #3B82F6; border-radius: 50%; box-shadow: 0 0 0 3px #DBEAFE;"></div>
+                <span class="fw-bold text-dark" style="font-size: 0.85rem;"><?= $total_records ?> Produk Aktif</span>
+            </div>
+            <a href="create.php" class="btn btn-dark fw-bold rounded-pill px-4" style="box-shadow: 0 4px 12px rgba(17, 24, 39, 0.15);">
+                <i class="fas fa-plus me-2"></i> Tambah Produk
             </a>
         </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="product-list-container shadow-sm">
+    <div class="panel-editorial p-0 overflow-hidden mb-5">
         <?php if (empty($produk_list)): ?>
             <div class="text-center py-5">
-                <div class="mb-3">
-                    <div style="width: 80px; height: 80px; background: #F3F4F6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-box-open text-muted fs-1"></i>
-                    </div>
+                <div style="width: 100px; height: 100px; background: #F3F4F6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; position: relative;">
+                    <i class="fas fa-box-open text-muted" style="font-size: 2.5rem;"></i>
+                    <i class="fas fa-sparkles text-warning position-absolute" style="top: -5px; right: -5px; font-size: 1.5rem;"></i>
                 </div>
-                <h5 class="fw-bold text-dark mb-1">Katalog Kosong</h5>
-                <p class="text-muted mb-4">Kamu belum memiliki produk untuk dijual.</p>
-                <a href="create.php" class="btn btn-dark rounded-pill fw-bold px-4">
+                <h4 class="fw-bold text-dark mb-2">Katalog Masih Kosong</h4>
+                <p class="text-muted mb-4 mx-auto" style="max-width: 400px; line-height: 1.6;">Kamu belum menambahkan produk apa pun. Tambahkan produk pertamamu untuk mulai menerima pesanan dan cuan!</p>
+                <a href="create.php" class="btn btn-primary rounded-pill fw-bold px-5 py-3" style="box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);">
                     <i class="fas fa-plus me-2"></i>Buat Produk Pertama
                 </a>
             </div>
         <?php else: ?>
-            <div class="table-responsive" style="max-height: calc(100vh - 250px); overflow-y: auto;">
-                <table class="table-editorial">
+            <div class="table-responsive">
+                <table class="table-editorial mb-0">
                     <thead>
                         <tr>
-                            <th width="50" class="text-center">ID</th>
-                            <th>Nama & Detail Produk</th>
-                            <th>Harga Jual</th>
-                            <th>Profit</th>
-                            <th>Koneksi Admin</th>
-                            <th width="160" class="text-end pe-4">Aksi</th>
+                            <th width="8%" class="text-center">ID</th>
+                            <th width="35%">Nama & Info Produk</th>
+                            <th width="15%">Harga Jual</th>
+                            <th width="15%">Profit Bersih</th>
+                            <th width="15%">Routing System</th>
+                            <th width="12%" class="text-end pe-4">Aksi Cepat</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($produk_list as $produk): ?>
                         <tr>
-                            <td class="text-center fw-bold text-muted" style="font-size: 0.85rem;">#<?= $produk['id'] ?></td>
+                            <td class="text-center">
+                                <span class="badge-clean bg-light text-muted border fw-bold" style="font-family: monospace;">#<?= $produk['id'] ?></span>
+                            </td>
                             <td>
-                                <div class="fw-bold text-dark" style="font-size: 1rem; letter-spacing: -0.01em;"><?= clean($produk['nama']) ?></div>
-                                <?php if ($produk['deskripsi']): ?>
-                                    <div class="text-muted mt-1" style="font-size: 0.85rem; line-height: 1.4;">
-                                        <?= truncateText($produk['deskripsi'], 60) ?>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div style="width: 48px; height: 48px; border-radius: 12px; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; color: #4B5563; flex-shrink: 0;">
+                                        <i class="fas fa-box"></i>
                                     </div>
-                                <?php endif; ?>
+                                    <div>
+                                        <div class="fw-bold text-dark mb-1" style="font-size: 0.95rem; line-height: 1.2;"><?= clean($produk['nama']) ?></div>
+                                        <?php if ($produk['deskripsi']): ?>
+                                            <div class="text-muted text-truncate" style="font-size: 0.75rem; max-width: 250px;" title="<?= htmlspecialchars($produk['deskripsi']) ?>">
+                                                <?= clean($produk['deskripsi']) ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
                             </td>
                             <td>
-                                <div class="fw-bold text-dark" style="font-size: 1.05rem;"><?= formatCurrency($produk['harga']) ?></div>
+                                <div class="fw-bold text-dark" style="font-size: 1rem;"><?= formatCurrency($produk['harga']) ?></div>
                             </td>
                             <td>
-                                <div class="fw-bold text-success" style="font-size: 0.95rem;"><?= formatCurrency($produk['profit']) ?></div>
+                                <span class="badge-clean" style="background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0;">
+                                    <i class="fas fa-coins me-1"></i> <?= formatCurrency($produk['profit']) ?>
+                                </span>
                             </td>
                             <td>
                                 <div class="d-flex flex-column gap-2 align-items-start">
                                     <?php if ($produk['admin_wa']): ?>
-                                        <a href="<?= whatsappLink($produk['admin_wa']) ?>" target="_blank" class="badge-clean badge-wa">
+                                        <a href="<?= whatsappLink($produk['admin_wa']) ?>" target="_blank" class="badge-clean bg-light border text-decoration-none" style="color: #059669; transition: all 0.2s;" onmouseover="this.style.background='#ECFDF5'" onmouseout="this.style.background='#F8FAFC'">
                                             <i class="fab fa-whatsapp"></i> <?= clean($produk['admin_wa']) ?>
                                         </a>
                                     <?php else: ?>
-                                        <span class="text-muted small">-</span>
+                                        <span class="badge-clean bg-light text-muted border opacity-50"><i class="fas fa-phone-slash me-1"></i> WA Kosong</span>
                                     <?php endif; ?>
                                     
-                                    <span class="badge-clean badge-os" title="OneSender Account">
-                                        <i class="fas fa-robot"></i> <?= clean($produk['onesender_account']) ?>
+                                    <span class="badge-clean bg-light border text-primary" title="Gateway Pengirim">
+                                        <i class="fas fa-satellite-dish me-1"></i> <?= clean($produk['onesender_account']) ?>
                                     </span>
                                 </div>
                             </td>
                             <td class="text-end pe-4">
                                 <div class="d-flex justify-content-end gap-1">
-                                    <a href="<?= BASE_URL ?>co.php?id=<?= $produk['id'] ?>" class="btn-action-icon checkout" title="Lihat Halaman Checkout" target="_blank">
+                                    <a href="<?= BASE_URL ?>co.php?id=<?= $produk['id'] ?>" class="btn-action-icon checkout" title="Buka Halaman Checkout" target="_blank">
                                         <i class="fas fa-external-link-alt"></i>
                                     </a>
 
@@ -106,12 +119,11 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                                         JOIN produk p ON b.produk_bundling_id = p.id 
                                         WHERE b.produk_id = ? AND b.is_active = 1
                                     ", [$produk['id']]);
-
                                     $bundling_json = htmlspecialchars(json_encode($bundling_data), ENT_QUOTES, 'UTF-8');
                                     ?>
 
                                     <button type="button" class="btn-action-icon embed" 
-                                            title="Copy HTML Embed Kasir"
+                                            title="Salin HTML Embed Kasir"
                                             data-bundling="<?= $bundling_json ?>"
                                             onclick="copyEmbedCode(
                                                 <?= $produk['id'] ?>, 
@@ -128,7 +140,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                                         <i class="fas fa-pen"></i>
                                     </a>
                                     
-                                    <button type="button" class="btn-action-icon delete" title="Hapus Produk"
+                                    <button type="button" class="btn-action-icon delete" title="Hapus Permanen"
                                             onclick="showDeleteModal(<?= $produk['id'] ?>, '<?= addslashes(clean($produk['nama'])) ?>')">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
@@ -373,6 +385,7 @@ function copyEmbedCode(produkId, namaProduk, hargaRaw, showEmail, showKupon, btn
                 const btn = document.getElementById('btn_submit_${produkId}');
                 btn.innerHTML = 'Memproses Pesanan...';
                 btn.style.opacity = '0.7';
+                btn.style.pointerEvents = 'none'; // Cegah dobel klik form embed
             });
         })();
     \x3C/script>
@@ -400,20 +413,20 @@ function copyEmbedCode(produkId, namaProduk, hargaRaw, showEmail, showKupon, btn
 </script>
 
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content" style="border-radius: 24px; border: none; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+    <div class="modal-dialog modal-dialog-centered modal-sm" style="transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1), opacity 200ms cubic-bezier(0.16, 1, 0.3, 1);">
+        <div class="modal-content" style="border-radius: 24px; border: none; box-shadow: 0 20px 40px rgba(0,0,0,0.15);">
             <div class="modal-body text-center p-4">
                 <div style="width: 64px; height: 64px; background: #FEF2F2; color: #EF4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
-                    <i class="fas fa-exclamation-triangle" style="font-size: 1.75rem;"></i>
+                    <i class="fas fa-trash-alt" style="font-size: 1.75rem;"></i>
                 </div>
                 <h5 class="fw-bold text-dark mb-2">Hapus Produk?</h5>
                 <p class="text-muted small mb-4" style="line-height: 1.5;">
-                    Yakin ingin menghapus <strong id="deleteProductName" class="text-dark"></strong>? 
-                    Semua data yang terkait dengan produk ini tidak dapat dikembalikan.
+                    Yakin ingin menghapus produk <strong id="deleteProductName" class="text-dark"></strong> dari katalog? 
+                    Ini mungkin merusak tautan Checkout yang sudah kamu bagikan.
                 </p>
                 <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-light w-50 fw-bold" data-bs-dismiss="modal" style="border-radius: 12px; transition: all 0.2s;">Batal</button>
-                    <a href="#" id="confirmDeleteBtn" class="btn btn-danger w-50 fw-bold" style="border-radius: 12px; background: #EF4444; border: none; transition: transform 0.2s;">Hapus</a>
+                    <button type="button" class="btn btn-light w-50 fw-bold" data-bs-dismiss="modal" style="border-radius: 12px;">Batal</button>
+                    <a href="#" id="confirmDeleteBtn" class="btn btn-danger w-50 fw-bold" style="border-radius: 12px; background: #EF4444; border: none;">Ya, Hapus</a>
                 </div>
             </div>
         </div>
@@ -421,24 +434,20 @@ function copyEmbedCode(produkId, namaProduk, hargaRaw, showEmail, showKupon, btn
 </div>
 
 <script>
-// Micro-interaction JS untuk Modal Delete
+// Logic Micro-interaction untuk Modal Delete
 function showDeleteModal(id, namaProduk) {
-    // Inject nama produk ke dalam teks modal
     document.getElementById('deleteProductName').textContent = namaProduk;
-    
-    // Inject ID produk ke tombol konfirmasi Hapus
     document.getElementById('confirmDeleteBtn').href = 'delete.php?id=' + id;
     
-    // Tampilkan modal
     const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
     deleteModal.show();
 }
 
-// Tambahkan sedikit feedback visual saat tombol hapus ditekan
 document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
     this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menghapus...';
     this.style.opacity = '0.8';
-    this.style.pointerEvents = 'none'; // Mencegah double click
+    this.style.pointerEvents = 'none'; 
 });
 </script>
+
 <?php require_once __DIR__ . '/../../includes/footer.php'; ?>

@@ -266,60 +266,64 @@ $offset = ($filters['page'] - 1) * $filters['limit'];
 $paginated_customers = array_slice($filtered_customers, $offset, $filters['limit']);
 ?>
 
-<div class="main-content dashboard-wrapper">
-    <div class="dash-header flex-column flex-md-row align-items-start align-items-md-center gap-3">
+<div class="main-content dashboard-wrapper flex-grow-1">
+    
+    <div class="dash-header flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
-            <h1 class="dash-title">Detail & Perilaku Pelanggan</h1>
-            <div class="text-muted mt-1" style="font-weight: 500; font-size: 0.95rem;">Analisis mendalam riwayat belanja dan risiko *churn* pelanggan.</div>
+            <h1 class="dash-title d-flex align-items-center gap-2">
+                <i class="fas fa-user-astronaut text-primary"></i> Perilaku Pelanggan
+            </h1>
+            <div class="text-muted mt-1" style="font-weight: 500; font-size: 0.95rem;">Analisis mendalam riwayat belanja, RFM, dan risiko *churn*.</div>
         </div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
             <?php if (!empty($report['data'])): ?>
-                <a href="<?= buildFilterUrl(['export' => 'csv']) ?>" id="btnExportCSV" class="btn btn-light text-dark fw-bold border" style="border-radius: 12px;">
+                <a href="<?= buildFilterUrl(['export' => 'csv']) ?>" id="btnExportCSV" class="btn btn-light text-dark fw-bold border rounded-pill px-3" style="box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
                     <i class="fas fa-file-csv me-1 text-success"></i> Export Data
                 </a>
             <?php endif; ?>
-            <a href="analitik.php" class="btn btn-dark fw-bold" style="border-radius: 12px;">
+            <a href="analitik.php" class="btn btn-dark fw-bold rounded-pill px-4" style="box-shadow: 0 4px 12px rgba(17, 24, 39, 0.15);">
                 <i class="fas fa-chart-pie me-1"></i> Ringkasan Analitik
             </a>
         </div>
     </div>
 
+    <!-- Top Stats & Health Chart -->
     <div class="row g-4 mb-4">
         <div class="col-lg-8">
             <div class="row g-3 h-100">
-                <div class="col-sm-6">
-                    <div class="stat-card">
+                <div class="col-6 col-sm-6">
+                    <div class="stat-card" style="padding: 1.25rem;">
+                        <div class="stat-icon" style="background: #EFF6FF; color: #2563EB; width: 36px; height: 36px; font-size: 1rem;"><i class="fas fa-users"></i></div>
                         <div>
-                            <div class="stat-icon" style="background: #EFF6FF; color: #2563EB;"><i class="fas fa-users"></i></div>
-                            <div class="stat-value text-dark"><?= formatNumber($customer_summary['total_customers']) ?></div>
-                            <div class="stat-label">Total Pelanggan <span class="fw-normal text-muted">(Database)</span></div>
+                            <div class="stat-value text-dark" style="font-size: 1.5rem;"><?= formatNumber($customer_summary['total_customers']) ?></div>
+                            <div class="stat-label mt-1" style="font-size: 0.75rem;">Total Database</div>
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-6">
-                    <div class="stat-card">
+                <div class="col-6 col-sm-6">
+                    <div class="stat-card" style="padding: 1.25rem;">
+                        <div class="stat-icon" style="background: #ECFDF5; color: #059669; width: 36px; height: 36px; font-size: 1rem;"><i class="fas fa-user-plus"></i></div>
                         <div>
-                            <div class="stat-icon" style="background: #ECFDF5; color: #059669;"><i class="fas fa-user-plus"></i></div>
-                            <div class="stat-value text-success"><?= formatNumber($customer_summary['new_customers']) ?></div>
-                            <div class="stat-label">Pelanggan Baru <span class="fw-normal text-muted">(30 Hari Terakhir)</span></div>
+                            <div class="stat-value text-success" style="font-size: 1.5rem;"><?= formatNumber($customer_summary['new_customers']) ?></div>
+                            <div class="stat-label mt-1" style="font-size: 0.75rem;">Baru <span class="fw-normal text-muted opacity-75">(30 Hari)</span></div>
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-6">
-                    <div class="stat-card">
+                <div class="col-6 col-sm-6">
+                    <div class="stat-card" style="padding: 1.25rem;">
+                        <div class="stat-icon" style="background: #F3E8FF; color: #9333EA; width: 36px; height: 36px; font-size: 1rem;"><i class="fas fa-redo-alt"></i></div>
                         <div>
-                            <div class="stat-icon" style="background: #F3E8FF; color: #9333EA;"><i class="fas fa-redo-alt"></i></div>
-                            <div class="stat-value" style="color: #9333EA;"><?= formatNumber($customer_summary['repeat_customers']) ?></div>
-                            <div class="stat-label">Repeat Customer <span class="fw-normal text-muted">(>1x Beli)</span></div>
+                            <div class="stat-value" style="color: #9333EA; font-size: 1.5rem;"><?= formatNumber($customer_summary['repeat_customers']) ?></div>
+                            <div class="stat-label mt-1" style="font-size: 0.75rem;">Repeat Order <span class="fw-normal text-muted opacity-75">(>1x)</span></div>
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-6">
-                    <div class="stat-card">
+                <div class="col-6 col-sm-6">
+                    <div class="stat-card" style="padding: 1.25rem;">
+                        <div class="stat-icon" style="background: #FEF3C7; color: #D97706; width: 36px; height: 36px; font-size: 1rem;"><i class="fas fa-receipt"></i></div>
                         <div>
-                            <div class="stat-icon" style="background: #FEF3C7; color: #D97706;"><i class="fas fa-receipt"></i></div>
-                            <div class="stat-value text-warning" style="font-size: 1.6rem;"><?= formatCurrency($customer_summary['avg_transaction_value']) ?></div>
-                            <div class="stat-label">Rata-rata Nilai Transaksi</div>
+                            <div class="stat-value text-warning text-truncate" style="font-size: 1.35rem;" title="<?= formatCurrency($customer_summary['avg_transaction_value']) ?>"><?= formatCurrency($customer_summary['avg_transaction_value']) ?></div>
+                            <div class="stat-label mt-1" style="font-size: 0.75rem;">Avg. Transaksi</div>
                         </div>
                     </div>
                 </div>
@@ -327,245 +331,249 @@ $paginated_customers = array_slice($filtered_customers, $offset, $filters['limit
         </div>
 
         <div class="col-lg-4">
-            <div class="list-container h-100 d-flex flex-column">
-                <h6 class="fw-bold mb-3"><i class="fas fa-heartbeat text-danger me-2"></i>Kesehatan Pelanggan</h6>
-                <div style="height: 180px; position: relative; margin-bottom: 1rem;">
-                    <canvas id="statusChart"></canvas>
+            <div class="list-container h-100 d-flex flex-column p-4">
+                <h6 class="fw-bold mb-3 text-dark" style="font-size: 0.95rem;"><i class="fas fa-heartbeat text-danger me-2"></i>Kesehatan Pelanggan</h6>
+                <div style="flex-grow: 1; min-height: 140px; position: relative; margin-bottom: 1.5rem;">
+                    <!-- Absolute position mencegah canvas resize issue di mobile -->
+                    <div style="position: absolute; top:0; left:0; right:0; bottom:0;">
+                        <canvas id="statusChart"></canvas>
+                    </div>
                 </div>
-                <div class="mt-auto row text-center g-2">
+                <div class="row text-center g-2 mt-auto border-top pt-3">
                     <div class="col-4">
-                        <div class="text-danger fw-bold fs-5"><?= $status_stats['high_risk'] ?></div>
-                        <div class="text-muted" style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700;">High Risk</div>
+                        <div class="text-danger fw-bold fs-5" style="line-height: 1;"><?= $status_stats['high_risk'] ?></div>
+                        <div class="text-muted mt-1" style="font-size: 0.65rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">High Risk</div>
+                    </div>
+                    <div class="col-4 border-start border-end">
+                        <div class="text-success fw-bold fs-5" style="line-height: 1;"><?= $status_stats['very_active'] ?></div>
+                        <div class="text-muted mt-1" style="font-size: 0.65rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Active</div>
                     </div>
                     <div class="col-4">
-                        <div class="text-success fw-bold fs-5"><?= $status_stats['very_active'] ?></div>
-                        <div class="text-muted" style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700;">Very Active</div>
-                    </div>
-                    <div class="col-4">
-                        <div class="text-secondary fw-bold fs-5"><?= $status_stats['stable'] ?></div>
-                        <div class="text-muted" style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700;">Stable</div>
+                        <div class="text-secondary fw-bold fs-5" style="line-height: 1;"><?= $status_stats['stable'] ?></div>
+                        <div class="text-muted mt-1" style="font-size: 0.65rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Stable</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="list-container mb-4 p-3 px-4">
-        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+    <!-- Data Filter & Table -->
+    <div class="panel-editorial p-0 overflow-hidden mb-5">
+        
+        <!-- Filter Header Area -->
+        <div class="p-3 p-md-4 border-bottom bg-white d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-3">
             
-            <div class="d-flex flex-wrap gap-2">
+            <!-- Scrollable Nav Pills for Mobile -->
+            <div class="d-flex gap-2 overflow-auto hide-scrollbar pb-2 pb-xl-0" style="white-space: nowrap; -webkit-overflow-scrolling: touch; width: 100%; max-width: 100%;">
                 <a href="<?= buildFilterUrl(['status_filter' => '', 'page' => 1]) ?>" 
-                   class="btn <?= empty($filters['status_filter']) ? 'btn-dark' : 'btn-light text-muted' ?> btn-sm rounded-pill px-3 fw-bold">
-                    Semua <span class="ms-1 opacity-75">(<?= count($all_customers_for_chart) ?>)</span>
+                   class="btn <?= empty($filters['status_filter']) ? 'btn-dark' : 'btn-light text-muted border' ?> btn-sm rounded-pill px-3 fw-bold flex-shrink-0">
+                    Semua <span class="ms-1 opacity-75 fw-normal">(<?= count($all_customers_for_chart) ?>)</span>
                 </a>
                 <a href="<?= buildFilterUrl(['status_filter' => 'high_risk', 'page' => 1]) ?>" 
-                   class="btn <?= $filters['status_filter'] === 'high_risk' ? 'btn-danger' : 'btn-light text-danger' ?> btn-sm rounded-pill px-3 fw-bold">
-                    High Risk <span class="ms-1 opacity-75">(<?= $status_stats['high_risk'] ?>)</span>
+                   class="btn <?= $filters['status_filter'] === 'high_risk' ? 'btn-danger' : 'btn-light text-danger border' ?> btn-sm rounded-pill px-3 fw-bold flex-shrink-0">
+                    High Risk <span class="ms-1 opacity-75 fw-normal">(<?= $status_stats['high_risk'] ?>)</span>
                 </a>
                 <a href="<?= buildFilterUrl(['status_filter' => 'medium_risk', 'page' => 1]) ?>" 
-                   class="btn <?= $filters['status_filter'] === 'medium_risk' ? 'btn-warning' : 'btn-light text-warning' ?> btn-sm rounded-pill px-3 fw-bold">
-                    Medium <span class="ms-1 opacity-75">(<?= $status_stats['medium_risk'] ?>)</span>
+                   class="btn <?= $filters['status_filter'] === 'medium_risk' ? 'btn-warning text-dark' : 'btn-light text-warning border' ?> btn-sm rounded-pill px-3 fw-bold flex-shrink-0">
+                    Medium <span class="ms-1 opacity-75 fw-normal">(<?= $status_stats['medium_risk'] ?>)</span>
                 </a>
                 <a href="<?= buildFilterUrl(['status_filter' => 'very_active', 'page' => 1]) ?>" 
-                   class="btn <?= $filters['status_filter'] === 'very_active' ? 'btn-success' : 'btn-light text-success' ?> btn-sm rounded-pill px-3 fw-bold">
-                    Very Active <span class="ms-1 opacity-75">(<?= $status_stats['very_active'] ?>)</span>
+                   class="btn <?= $filters['status_filter'] === 'very_active' ? 'btn-success' : 'btn-light text-success border' ?> btn-sm rounded-pill px-3 fw-bold flex-shrink-0">
+                    Very Active <span class="ms-1 opacity-75 fw-normal">(<?= $status_stats['very_active'] ?>)</span>
                 </a>
             </div>
 
-            <form method="GET" class="d-flex flex-wrap align-items-center gap-2" id="filterForm">
+            <!-- Form Filter Cerdas -->
+            <form method="GET" class="d-flex flex-wrap align-items-center gap-2 m-0 w-100" id="filterForm">
                 <?php if(!empty($filters['status_filter'])): ?>
                     <input type="hidden" name="status_filter" value="<?= $filters['status_filter'] ?>">
                 <?php endif; ?>
 
-                <div class="input-group input-group-sm" style="width: auto;">
-                    <span class="input-group-text bg-light border-0"><i class="fas fa-calendar"></i></span>
-                    <input type="date" name="tanggal_dari" class="form-control border-0 bg-light" value="<?= $filters['tanggal_dari'] ?>" title="Dari Tanggal">
-                </div>
-                <div class="input-group input-group-sm" style="width: auto;">
-                    <span class="input-group-text bg-light border-0">-</span>
-                    <input type="date" name="tanggal_sampai" class="form-control border-0 bg-light" value="<?= $filters['tanggal_sampai'] ?>" title="Sampai Tanggal">
+                <div class="d-flex align-items-center bg-light rounded-pill px-3 py-1 border border-light flex-grow-1" style="min-width: 220px;">
+                    <i class="fas fa-calendar-alt text-muted me-2" style="font-size: 0.85rem;"></i>
+                    <input type="date" name="tanggal_dari" class="form-control border-0 bg-transparent p-0 text-muted fw-bold" style="width: 100px; font-size: 0.8rem;" value="<?= $filters['tanggal_dari'] ?>" title="Dari Tanggal">
+                    <span class="mx-1 text-muted">-</span>
+                    <input type="date" name="tanggal_sampai" class="form-control border-0 bg-transparent p-0 text-muted fw-bold" style="width: 100px; font-size: 0.8rem;" value="<?= $filters['tanggal_sampai'] ?>" title="Sampai Tanggal">
                 </div>
                 
-                <select name="produk_id" class="form-select form-select-sm border-0 bg-light fw-bold text-muted" style="width: 140px;">
-                    <option value="">Semua Produk</option>
-                    <?php foreach ($all_produk as $produk): ?>
-                        <option value="<?= $produk['id'] ?>" <?= $produk['id'] == $filters['produk_id'] ? 'selected' : '' ?>>
-                            <?= safeHtml($produk['nama']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-
-                <div class="input-group input-group-sm" style="width: 180px;">
-                    <input type="text" name="cari_customer" class="form-control border-0 bg-light" placeholder="Cari nama/WA..." value="<?= $filters['cari_customer'] ?>">
-                    <button type="submit" class="btn btn-light text-primary fw-bold border-0"><i class="fas fa-search"></i></button>
+                <div class="bg-light rounded-pill px-3 py-1 border border-light d-flex align-items-center flex-grow-1" style="min-width: 160px;">
+                    <select name="produk_id" class="form-select border-0 bg-transparent p-0 text-dark fw-bold" style="width: 100%; font-size: 0.85rem; cursor: pointer; box-shadow: none; outline: none;">
+                        <option value="">Semua Produk</option>
+                        <?php foreach ($all_produk as $produk): ?>
+                            <option value="<?= $produk['id'] ?>" <?= $produk['id'] == $filters['produk_id'] ? 'selected' : '' ?>>
+                                <?= truncateText(safeHtml($produk['nama']), 25) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
 
-                <?php if (!empty($active_filters)): ?>
-                    <button type="button" class="btn btn-sm btn-outline-danger border-0" onclick="window.location='detail.php'" title="Reset Filter">
-                        <i class="fas fa-times"></i>
-                    </button>
-                <?php endif; ?>
+                <div class="d-flex align-items-center bg-light rounded-pill px-3 py-1 border border-light flex-grow-1" style="min-width: 200px;">
+                    <i class="fas fa-search text-muted me-2" style="font-size: 0.85rem;"></i>
+                    <input type="text" name="cari_customer" class="form-control border-0 bg-transparent p-0 text-dark fw-bold" placeholder="Cari nama/WA..." value="<?= $filters['cari_customer'] ?>" style="font-size: 0.85rem; outline: none; box-shadow: none;">
+                    <?php if (!empty($active_filters)): ?>
+                        <a href="detail.php" class="text-danger ms-2 text-decoration-none"><i class="fas fa-times-circle"></i></a>
+                    <?php endif; ?>
+                </div>
+                
+                <!-- Tombol submit disembunyikan, di-trigger via JS onChange/onInput -->
+                <button type="submit" class="d-none">Cari</button>
             </form>
+        </div>
+
+        <!-- Tabel Data -->
+        <div class="p-0 bg-light">
+            <?php if (empty($paginated_customers)): ?>
+                <div class="text-center py-5 bg-white">
+                    <div style="width: 80px; height: 80px; background: #F3F4F6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                        <i class="fas fa-search text-muted fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-1">Tidak Ditemukan</h5>
+                    <p class="text-muted">Customer dengan kriteria tersebut tidak ditemukan dalam catatan.</p>
+                    <a href="detail.php" class="btn btn-dark rounded-pill px-4">Reset Pencarian</a>
+                </div>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table-editorial mb-0" style="min-width: 900px;">
+                        <thead class="bg-white">
+                            <tr>
+                                <th width="5%" class="text-center">#</th>
+                                <th width="20%">Info Pelanggan</th>
+                                <th width="18%">Status & Risiko</th>
+                                <th width="15%">Aktivitas</th>
+                                <th width="22%">Produk Terakhir</th>
+                                <th width="10%">Nilai (LTV)</th>
+                                <th width="10%" class="text-end pe-4">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php 
+                            $start_number = ($filters['page'] - 1) * $filters['limit'] + 1;
+                            foreach ($paginated_customers as $index => $customer): 
+                                $behavior = getCustomerBehavior($customer); 
+                                $risk_class = $behavior['status']['class'];
+                                
+                                $progress_color = '#6B7280';
+                                if($risk_class == 'danger') $progress_color = '#EF4444';
+                                if($risk_class == 'warning') $progress_color = '#F59E0B';
+                                if($risk_class == 'success') $progress_color = '#10B981';
+                                if($risk_class == 'info') $progress_color = '#3B82F6';
+                            ?>
+                            <tr>
+                                <td class="text-center text-muted fw-bold" style="font-size: 0.85rem;"><?= $start_number + $index ?></td>
+                                
+                                <td>
+                                    <div class="fw-bold text-dark mb-1" style="font-size: 0.95rem; line-height: 1.2;"><?= safeHtml($customer['customer_nama']) ?></div>
+                                    <a href="https://wa.me/<?= $customer['nomor_wa'] ?>" target="_blank" class="badge-wa badge-clean text-decoration-none" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">
+                                        <i class="fab fa-whatsapp"></i> <?= $customer['nomor_wa'] ?>
+                                    </a>
+                                </td>
+                                
+                                <td>
+                                    <span class="badge-clean" style="background: rgba(var(--bs-<?= $risk_class ?>-rgb), 0.1); color: var(--bs-<?= $risk_class ?>); padding: 0.25rem 0.6rem;">
+                                        <?= $behavior['status']['label'] ?>
+                                    </span>
+                                    <div class="mt-2 d-flex align-items-center gap-2">
+                                        <div style="flex-grow: 1; height: 4px; background: #E5E7EB; border-radius: 4px; overflow: hidden;">
+                                            <div style="width: <?= $behavior['risk_score'] ?>%; height: 100%; background: <?= $progress_color ?>; border-radius: 4px;"></div>
+                                        </div>
+                                        <span style="font-size: 0.7rem; font-weight: 700; color: #9CA3AF; min-width: 25px; text-align: right;"><?= $behavior['risk_score'] ?>%</span>
+                                    </div>
+                                </td>
+                                
+                                <td>
+                                    <div class="fw-bold text-dark" style="font-size: 0.85rem;"><i class="fas fa-shopping-basket text-muted me-1"></i><?= $customer['jumlah_transaksi'] ?> Order</div>
+                                    <div class="text-muted mt-1" style="font-size: 0.75rem;">
+                                        <i class="fas fa-history me-1"></i><?= $behavior['days_since_last'] ?> hari lalu
+                                    </div>
+                                </td>
+                                
+                                <td>
+                                    <div style="font-size: 0.8rem; line-height: 1.4; color: #4B5563;">
+                                        <?php 
+                                        $product_summary = [];
+                                        foreach ($customer['produk_list'] as $produk) {
+                                            $p_name = $produk['nama'];
+                                            if (!isset($product_summary[$p_name])) $product_summary[$p_name] = ['count' => 0];
+                                            $product_summary[$p_name]['count']++;
+                                        }
+                                        arsort($product_summary);
+                                        $top_products = array_slice($product_summary, 0, 2, true);
+                                        foreach ($top_products as $p_name => $summary): 
+                                        ?>
+                                            <div class="text-truncate" style="max-width: 180px;"><span class="text-dark fw-bold">&bull;</span> <?= safeHtml($p_name) ?> <?= $summary['count'] > 1 ? '<span class="text-primary fw-bold">('.$summary['count'].'x)</span>' : '' ?></div>
+                                        <?php endforeach; ?>
+                                        <?php if (count($product_summary) > 2): ?>
+                                            <div class="text-muted fst-italic mt-1" style="font-size: 0.7rem;">+<?= count($product_summary) - 2 ?> item lainnya</div>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                                
+                                <td>
+                                    <div class="fw-bold text-success" style="font-size: 0.95rem;"><?= formatCurrency($customer['total_belanja']) ?></div>
+                                </td>
+                                
+                                <td class="text-end pe-4">
+                                    <div class="d-flex justify-content-end gap-1">
+                                        <?php if ($behavior['status']['action'] == 'retention'): ?>
+                                            <a href="https://wa.me/<?= $customer['nomor_wa'] ?>?text=Hai%20<?= urlencode($customer['customer_nama']) ?>,%20kami%20rindu%20Anda!%20Ada%20promo%20spesial%20nih!" 
+                                               class="btn btn-sm btn-danger rounded-pill fw-bold badge-clean" target="_blank" style="padding: 0.4rem 0.8rem; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);">
+                                                <i class="fas fa-gift me-1"></i> Promo
+                                            </a>
+                                        <?php elseif ($behavior['status']['action'] == 'upsell'): ?>
+                                            <a href="https://wa.me/<?= $customer['nomor_wa'] ?>?text=Hai%20<?= urlencode($customer['customer_nama']) ?>,%20ada%20produk%20premium%20yang%20cocok%20untuk%20Anda!" 
+                                               class="btn btn-sm btn-info text-white rounded-pill fw-bold badge-clean" target="_blank" style="padding: 0.4rem 0.8rem; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);">
+                                                <i class="fas fa-arrow-up me-1"></i> Upsell
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="https://wa.me/<?= $customer['nomor_wa'] ?>?text=Hai%20<?= urlencode($customer['customer_nama']) ?>,%20apa%20kabar?%20Semoga%20sehat%20selalu!" 
+                                               class="btn btn-sm btn-dark rounded-pill fw-bold badge-clean" target="_blank" style="padding: 0.4rem 0.8rem;">
+                                                <i class="fas fa-handshake me-1"></i> Sapa
+                                            </a>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination Modern -->
+                <?php if ($total_pages > 1): ?>
+                <div class="p-3 border-top bg-white d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                    <div class="text-muted small fw-bold text-uppercase" style="letter-spacing: 0.05em;">
+                        Halaman <?= $filters['page'] ?> dari <?= $total_pages ?>
+                    </div>
+                    <div class="d-flex gap-1 overflow-auto hide-scrollbar" style="max-width: 100%;">
+                        <?php if ($filters['page'] > 1): ?>
+                            <a href="<?= buildFilterUrl(['page' => $filters['page'] - 1]) ?>" class="btn btn-sm btn-light text-dark fw-bold border-0 flex-shrink-0"><i class="fas fa-chevron-left"></i></a>
+                        <?php endif; ?>
+                        
+                        <?php 
+                        $start_page = max(1, $filters['page'] - 2);
+                        $end_page = min($total_pages, $filters['page'] + 2);
+                        for ($i = $start_page; $i <= $end_page; $i++): 
+                        ?>
+                            <a href="<?= buildFilterUrl(['page' => $i]) ?>" class="btn btn-sm <?= $i == $filters['page'] ? 'btn-dark' : 'btn-light text-muted' ?> fw-bold border-0 flex-shrink-0" style="min-width: 36px; border-radius: 8px;"><?= $i ?></a>
+                        <?php endfor; ?>
+                        
+                        <?php if ($filters['page'] < $total_pages): ?>
+                            <a href="<?= buildFilterUrl(['page' => $filters['page'] + 1]) ?>" class="btn btn-sm btn-light text-dark fw-bold border-0 flex-shrink-0"><i class="fas fa-chevron-right"></i></a>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+            <?php endif; ?>
         </div>
     </div>
 
-    <div class="product-list-container shadow-sm mb-4">
-        <?php if (empty($paginated_customers)): ?>
-            <div class="text-center py-5">
-                <div style="width: 80px; height: 80px; background: #F3F4F6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
-                    <i class="fas fa-search text-muted fs-2"></i>
-                </div>
-                <h5 class="fw-bold text-dark mb-1">Tidak Ditemukan</h5>
-                <p class="text-muted">Customer dengan kriteria tersebut tidak ditemukan dalam catatan.</p>
-                <a href="detail.php" class="btn btn-dark rounded-pill px-4">Reset Pencarian</a>
-            </div>
-        <?php else: ?>
-            <div class="table-responsive">
-                <table class="table-editorial">
-                    <thead>
-                        <tr>
-                            <th width="40" class="text-center">#</th>
-                            <th>Info Pelanggan</th>
-                            <th>Status & Risiko</th>
-                            <th>Aktivitas</th>
-                            <th>Produk Utama</th>
-                            <th>Nilai Pelanggan</th>
-                            <th class="text-end pe-4">Aksi Cepat</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php 
-                        $start_number = ($filters['page'] - 1) * $filters['limit'] + 1;
-                        foreach ($paginated_customers as $index => $customer): 
-                            $behavior = getCustomerBehavior($customer); 
-                            $risk_class = $behavior['status']['class'];
-                            
-                            // Map bootstrap color to custom hex for subtle progress bar
-                            $progress_color = '#6B7280';
-                            if($risk_class == 'danger') $progress_color = '#EF4444';
-                            if($risk_class == 'warning') $progress_color = '#F59E0B';
-                            if($risk_class == 'success') $progress_color = '#10B981';
-                            if($risk_class == 'info') $progress_color = '#3B82F6';
-                        ?>
-                        <tr>
-                            <td class="text-center text-muted fw-bold" style="font-size: 0.85rem;"><?= $start_number + $index ?></td>
-                            
-                            <td>
-                                <div class="fw-bold text-dark" style="font-size: 0.95rem;"><?= safeHtml($customer['customer_nama']) ?></div>
-                                <a href="https://wa.me/<?= $customer['nomor_wa'] ?>" target="_blank" class="text-muted text-decoration-none" style="font-size: 0.85rem;">
-                                    <i class="fab fa-whatsapp text-success me-1"></i><?= $customer['nomor_wa'] ?>
-                                </a>
-                            </td>
-                            
-                            <td>
-                                <span class="badge-clean" style="background: rgba(var(--bs-<?= $risk_class ?>-rgb), 0.1); color: var(--bs-<?= $risk_class ?>); padding: 0.25rem 0.6rem;">
-                                    <?= $behavior['status']['label'] ?>
-                                </span>
-                                <div class="mt-2 d-flex align-items-center gap-2">
-                                    <div style="flex-grow: 1; height: 4px; background: #F3F4F6; border-radius: 4px; overflow: hidden;">
-                                        <div style="width: <?= $behavior['risk_score'] ?>%; height: 100%; background: <?= $progress_color ?>; border-radius: 4px;"></div>
-                                    </div>
-                                    <span style="font-size: 0.7rem; font-weight: 700; color: #9CA3AF; min-width: 25px; text-align: right;"><?= $behavior['risk_score'] ?>%</span>
-                                </div>
-                            </td>
-                            
-                            <td>
-                                <div class="fw-bold text-dark" style="font-size: 0.9rem;"><?= $customer['jumlah_transaksi'] ?>x Transaksi</div>
-                                <div class="text-muted" style="font-size: 0.8rem;">
-                                    <i class="fas fa-history me-1"></i><?= $behavior['days_since_last'] ?> hari lalu
-                                </div>
-                            </td>
-                            
-                            <td>
-                                <div style="font-size: 0.85rem; line-height: 1.5; color: #4B5563;">
-                                    <?php 
-                                    $product_summary = [];
-                                    foreach ($customer['produk_list'] as $produk) {
-                                        $p_name = $produk['nama'];
-                                        if (!isset($product_summary[$p_name])) $product_summary[$p_name] = ['count' => 0];
-                                        $product_summary[$p_name]['count']++;
-                                    }
-                                    arsort($product_summary);
-                                    $top_products = array_slice($product_summary, 0, 2, true);
-                                    foreach ($top_products as $p_name => $summary): 
-                                    ?>
-                                        <div><span class="text-dark fw-bold">&bull;</span> <?= truncateText(safeHtml($p_name), 20) ?> <?= $summary['count'] > 1 ? '<span class="text-primary fw-bold">('.$summary['count'].'x)</span>' : '' ?></div>
-                                    <?php endforeach; ?>
-                                    <?php if (count($product_summary) > 2): ?>
-                                        <div class="text-muted fst-italic">+<?= count($product_summary) - 2 ?> lainnya</div>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
-                            
-                            <td>
-                                <div class="fw-bold text-primary" style="font-size: 1rem;"><?= formatCurrency($customer['total_belanja']) ?></div>
-                                <div class="text-muted" style="font-size: 0.75rem;">Avg: <?= formatCurrency($customer['total_belanja'] / $customer['jumlah_transaksi']) ?></div>
-                            </td>
-                            
-                            <td class="text-end pe-4">
-                                <div class="d-flex justify-content-end gap-1">
-                                    <a href="https://wa.me/<?= $customer['nomor_wa'] ?>" class="btn-action-icon checkout" target="_blank" title="Chat Biasa">
-                                        <i class="fab fa-whatsapp"></i>
-                                    </a>
-                                    
-                                    <?php if ($behavior['status']['action'] == 'retention'): ?>
-                                        <a href="https://wa.me/<?= $customer['nomor_wa'] ?>?text=Hai%20<?= urlencode($customer['customer_nama']) ?>,%20kami%20rindu%20Anda!%20Ada%20promo%20spesial%20nih!" 
-                                           class="btn btn-sm btn-danger rounded-pill fw-bold" target="_blank" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">
-                                            <i class="fas fa-gift me-1"></i> Promo
-                                        </a>
-                                    <?php elseif ($behavior['status']['action'] == 'upsell'): ?>
-                                        <a href="https://wa.me/<?= $customer['nomor_wa'] ?>?text=Hai%20<?= urlencode($customer['customer_nama']) ?>,%20ada%20produk%20premium%20yang%20cocok%20untuk%20Anda!" 
-                                           class="btn btn-sm btn-info text-white rounded-pill fw-bold" target="_blank" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">
-                                            <i class="fas fa-arrow-up me-1"></i> Upsell
-                                        </a>
-                                    <?php else: ?>
-                                        <a href="https://wa.me/<?= $customer['nomor_wa'] ?>?text=Hai%20<?= urlencode($customer['customer_nama']) ?>,%20apa%20kabar?%20Semoga%20sehat%20selalu!" 
-                                           class="btn btn-sm btn-dark rounded-pill fw-bold" target="_blank" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">
-                                            <i class="fas fa-handshake me-1"></i> Sapa
-                                        </a>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-            
-            <?php if ($total_pages > 1): ?>
-            <div class="p-3 border-top d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
-                <div class="text-muted small fw-bold">
-                    Hal <?= $filters['page'] ?> dari <?= $total_pages ?> (<?= number_format($total_customers) ?> data)
-                </div>
-                <div class="d-flex gap-1">
-                    <?php if ($filters['page'] > 1): ?>
-                        <a href="<?= buildFilterUrl(['page' => $filters['page'] - 1]) ?>" class="btn btn-sm btn-light text-dark fw-bold border-0"><i class="fas fa-chevron-left"></i></a>
-                    <?php endif; ?>
-                    
-                    <?php 
-                    $start_page = max(1, $filters['page'] - 2);
-                    $end_page = min($total_pages, $filters['page'] + 2);
-                    for ($i = $start_page; $i <= $end_page; $i++): 
-                    ?>
-                        <a href="<?= buildFilterUrl(['page' => $i]) ?>" class="btn btn-sm <?= $i == $filters['page'] ? 'btn-dark' : 'btn-light text-muted' ?> fw-bold border-0" style="min-width: 32px;"><?= $i ?></a>
-                    <?php endfor; ?>
-                    
-                    <?php if ($filters['page'] < $total_pages): ?>
-                        <a href="<?= buildFilterUrl(['page' => $filters['page'] + 1]) ?>" class="btn btn-sm btn-light text-dark fw-bold border-0"><i class="fas fa-chevron-right"></i></a>
-                    <?php endif; ?>
-                </div>
-            </div>
-            <?php endif; ?>
-        <?php endif; ?>
-    </div>
-
+    <!-- Insight & Checklist Section -->
     <?php if ($customer_summary['total_customers'] > 0): ?>
     <div class="row g-4 mb-4">
-        <div class="col-md-6">
-            <div class="list-container h-100">
-                <h6 class="fw-bold mb-4"><i class="fas fa-lightbulb text-warning me-2"></i>Insight Bisnis</h6>
+        <div class="col-lg-6">
+            <div class="panel-editorial h-100 p-4">
+                <h6 class="fw-bold mb-4 text-dark"><i class="fas fa-lightbulb text-warning me-2"></i>Insight Bisnis</h6>
                 <?php
-                // Mengambil data dari perhitungan global PHP kamu, bukan dari paginasi tabel
                 $high_risk_count = $status_stats['high_risk']; 
                 $active_count = $status_stats['very_active'] + $status_stats['active'];
                 $total_cust = $customer_summary['total_customers'];
@@ -578,7 +586,7 @@ $paginated_customers = array_slice($filtered_customers, $offset, $filters['limit
                             </div>
                             <div>
                                 <strong class="text-danger d-block mb-1" style="font-size: 0.95rem;"><?= $high_risk_count ?> Customer Berisiko Tinggi</strong>
-                                <span class="text-dark" style="font-size: 0.85rem; line-height: 1.4;">Mereka sudah lama tidak belanja. Segera klik filter "High Risk" di atas dan kirimkan campaign promo retensi (diskon).</span>
+                                <span class="text-dark" style="font-size: 0.85rem; line-height: 1.4;">Mereka sudah lama tidak belanja. Terapkan filter "High Risk" dan kirimkan campaign promo retensi (diskon).</span>
                             </div>
                         </div>
                     <?php endif; ?>
@@ -590,21 +598,21 @@ $paginated_customers = array_slice($filtered_customers, $offset, $filters['limit
                             </div>
                             <div>
                                 <strong class="text-success d-block mb-1" style="font-size: 0.95rem;"><?= $active_count ?> Customer Siap Upsell</strong>
-                                <span class="text-dark" style="font-size: 0.85rem; line-height: 1.4;">Mereka adalah pelanggan aktif. Waktu yang sangat tepat untuk menawarkan produk premium baru kamu.</span>
+                                <span class="text-dark" style="font-size: 0.85rem; line-height: 1.4;">Mereka adalah pelanggan paling aktif. Waktu yang tepat untuk menawarkan produk/paket premium kamu.</span>
                             </div>
                         </div>
                     <?php endif; ?>
 
-                    <div class="row g-2 mt-1">
+                    <div class="row g-3 mt-1">
                         <div class="col-6">
-                            <div class="p-3 rounded-4" style="background: #F9FAFB; border: 1px solid #E5E7EB;">
-                                <div class="text-muted small text-uppercase fw-bold mb-1">Total Revenue</div>
-                                <div class="text-primary fw-bold fs-5"><?= formatCurrency($customer_summary['total_revenue']) ?></div>
+                            <div class="p-3 rounded-4 h-100" style="background: #F9FAFB; border: 1px solid #E5E7EB;">
+                                <div class="text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;">Total LTV Revenue</div>
+                                <div class="text-primary fw-bold fs-5 text-truncate" title="<?= formatCurrency($customer_summary['total_revenue']) ?>"><?= formatCurrency($customer_summary['total_revenue']) ?></div>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="p-3 rounded-4" style="background: #F9FAFB; border: 1px solid #E5E7EB;">
-                                <div class="text-muted small text-uppercase fw-bold mb-1">Repeat Rate</div>
+                            <div class="p-3 rounded-4 h-100" style="background: #F9FAFB; border: 1px solid #E5E7EB;">
+                                <div class="text-muted fw-bold mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;">Repeat Order Rate</div>
                                 <div class="text-primary fw-bold fs-5"><?= $total_cust > 0 ? round(($customer_summary['repeat_customers'] / $total_cust) * 100, 1) : 0 ?>%</div>
                             </div>
                         </div>
@@ -613,33 +621,25 @@ $paginated_customers = array_slice($filtered_customers, $offset, $filters['limit
             </div>
         </div>
 
-        <div class="col-md-6">
-            <div class="list-container h-100">
-                <h6 class="fw-bold mb-4"><i class="fas fa-tasks text-primary me-2"></i>Action Plan Checklist</h6>
-                <div class="d-flex flex-column gap-0">
-                    <label class="row-item" style="cursor: pointer;">
-                        <div class="d-flex align-items-center gap-3">
-                            <input type="checkbox" class="form-check-input mt-0" style="width: 1.25rem; height: 1.25rem;">
-                            <span class="text-dark" style="font-weight: 500; font-size: 0.9rem;">Sapa customer 'Stable' agar kembali 'Active'</span>
-                        </div>
+        <div class="col-lg-6">
+            <div class="panel-editorial h-100 p-4 bg-dark text-white" style="background: linear-gradient(135deg, #111827 0%, #1E3A8A 100%); border: none;">
+                <h6 class="fw-bold mb-4 text-white"><i class="fas fa-tasks text-info me-2"></i>Action Plan Checklist</h6>
+                <div class="d-flex flex-column gap-3 checklist-container">
+                    <label class="checklist-item d-flex align-items-center gap-3 p-2 rounded-3" style="cursor: pointer;">
+                        <input type="checkbox" class="form-check-input mt-0" style="width: 1.25rem; height: 1.25rem; border-color: rgba(255,255,255,0.3); background-color: transparent;">
+                        <span class="text-white" style="font-weight: 500; font-size: 0.9rem;">Sapa customer 'Stable' agar kembali 'Active'</span>
                     </label>
-                    <label class="row-item" style="cursor: pointer;">
-                        <div class="d-flex align-items-center gap-3">
-                            <input type="checkbox" class="form-check-input mt-0" style="width: 1.25rem; height: 1.25rem;">
-                            <span class="text-dark" style="font-weight: 500; font-size: 0.9rem;">Kirim broadcast WhatsApp ke customer baru</span>
-                        </div>
+                    <label class="checklist-item d-flex align-items-center gap-3 p-2 rounded-3" style="cursor: pointer;">
+                        <input type="checkbox" class="form-check-input mt-0" style="width: 1.25rem; height: 1.25rem; border-color: rgba(255,255,255,0.3); background-color: transparent;">
+                        <span class="text-white" style="font-weight: 500; font-size: 0.9rem;">Kirim broadcast WhatsApp ke customer baru</span>
                     </label>
-                    <label class="row-item" style="cursor: pointer;">
-                        <div class="d-flex align-items-center gap-3">
-                            <input type="checkbox" class="form-check-input mt-0" style="width: 1.25rem; height: 1.25rem;">
-                            <span class="text-dark" style="font-weight: 500; font-size: 0.9rem;">Evaluasi produk yang dibeli kelompok 'High Risk'</span>
-                        </div>
+                    <label class="checklist-item d-flex align-items-center gap-3 p-2 rounded-3" style="cursor: pointer;">
+                        <input type="checkbox" class="form-check-input mt-0" style="width: 1.25rem; height: 1.25rem; border-color: rgba(255,255,255,0.3); background-color: transparent;">
+                        <span class="text-white" style="font-weight: 500; font-size: 0.9rem;">Evaluasi produk favorit kelompok 'High Risk'</span>
                     </label>
-                    <label class="row-item border-bottom-0" style="cursor: pointer;">
-                        <div class="d-flex align-items-center gap-3">
-                            <input type="checkbox" class="form-check-input mt-0" style="width: 1.25rem; height: 1.25rem;">
-                            <span class="text-dark" style="font-weight: 500; font-size: 0.9rem;">Tawarkan kupon spesial untuk repeat order</span>
-                        </div>
+                    <label class="checklist-item d-flex align-items-center gap-3 p-2 rounded-3" style="cursor: pointer;">
+                        <input type="checkbox" class="form-check-input mt-0" style="width: 1.25rem; height: 1.25rem; border-color: rgba(255,255,255,0.3); background-color: transparent;">
+                        <span class="text-white" style="font-weight: 500; font-size: 0.9rem;">Tawarkan kupon spesial untuk repeat order</span>
                     </label>
                 </div>
             </div>
@@ -649,10 +649,25 @@ $paginated_customers = array_slice($filtered_customers, $offset, $filters['limit
 
 </div>
 
+<style>
+/* Utilities for Mobile Scrolling */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Interactive Checklist Styling */
+.checklist-item { transition: background 150ms var(--ease-out); border: 1px solid transparent; }
+.checklist-item input:checked { background-color: #10B981; border-color: #10B981; }
+.checklist-item input:checked + span { text-decoration: line-through; opacity: 0.5; }
+
+@media (hover: hover) and (pointer: fine) {
+    .checklist-item:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
+    .checklist-item:active { transform: scale(0.98); }
+}
+</style>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Styling Global Chart
     Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
     
     // Status Chart
@@ -677,13 +692,13 @@ document.addEventListener('DOMContentLoaded', function() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            cutout: '75%', // Bikin lingkaran tipis elegan
+            cutout: '78%', 
             plugins: {
-                legend: { display: false }, // Legend custom di HTML
+                legend: { display: false },
                 tooltip: {
                     backgroundColor: '#111827',
-                    padding: 10,
-                    bodyFont: { weight: 'bold' },
+                    padding: 12,
+                    bodyFont: { weight: 'bold', size: 13 },
                     callbacks: {
                         label: function(context) {
                             const total = context.dataset.data.reduce((a, b) => a + b, 0);
@@ -696,12 +711,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Auto submit form saat input berubah
+    // Auto submit form saat input select/date berubah
     document.querySelectorAll('#filterForm select, #filterForm input[type="date"]').forEach(element => {
         element.addEventListener('change', () => document.getElementById('filterForm').submit());
     });
     
-    // Search dengan Delay (Debounce)
+    // Debounce Search Auto Submit
     let searchTimeout;
     const searchInput = document.querySelector('input[name="cari_customer"]');
     if (searchInput) {
@@ -713,7 +728,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Animasi Export CSV Button
+    // Animasi Export CSV
     const btnExport = document.getElementById('btnExportCSV');
     if (btnExport) {
         btnExport.addEventListener('click', function() {

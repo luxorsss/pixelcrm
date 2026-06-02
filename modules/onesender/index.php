@@ -50,7 +50,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
     <?php endif; ?>
 
     <div class="row g-3 mb-4">
-        <div class="col-xl-3 col-md-6">
+        <div class="col-6 col-md-6 col-xl-3">
             <div class="p-3 rounded-4 border bg-white d-flex align-items-center gap-3 h-100 shadow-sm" style="transition: transform 0.2s;">
                 <div style="width: 48px; height: 48px; background: #F3F4F6; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
                     <i class="fas fa-layer-group text-dark"></i>
@@ -61,7 +61,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6">
+        <div class="col-6 col-md-6 col-xl-3">
             <div class="p-3 rounded-4 border bg-white d-flex align-items-center gap-3 h-100 shadow-sm" style="transition: transform 0.2s;">
                 <div style="width: 48px; height: 48px; background: #ECFDF5; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
                     <i class="fas fa-plug text-success"></i>
@@ -72,7 +72,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6">
+        <div class="col-6 col-md-6 col-xl-3">
             <div class="p-3 rounded-4 border bg-white d-flex align-items-center gap-3 h-100 shadow-sm" style="transition: transform 0.2s;">
                 <div style="width: 48px; height: 48px; background: #EFF6FF; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
                     <i class="fas fa-paper-plane text-primary"></i>
@@ -83,7 +83,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6">
+        <div class="col-6 col-md-6 col-xl-3">
             <div class="p-3 rounded-4 border bg-white d-flex align-items-center gap-3 h-100 shadow-sm" style="transition: transform 0.2s;">
                 <div style="width: 48px; height: 48px; background: #FEF2F2; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
                     <i class="fas fa-check-double text-danger"></i>
