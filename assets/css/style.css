@@ -236,6 +236,16 @@ textarea.form-control-editorial { min-height: 120px; resize: vertical; }
 }
 .btn-submit:active { transform: scale(0.97); }
 
+.btn-cancel {
+    background: white; color: var(--primary-color); border: 1px solid var(--border-light);
+    border-radius: 12px; padding: 0.85rem 1.5rem; font-weight: 700; font-size: 0.95rem;
+    width: 100%; text-align: center; text-decoration: none; transition: all 160ms var(--ease-out);
+    display: inline-block;
+}
+@media (hover: hover) and (pointer: fine) {
+    .btn-cancel:hover { background: #F3F4F6; color: var(--primary-color); border-color: #D1D5DB; }
+}
+
 .btn-action-icon {
     width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;
     border-radius: 10px; font-size: 0.9rem; transition: transform 160ms var(--ease-out), background-color 160ms var(--ease-out); border: 1px solid transparent;
@@ -297,11 +307,11 @@ textarea.form-control-editorial { min-height: 120px; resize: vertical; }
 @media (max-width: 991.98px) {
     /* Tablet & Phone: Sembunyikan Sidebar */
     .sidebar {
-        transform: translateX(-100%); /* Sembunyi ke kiri */
+        transform: translateX(-100%);
     }
     
     .sidebar.show {
-        transform: translateX(0); /* Muncul saat di-toggle */
+        transform: translateX(0);
     }
     
     /* Main content mengambil layar penuh */
@@ -310,7 +320,7 @@ textarea.form-control-editorial { min-height: 120px; resize: vertical; }
     }
     
     .dashboard-wrapper, .content-area {
-        padding: 1rem !important; /* Padding lebih kecil di HP */
+        padding: 1rem !important; 
     }
     
     .dash-title { font-size: 1.25rem; }
@@ -318,6 +328,36 @@ textarea.form-control-editorial { min-height: 120px; resize: vertical; }
     
     /* Hide button text on mobile for action icons */
     .btn-action-text { display: none; }
+
+    /* ====== TAMBAHAN PENTING UNTUK FORM DI HP ====== */
+    /* Mencegah form input/filter melebar dan bocor di HP */
+    form .d-flex {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        width: 100% !important;
+    }
+    
+    /* Pengecualian: Biarkan checkbox/radio dan toggle tetap ke samping */
+    form .d-flex.align-items-start.gap-2,
+    form .d-flex.align-items-center.gap-3:has(input[type="checkbox"]),
+    form .d-flex.align-items-center.gap-3:has(input[type="radio"]) {
+        flex-direction: row !important;
+        align-items: center !important;
+        width: auto !important;
+    }
+
+    /* Membatalkan paksaan min-width pada elemen input di layar kecil */
+    .form-control, .form-select, .bg-light.rounded-pill {
+        min-width: 100% !important;
+        width: 100% !important;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Tombol submit dalam form filter di-stretch agar gampang ditap */
+    form button[type="submit"] {
+        width: 100% !important;
+        margin-top: 0.5rem;
+    }
 }
 
 .upload-zone {

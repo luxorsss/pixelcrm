@@ -22,13 +22,15 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 ?>
 
 <div class="main-content dashboard-wrapper">
-    <div class="dash-header flex-column flex-md-row align-items-start align-items-md-center gap-3 mb-4">
+    <div class="dash-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
-            <h1 class="dash-title">Kelola Kupon Promo</h1>
+            <h1 class="dash-title d-flex align-items-center gap-2">
+                <i class="fas fa-ticket-alt text-primary"></i> Kelola Kupon Promo
+            </h1>
             <div class="text-muted mt-1" style="font-weight: 500; font-size: 0.95rem;">Buat kode diskon untuk promosi dan tarik lebih banyak penjualan.</div>
         </div>
-        <div class="d-flex align-items-center gap-2">
-            <a href="create.php" class="btn btn-primary d-flex align-items-center gap-2" style="border-radius: 12px; font-weight: 700; padding: 0.75rem 1.25rem;">
+        <div class="d-flex align-items-center gap-2 mt-3 mt-md-0">
+            <a href="create.php" class="btn btn-dark fw-bold rounded-pill px-4 shadow-sm">
                 <i class="fas fa-plus"></i> Buat Kupon Baru
             </a>
         </div>

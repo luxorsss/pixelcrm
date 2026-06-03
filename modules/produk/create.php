@@ -202,7 +202,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                         <button type="submit" class="btn-submit">
                             <i class="fas fa-save me-2"></i> <?= isset($produk) ? 'Update Produk' : 'Simpan Produk' ?>
                         </button>
-                        <a href="index.php" class="btn-cancel">Batal</a>
+                        <a href="index.php" class="btn-cancel flex-grow-1 order-2 order-sm-1">Batal</a>
                     </div>
                 </div>
             </div>

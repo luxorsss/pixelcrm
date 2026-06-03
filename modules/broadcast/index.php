@@ -83,9 +83,15 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 <div class="main-content dashboard-wrapper flex-grow-1">
     <div class="form-container" style="max-width: 1400px;">
         
-        <div class="dash-header mb-4">
-            <h1 class="dash-title"><i class="fas fa-bullhorn text-primary me-2"></i> Broadcast Campaign</h1>
-            <p class="text-muted mt-1 fw-medium" style="font-size: 0.95rem;">Kirim pesan massal dengan menargetkan segmentasi RFM dan riwayat transaksi pelanggan.</p>
+        <div class="dash-header d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3 mb-4">
+            <div>
+                <h1 class="dash-title d-flex align-items-center gap-2">
+                    <i class="fas fa-bullhorn text-primary"></i> Broadcast Campaign
+                </h1>
+                <div class="text-muted mt-1" style="font-weight: 500; font-size: 0.95rem;">
+                    Kirim pesan massal berdasarkan segmentasi RFM dan riwayat transaksi pelanggan.
+                </div>
+            </div>
         </div>
 
         <form method="POST" action="proses_kirim.php" id="formBroadcast">

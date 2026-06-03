@@ -27,14 +27,16 @@ if (isPost() && post('delete_all_produk_id')) {
 
 <div class="main-content dashboard-wrapper">
     <!-- Header -->
-    <div class="dash-header flex-column flex-md-row align-items-start align-items-md-center gap-3 mb-4">
+    <div class="dash-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
-            <h1 class="dash-title">Paket Bundling</h1>
+            <h1 class="dash-title d-flex align-items-center gap-2">
+                <i class="fas fa-layer-group text-primary"></i> Paket Bundling
+            </h1>
             <div class="text-muted mt-1" style="font-weight: 500; font-size: 0.95rem;">Kelola penawaran spesial dan diskon gabungan produk.</div>
         </div>
-        <div class="d-flex align-items-center gap-2">
-            <a href="create.php" class="btn btn-primary d-flex align-items-center gap-2" style="border-radius: 12px; font-weight: 700; padding: 0.75rem 1.25rem;">
-                <i class="fas fa-plus"></i> Tambah Bundling
+        <div class="d-flex align-items-center gap-2 mt-3 mt-md-0">
+            <a href="create.php" class="btn btn-dark fw-bold rounded-pill px-4 shadow-sm">
+                <i class="fas fa-plus me-2"></i> Tambah Bundling
             </a>
         </div>
     </div>

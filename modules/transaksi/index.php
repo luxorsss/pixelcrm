@@ -28,21 +28,21 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 <!-- Main Content -->
 <div class="main-content dashboard-wrapper flex-grow-1">
     
-    <div class="dash-header flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div class="dash-header flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3 mb-4">
         <div>
             <h1 class="dash-title d-flex align-items-center gap-2">
                 <i class="fas fa-shopping-basket text-primary"></i> Data Transaksi
             </h1>
             <div class="text-muted mt-1" style="font-weight: 500; font-size: 0.95rem;">Kelola order masuk, ubah status, dan pantau omzet penjualan.</div>
         </div>
-        <div class="d-flex flex-wrap gap-2">
-            <a href="bulk.php" class="btn btn-light text-dark fw-bold border rounded-pill" style="box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
+        <div class="d-flex flex-wrap d-md-flex flex-md-nowrap align-items-center gap-2 w-100 w-lg-auto justify-content-start justify-content-md-end">
+            <a href="bulk.php" class="btn btn-light text-dark fw-bold border rounded-pill text-nowrap flex-grow-1 flex-md-grow-0" style="box-shadow: 0 2px 6px rgba(0,0,0,0.02); padding: 0.6rem 1rem; font-size: 0.85rem;">
                 <i class="fas fa-file-import me-1"></i> Import Order
             </a>
-            <a href="bulk_delete_old.php" class="btn btn-light text-danger fw-bold border rounded-pill" style="box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
-                <i class="fas fa-broom me-1"></i> Bersihkan Data
+            <a href="bulk_delete_old.php" class="btn btn-light text-danger fw-bold border rounded-pill text-nowrap flex-grow-1 flex-md-grow-0" style="box-shadow: 0 2px 6px rgba(0,0,0,0.02); padding: 0.6rem 1rem; font-size: 0.85rem;">
+                <i class="fas fa-broom me-1"></i> Bersihkan
             </a>
-            <a href="create.php" class="btn btn-dark fw-bold rounded-pill" style="box-shadow: 0 4px 12px rgba(17, 24, 39, 0.15);">
+            <a href="create.php" class="btn btn-dark fw-bold rounded-pill text-nowrap flex-grow-1 flex-md-grow-0" style="box-shadow: 0 4px 12px rgba(17, 24, 39, 0.15); padding: 0.6rem 1.25rem; font-size: 0.85rem;">
                 <i class="fas fa-plus me-1"></i> Order Manual
             </a>
         </div>
