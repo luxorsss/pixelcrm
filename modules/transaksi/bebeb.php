@@ -498,6 +498,52 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Initial Load
     loadData(currentPage, currentSearch);
+
+    // Logika Modal Konfirmasi Custom ala Emil Kowalski (<300ms transition)
+    const modal = document.getElementById('custom-confirm-modal');
+    const modalBox = modal.querySelector('.modal-box');
+    const modalMessage = document.getElementById('modal-message');
+    const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+
+    // Kita gunakan event delegation supaya tombol tetap berfungsi setelah AJAX reload halaman
+    document.addEventListener('click', function (e) {
+        const btn = e.target.closest('.btn-verifikasi');
+        if (btn) {
+            e.preventDefault();
+            const id = btn.getAttribute('data-id');
+            const nominal = btn.getAttribute('data-nominal');
+            const nama = btn.getAttribute('data-nama');
+
+            // Set konten teks secara dinamis dengan style bold yang tegas
+            modalMessage.innerHTML = `Verifikasi pembayaran sebesar <strong class="text-success">${nominal}</strong> dari <strong>${nama}</strong>? Tindakan ini tidak dapat dibatalkan.`;
+            
+            // Set href tujuan aksi selesai
+            modalConfirmBtn.href = `update_status.php?id=${encodeURIComponent(id)}&status=selesai`;
+
+            // Tampilkan modal dengan transisi CSS halus (Di bawah 300ms sesuai prinsip kita)
+            modal.style.opacity = '1';
+            modal.style.pointerEvents = 'auto';
+            modalBox.style.transform = 'scale(1) translateY(0)';
+        }
+    });
+
+    const closeModal = () => {
+        modal.style.opacity = '0';
+        modal.style.pointerEvents = 'none';
+        modalBox.style.transform = 'scale(0.95) translateY(10px)'; // Mobile-friendly exit animation
+    };
+
+    modalCancelBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', function (e) {
+        if (e.target === modal) closeModal();
+    });
+
+    // Efek Loading mikro saat tombol konfirmasi final ditekan
+    modalConfirmBtn.addEventListener('click', function () {
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+        this.style.pointerEvents = 'none';
+    });
 });
 </script>   
 </body>
