@@ -118,6 +118,13 @@ try {
             .shortcut-card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px rgba(0,0,0,0.05); border-color: #D1D5DB; }
             .shortcut-card:hover .shortcut-icon { transform: scale(1.1); }
         }
+
+        .list-row-hover:hover {
+            background: #F9FAFB;
+        }
+        .min-w-0 {
+            min-width: 0; /* Trik sakti CSS agar text-truncate bisa bekerja di dalam Flexbox */
+        }
     </style>
 
     <?php if ($transaksi_pending > 0): ?>
@@ -256,14 +263,15 @@ try {
 
     <div class="row g-4 mb-5">
         
+        <!-- PANEL: Order Terbaru -->
         <div class="col-xl-7">
-            <div class="panel-editorial p-0 overflow-hidden h-100">
+            <div class="panel-editorial p-0 overflow-hidden h-100 d-flex flex-column" style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 24px;">
                 <div class="p-4 border-bottom bg-white d-flex justify-content-between align-items-center">
-                    <h3 class="panel-title m-0" style="font-size: 1rem;"><i class="fas fa-receipt text-primary me-2"></i> Order Terbaru</h3>
-                    <a href="<?= BASE_URL ?>modules/transaksi/" class="btn btn-sm btn-light border fw-bold text-dark rounded-pill px-3">Lihat Semua</a>
+                    <h3 class="panel-title m-0" style="font-size: 1rem; font-weight: 700; color: #111827;"><i class="fas fa-receipt text-primary me-2"></i> Order Terbaru</h3>
+                    <a href="<?= BASE_URL ?>modules/transaksi/" class="btn btn-sm btn-light border fw-bold text-dark rounded-pill px-3" style="font-size: 0.8rem;">Lihat Semua</a>
                 </div>
                 
-                <div class="p-0">
+                <div class="p-0 flex-grow-1">
                     <?php if (empty($transaksi_terbaru)): ?>
                         <div class="text-center py-5">
                             <div style="width: 64px; height: 64px; background: #F3F4F6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
@@ -273,40 +281,40 @@ try {
                             <p class="text-muted small m-0">Pecah telur pertama kamu hari ini!</p>
                         </div>
                     <?php else: ?>
-                        <div class="table-responsive">
-                            <table class="table-editorial mb-0">
-                                <tbody>
-                                    <?php foreach ($transaksi_terbaru as $transaksi): ?>
-                                    <tr>
-                                        <td>
-                                            <div class="fw-bold text-dark mb-1" style="font-size: 0.95rem;"><?= clean($transaksi['nama_pelanggan']) ?></div>
-                                            <div class="text-muted d-flex align-items-center gap-2" style="font-size: 0.75rem;">
-                                                <i class="far fa-clock"></i> <?= formatDate($transaksi['tanggal_transaksi'], 'd M Y, H:i') ?>
-                                            </div>
-                                        </td>
-                                        <td class="text-end pe-4">
-                                            <div class="fw-bold text-dark mb-2" style="font-size: 0.95rem;"><?= formatCurrency($transaksi['total_harga']) ?></div>
-                                            <div class="d-inline-block">
-                                                <?= statusBadge($transaksi['status']) ?>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
+                        <!-- Menggunakan Row List yang Adaptif & Anti-Scroll -->
+                        <div class="d-flex flex-column">
+                            <?php foreach ($transaksi_terbaru as $transaksi): ?>
+                            <div class="d-flex justify-content-between align-items-center p-3 border-bottom list-row-hover" style="transition: background 150ms ease; gap: 16px;">
+                                <div class="min-w-0" style="flex: 1;">
+                                    <div class="fw-bold text-dark text-truncate" style="font-size: 0.9rem;" title="<?= clean($transaksi['nama_pelanggan']) ?>">
+                                        <?= clean($transaksi['nama_pelanggan']) ?>
+                                    </div>
+                                    <div class="text-muted d-flex align-items-center gap-1" style="font-size: 0.75rem; margin-top: 2px;">
+                                        <i class="far fa-clock"></i> <span><?= formatDate($transaksi['tanggal_transaksi'], 'd M, H:i') ?></span>
+                                    </div>
+                                </div>
+                                <div class="text-end flex-shrink-0" style="min-width: 100px;">
+                                    <div class="fw-bold text-dark" style="font-size: 0.9rem;"><?= formatCurrency($transaksi['total_harga']) ?></div>
+                                    <div class="mt-1" style="transform: scale(0.9); transform-origin: right-center; display: inline-block;">
+                                        <?= statusBadge($transaksi['status']) ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
                 </div>
             </div>
         </div>
 
+        <!-- PANEL: Terlaris Bulan Ini -->
         <div class="col-xl-5">
-            <div class="panel-editorial p-0 overflow-hidden h-100">
+            <div class="panel-editorial p-0 overflow-hidden h-100 d-flex flex-column" style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 24px;">
                 <div class="p-4 border-bottom bg-white">
-                    <h3 class="panel-title m-0" style="font-size: 1rem;"><i class="fas fa-fire text-danger me-2"></i> Terlaris Bulan Ini</h3>
+                    <h3 class="panel-title m-0" style="font-size: 1rem; font-weight: 700; color: #111827;"><i class="fas fa-fire text-danger me-2"></i> Terlaris Bulan Ini</h3>
                 </div>
                 
-                <div class="p-0 bg-light">
+                <div class="p-0 flex-grow-1" style="background: #FAFAFA;">
                     <?php if (empty($produk_terlaris)): ?>
                         <div class="text-center py-5">
                             <div style="width: 64px; height: 64px; background: #FEF2F2; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
@@ -315,35 +323,31 @@ try {
                             <h6 class="fw-bold text-dark mb-0">Belum Ada Data</h6>
                         </div>
                     <?php else: ?>
-                        <div class="table-responsive">
-                            <table class="table-editorial mb-0">
-                                <tbody>
-                                    <?php foreach ($produk_terlaris as $index => $produk): 
-                                        $medalColor = '#9CA3AF'; // Default gray
-                                        if($index == 0) $medalColor = '#F59E0B'; // Gold
-                                        else if($index == 1) $medalColor = '#94A3B8'; // Silver
-                                        else if($index == 2) $medalColor = '#B45309'; // Bronze
-                                    ?>
-                                    <tr>
-                                        <td width="50" class="text-center">
-                                            <div class="fw-bold d-inline-flex align-items-center justify-content-center" style="width: 28px; height: 28px; background: white; border-radius: 8px; border: 2px solid <?= $medalColor ?>; color: <?= $medalColor ?>; font-size: 0.8rem;">
-                                                <?= $index + 1 ?>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="fw-bold text-dark" style="font-size: 0.9rem; line-height: 1.3;">
-                                                <?= clean($produk['nama']) ?>
-                                            </div>
-                                        </td>
-                                        <td class="text-end pe-4">
-                                            <span class="badge-clean bg-white border" style="color: #059669; border-color: #A7F3D0 !important; box-shadow: 0 2px 4px rgba(16,185,129,0.05);">
-                                                <i class="fas fa-arrow-trend-up me-1"></i> <?= $produk['jumlah_terjual'] ?>x
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
+                        <!-- Row List Editorial Minimalis -->
+                        <div class="d-flex flex-column">
+                            <?php foreach ($produk_terlaris as $index => $produk): 
+                                $medalColor = '#9CA3AF'; 
+                                $medalBg = '#F3F4F6';
+                                if($index == 0) { $medalColor = '#D97706'; $medalBg = '#FEF3C7'; }
+                                else if($index == 1) { $medalColor = '#475569'; $medalBg = '#E2E8F0'; }
+                                else if($index == 2) { $medalColor = '#B45309'; $medalBg = '#FFEDD5'; }
+                            ?>
+                            <div class="d-flex justify-content-between align-items-center p-3 border-bottom" style="gap: 12px;">
+                                <div class="d-flex align-items-center gap-3 min-w-0" style="flex: 1;">
+                                    <div class="fw-bold d-inline-flex align-items-center justify-content-center flex-shrink-0" style="width: 26px; height: 26px; background: <?= $medalBg ?>; border-radius: 8px; color: <?= $medalColor ?>; font-size: 0.75rem; font-weight: 800;">
+                                        <?= $index + 1 ?>
+                                    </div>
+                                    <div class="fw-bold text-dark text-truncate" style="font-size: 0.85rem; line-height: 1.4;" title="<?= clean($produk['nama']) ?>">
+                                        <?= clean($produk['nama']) ?>
+                                    </div>
+                                </div>
+                                <div class="text-end flex-shrink-0">
+                                    <span class="badge-clean bg-white border" style="color: #059669; border-color: #A7F3D0 !important; padding: 4px 10px; border-radius: 100px; font-size: 0.75rem; font-weight: 700; box-shadow: 0 2px 4px rgba(16,185,129,0.02);">
+                                        <i class="fas fa-arrow-trend-up me-1" style="font-size: 0.7rem;"></i> <?= $produk['jumlah_terjual'] ?>x
+                                    </span>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
                 </div>
