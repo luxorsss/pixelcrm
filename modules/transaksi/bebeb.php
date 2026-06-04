@@ -118,7 +118,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
                             </td>
                             <td class="text-end pe-2 pe-md-4">
                                 <a 
-                                    href="update_status.php?id=' . urlencode($trx['id']) . '&status=selesai" 
+                                    href="modules/transaksi/update_status.php?id=' . urlencode($trx['id']) . '&status=selesai"
                                     class="btn-selesai hover-lift d-inline-flex justify-content-center"
                                     onclick="if(confirm(\'Verifikasi pembayaran Rp ' . number_format($trx['total_harga'], 0, ',', '.') . ' dari ' . addslashes(htmlspecialchars($trx['nama_customer'])) . '?\')) { this.innerHTML = \'<i class=\\\'fas fa-spinner fa-spin\\\'></i>\'; this.style.pointerEvents=\'none\'; return true; } else { return false; }"
                                 >
