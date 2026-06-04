@@ -519,7 +519,7 @@ document.addEventListener('DOMContentLoaded', function () {
             modalMessage.innerHTML = `Verifikasi pembayaran sebesar <strong class="text-success">${nominal}</strong> dari <strong>${nama}</strong>? Tindakan ini tidak dapat dibatalkan.`;
             
             // Set href tujuan aksi selesai
-            modalConfirmBtn.href = `update_status.php?id=${encodeURIComponent(id)}&status=selesai`;
+            modalConfirmBtn.href = `modules/transaksi/update_status.php?id=${encodeURIComponent(id)}&status=selesai`;
 
             // Tampilkan modal dengan transisi CSS halus (Di bawah 300ms sesuai prinsip kita)
             modal.style.opacity = '1';
