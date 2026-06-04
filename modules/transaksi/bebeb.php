@@ -117,13 +117,15 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
                                 <div class="text-muted" style="font-size: 0.75rem;"><i class="fas fa-clock me-1"></i>' . date('H:i', strtotime($trx['tanggal'])) . ' WIB</div>
                             </td>
                             <td class="text-end pe-2 pe-md-4">
-                                <a 
-                                    href="modules/transaksi/update_status.php?id=' . urlencode($trx['id']) . '&status=selesai"
-                                    class="btn-selesai hover-lift d-inline-flex justify-content-center"
-                                    onclick="if(confirm(\'Verifikasi pembayaran Rp ' . number_format($trx['total_harga'], 0, ',', '.') . ' dari ' . addslashes(htmlspecialchars($trx['nama_customer'])) . '?\')) { this.innerHTML = \'<i class=\\\'fas fa-spinner fa-spin\\\'></i>\'; this.style.pointerEvents=\'none\'; return true; } else { return false; }"
+                                <button 
+                                    type="button"
+                                    class="btn-selesai hover-lift d-inline-flex justify-content-center border-0 btn-verifikasi"
+                                    data-id="' . htmlspecialchars($trx['id']) . '"
+                                    data-nominal="Rp ' . number_format($trx['total_harga'], 0, ',', '.') . '"
+                                    data-nama="' . addslashes(htmlspecialchars($trx['nama_customer'])) . '"
                                 >
                                     <i class="fas fa-check-circle"></i> <span class="d-none d-sm-inline">Selesai</span>
-                                </a>
+                                </button>
                             </td>
                         </tr>';
         }
@@ -380,6 +382,23 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
                 <div id="pagination-controls" class="overflow-auto hide-scrollbar" style="max-width: 100%;">
                     </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<div id="custom-confirm-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(17, 24, 39, 0.4); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 250ms cubic-bezier(0.16, 1, 0.3, 1);">
+    <div class="modal-box" style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 24px; padding: 2rem; max-width: 400px; width: 90%; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); transform: scale(0.95); transition: transform 250ms cubic-bezier(0.16, 1, 0.3, 1);">
+        <div style="width: 48px; height: 48px; background: #ECFDF5; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
+            <i class="fas fa-wallet text-success" style="font-size: 1.25rem;"></i>
+        </div>
+        <h4 style="font-weight: 700; color: #111827; margin-bottom: 0.5rem; font-size: 1.15rem;">Verifikasi Pembayaran</h4>
+        <p id="modal-message" style="color: #6B7280; font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.5rem;">Apakah kamu yakin ingin memverifikasi pesanan ini?</p>
+        
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+            <button id="modal-cancel-btn" style="background: #F3F4F6; color: #4B5563; border: none; padding: 0.6rem 1.25rem; border-radius: 100px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: background 150ms ease;">Batal</button>
+            <a id="modal-confirm-btn" href="#" style="background: #111827; color: #FFFFFF; border: none; padding: 0.6rem 1.25rem; border-radius: 100px; font-weight: 600; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; transition: background 150ms ease;">
+                <span>Ya, Validasi</span>
+            </a>
         </div>
     </div>
 </div>
