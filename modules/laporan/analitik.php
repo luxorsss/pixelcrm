@@ -182,37 +182,32 @@ $bulan_nama = [
                             <div class="fw-bold text-dark">Belum ada pelanggan</div>
                         </div>
                     <?php else: ?>
-                        <div class="table-responsive">
-                            <table class="table-editorial mb-0">
-                                <tbody>
-                                    <?php foreach ($top_customers as $index => $customer): 
-                                        $medalColor = '#9CA3AF'; 
-                                        if($index == 0) $medalColor = '#F59E0B'; 
-                                        else if($index == 1) $medalColor = '#94A3B8'; 
-                                        else if($index == 2) $medalColor = '#B45309'; 
-                                    ?>
-                                    <tr>
-                                        <td width="50" class="text-center">
-                                            <div class="fw-bold d-inline-flex align-items-center justify-content-center" style="width: 28px; height: 28px; background: white; border-radius: 8px; border: 2px solid <?= $medalColor ?>; color: <?= $medalColor ?>; font-size: 0.8rem;">
-                                                <?= $index + 1 ?>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="fw-bold text-dark text-truncate" style="font-size: 0.95rem; max-width: 150px;"><?= safeHtml($customer['nama']) ?></div>
-                                            <div class="text-muted" style="font-size: 0.75rem;"><i class="fas fa-shopping-basket me-1"></i><?= formatNumber($customer['total_transaksi']) ?> trx</div>
-                                        </td>
-                                        <td class="text-end">
-                                            <div class="fw-bold text-success" style="font-size: 0.95rem;"><?= formatCurrency($customer['total_belanja']) ?></div>
-                                        </td>
-                                        <td width="50" class="text-end pe-4">
-                                            <a href="https://wa.me/<?= $customer['nomor_wa'] ?>" target="_blank" class="btn-action-icon" style="background: #ECFDF5; color: #10B981; border: 1px solid #A7F3D0;" title="Chat Pelanggan">
-                                                <i class="fab fa-whatsapp"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
+                        <div class="d-flex flex-column border-top">
+                            <?php foreach ($top_customers as $index => $customer): 
+                                $medalColor = '#9CA3AF'; 
+                                if($index == 0) $medalColor = '#F59E0B'; 
+                                else if($index == 1) $medalColor = '#94A3B8'; 
+                                else if($index == 2) $medalColor = '#B45309'; 
+                            ?>
+                            <div class="d-flex align-items-center justify-content-between p-3 border-bottom bg-white">
+                                <div class="d-flex align-items-center gap-3 flex-grow-1" style="min-width: 0;">
+                                    <div class="fw-bold d-flex align-items-center justify-content-center flex-shrink-0" style="width: 28px; height: 28px; background: white; border-radius: 8px; border: 2px solid <?= $medalColor ?>; color: <?= $medalColor ?>; font-size: 0.8rem;">
+                                        <?= $index + 1 ?>
+                                    </div>
+                                    <div style="min-width: 0;">
+                                        <div class="fw-bold text-dark text-truncate" style="font-size: 0.95rem;"><?= safeHtml($customer['nama']) ?></div>
+                                        <div class="text-muted text-truncate" style="font-size: 0.75rem;"><i class="fas fa-shopping-basket me-1"></i><?= formatNumber($customer['total_transaksi']) ?> trx</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex align-items-center gap-3 flex-shrink-0 ms-2">
+                                    <div class="fw-bold text-success text-end" style="font-size: 0.95rem;"><?= formatCurrency($customer['total_belanja']) ?></div>
+                                    <a href="https://wa.me/<?= $customer['nomor_wa'] ?>" target="_blank" class="d-flex align-items-center justify-content-center text-decoration-none" style="width: 32px; height: 32px; background: #ECFDF5; color: #10B981; border: 1px solid #A7F3D0; border-radius: 8px;" title="Chat Pelanggan">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -231,32 +226,29 @@ $bulan_nama = [
                             <div class="fw-bold text-dark">Belum ada penjualan</div>
                         </div>
                     <?php else: ?>
-                        <div class="table-responsive">
-                            <table class="table-editorial mb-0">
-                                <tbody>
-                                    <?php foreach ($performa_produk as $index => $produk): 
-                                        $medalColor = '#9CA3AF'; 
-                                        if($index == 0) $medalColor = '#F59E0B'; 
-                                        else if($index == 1) $medalColor = '#94A3B8'; 
-                                        else if($index == 2) $medalColor = '#B45309'; 
-                                    ?>
-                                    <tr>
-                                        <td width="50" class="text-center">
-                                            <div class="fw-bold d-inline-flex align-items-center justify-content-center" style="width: 28px; height: 28px; background: white; border-radius: 8px; border: 2px solid <?= $medalColor ?>; color: <?= $medalColor ?>; font-size: 0.8rem;">
-                                                <?= $index + 1 ?>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="fw-bold text-dark text-truncate" style="font-size: 0.95rem; max-width: 150px;"><?= safeHtml($produk['nama']) ?></div>
-                                            <div class="text-muted" style="font-size: 0.75rem;"><i class="fas fa-tag me-1"></i><?= formatNumber($produk['jumlah_terjual']) ?> terjual</div>
-                                        </td>
-                                        <td class="text-end pe-4">
-                                            <div class="fw-bold text-primary" style="font-size: 0.95rem;"><?= formatCurrency($produk['total_pendapatan']) ?></div>
-                                        </td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
+                        <div class="d-flex flex-column border-top">
+                            <?php foreach ($performa_produk as $index => $produk): 
+                                $medalColor = '#9CA3AF'; 
+                                if($index == 0) $medalColor = '#F59E0B'; 
+                                else if($index == 1) $medalColor = '#94A3B8'; 
+                                else if($index == 2) $medalColor = '#B45309'; 
+                            ?>
+                            <div class="d-flex align-items-center justify-content-between p-3 border-bottom bg-white">
+                                <div class="d-flex align-items-center gap-3 flex-grow-1" style="min-width: 0;">
+                                    <div class="fw-bold d-flex align-items-center justify-content-center flex-shrink-0" style="width: 28px; height: 28px; background: white; border-radius: 8px; border: 2px solid <?= $medalColor ?>; color: <?= $medalColor ?>; font-size: 0.8rem;">
+                                        <?= $index + 1 ?>
+                                    </div>
+                                    <div style="min-width: 0;">
+                                        <div class="fw-bold text-dark text-truncate" style="font-size: 0.95rem;"><?= safeHtml($produk['nama']) ?></div>
+                                        <div class="text-muted text-truncate" style="font-size: 0.75rem;"><i class="fas fa-tag me-1"></i><?= formatNumber($produk['jumlah_terjual']) ?> terjual</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="fw-bold text-primary flex-shrink-0 ms-2 text-end" style="font-size: 0.95rem;">
+                                    <?= formatCurrency($produk['total_pendapatan']) ?>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
                 </div>
