@@ -25,24 +25,44 @@ if (isPost() && post('delete_all_produk_id')) {
 }
 ?>
 
+<style>
+    /* Custom Override untuk Animasi Modal agar terasa lebih organik */
+    .modal.fade .modal-dialog {
+        transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1), opacity 200ms cubic-bezier(0.16, 1, 0.3, 1);
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    .modal.show .modal-dialog {
+        transform: scale(1);
+        opacity: 1;
+    }
+</style>
+
 <div class="main-content dashboard-wrapper">
-    <!-- Header -->
     <div class="dash-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
             <h1 class="dash-title d-flex align-items-center gap-2">
-                <i class="fas fa-layer-group text-primary"></i> Paket Bundling
+                <i class="fas fa-ticket-alt text-primary"></i> Paket Bundling
             </h1>
             <div class="text-muted mt-1" style="font-weight: 500; font-size: 0.95rem;">Kelola penawaran spesial dan diskon gabungan produk.</div>
         </div>
         <div class="d-flex align-items-center gap-2 mt-3 mt-md-0">
             <a href="create.php" class="btn btn-dark fw-bold rounded-pill px-4 shadow-sm">
-                <i class="fas fa-plus me-2"></i> Tambah Bundling
+                <i class="fas fa-plus"></i> Tambah Bundling
             </a>
         </div>
     </div>
 
-    <!-- Content Area -->
     <div class="w-100">
+        <?php if (function_exists('getMessage') && $msg = getMessage()): ?>
+            <div class="alert alert-editorial mb-4" style="border-left-color: <?= $msg[1] === 'error' || $msg[1] === 'danger' ? 'var(--danger-color)' : 'var(--success-color)' ?>;">
+                <div class="d-flex align-items-center">
+                    <i class="fas <?= $msg[1] === 'error' || $msg[1] === 'danger' ? 'fa-exclamation-circle text-danger' : 'fa-check-circle text-success' ?> me-2 fs-5"></i>
+                    <span class="fw-bold text-dark"><?= isset($msg[0]) ? $msg[0] : '' ?></span>
+                </div>
+            </div>
+        <?php endif; ?>
+        
         <?php if (empty($bundlings)): ?>
             <div class="list-container text-center py-5 shadow-sm">
                 <div class="mb-3">
@@ -50,8 +70,8 @@ if (isPost() && post('delete_all_produk_id')) {
                         <i class="fas fa-layer-group text-muted fs-2"></i>
                     </div>
                 </div>
-                <h5 class="fw-bold text-dark mb-1">Belum Ada Bundling</h5>
-                <p class="text-muted mb-4" style="max-width: 400px; margin: 0 auto;">Buat penawaran paket bundling pertamamu untuk menarik pelanggan dan meningkatkan omzet penjualan.</p>
+                <h5 class="fw-bold text-dark mb-1">Belum Ada Bundling Produk</h5>
+                <p class="text-muted mb-4" style="max-width: 400px; margin: 0 auto;">Mulai buat penawaran bundling untuk menarik pelanggan dan meningkatkan penjualan kamu.</p>
                 <a href="create.php" class="btn btn-dark rounded-pill fw-bold px-4">
                     <i class="fas fa-plus me-2"></i>Buat Bundling Pertama
                 </a>
@@ -88,9 +108,9 @@ if (isPost() && post('delete_all_produk_id')) {
                             <tr>
                                 <th width="60" class="text-center">No</th>
                                 <th>Produk Utama</th>
-                                <th width="150" class="text-center">Total Varian</th>
+                                <th width="150" class="text-center">Varian Paket</th>
                                 <th width="220" class="text-end">Total Diskon Diberikan</th>
-                                <th width="150" class="text-end pe-4">Aksi</th>
+                                <th width="120" class="text-end pe-4">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -130,7 +150,7 @@ if (isPost() && post('delete_all_produk_id')) {
                                                 <i class="fas fa-pen"></i>
                                             </a>
                                             <button type="button" class="btn-action-icon delete" title="Hapus Semua Bundling"
-                                                    onclick="confirmDeleteAll(<?= $produk_id ?>, '<?= addslashes(safeHtml($data['produk_utama'])) ?>')">
+                                                    onclick="confirmDeleteAll(<?= $produk_id ?>, '<?= addslashes(clean($data['produk_utama'])) ?>')">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </div>
@@ -156,7 +176,6 @@ if (isPost() && post('delete_all_produk_id')) {
     </div>
 </div>
 
-<!-- Custom Delete All Modal -->
 <div class="modal fade" id="deleteAllModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content" style="border-radius: 24px; border: none; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
@@ -166,11 +185,11 @@ if (isPost() && post('delete_all_produk_id')) {
                 </div>
                 <h5 class="fw-bold text-dark mb-2">Hapus Semua Bundling?</h5>
                 <p class="text-muted small mb-4" style="line-height: 1.5;">
-                    Yakin ingin menghapus seluruh varian bundling untuk <strong id="deleteAllName" class="text-dark"></strong>? 
-                    Tindakan ini permanen dan tidak bisa dibatalkan.
+                    Yakin ingin menghapus seluruh varian bundling untuk produk <strong id="deleteAllName" class="text-dark"></strong>? 
+                    Tindakan ini bersifat permanen.
                 </p>
                 
-                <form method="POST" id="deleteAllForm" class="d-flex gap-2">
+                <form method="POST" id="deleteAllForm" class="d-flex gap-2 w-100">
                     <input type="hidden" name="delete_all_produk_id" id="deleteAllProdukId">
                     <button type="button" class="btn btn-light w-50 fw-bold" data-bs-dismiss="modal" style="border-radius: 12px; transition: all 0.2s;">Batal</button>
                     <button type="submit" class="btn btn-danger w-50 fw-bold" id="confirmDeleteBtn" style="border-radius: 12px; background: #EF4444; border: none; transition: transform 0.2s;">Hapus</button>
@@ -188,7 +207,7 @@ function confirmDeleteAll(produkId, produkName) {
     deleteModal.show();
 }
 
-// Micro-interaction untuk tombol submit
+// Interaksi UX untuk tombol konfirmasi hapus agar tidak diklik dua kali
 document.getElementById('deleteAllForm').addEventListener('submit', function() {
     const btn = document.getElementById('confirmDeleteBtn');
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Proses...';

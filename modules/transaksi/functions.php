@@ -1099,13 +1099,20 @@ function manualUpdateTransactionStatus($transaksi_id, $new_status, $admin_note =
     try {
         db()->begin_transaction();
         
-        // Step 1: Update transaction status
-        $waktu_selesai_sql = $new_status === 'selesai' ? 'NOW()' : 'NULL';
-        $update_result = execute("
-            UPDATE transaksi 
-            SET status = ?, waktu_selesai = " . ($new_status === 'selesai' ? 'NOW()' : 'NULL') . " 
-            WHERE id = ?
-        ", [$new_status, $transaksi_id]);
+        // Step 1: Update transaction status (Perbaikan SQL Dinamis agar aman dari syntax error)
+        if ($new_status === 'selesai') {
+            $update_result = execute("
+                UPDATE transaksi 
+                SET status = ?, waktu_selesai = NOW() 
+                WHERE id = ?
+            ", [$new_status, $transaksi_id]);
+        } else {
+            $update_result = execute("
+                UPDATE transaksi 
+                SET status = ?, waktu_selesai = NULL 
+                WHERE id = ?
+            ", [$new_status, $transaksi_id]);
+        }
         
         if (!$update_result) {
             throw new Exception('Failed to update transaction status');
