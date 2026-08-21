@@ -27,7 +27,7 @@ $errors = [];
 if (isPost()) {
     $data = [
         'nama' => post('nama'),
-        'deskripsi' => clean(post('deskripsi')),
+        'deskripsi' => trim(post('deskripsi')),
         'harga' => post('harga'),
         'show_kupon' => post('show_kupon') ? 1 : 0,
         'show_email' => post('show_email') ? 1 : 0, // <--- PASTIKAN BARIS INI ADA

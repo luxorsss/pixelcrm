@@ -8,24 +8,55 @@ $onesender_accounts = getOneSenderAccounts();
 $errors = [];
 
 // Handle form submission
+// if (isPost()) {
+//     $data = [
+//         'nama' => clean(post('nama')),
+//         'deskripsi' => clean(post('deskripsi')),
+//         'harga' => post('harga'),
+//         'show_kupon' => post('show_kupon') ? 1 : 0,
+//         'show_email' => post('show_email') ? 1 : 0, // <--- PASTIKAN BARIS INI ADA
+//         'link_akses' => clean(post('link_akses')),
+//         'onesender_account' => clean(post('onesender_account')),
+//         'admin_wa' => clean(post('admin_wa')),
+//         'meta_pixel_id' => clean(post('meta_pixel_id')),
+//         'conversion_api_token' => clean(post('conversion_api_token')),
+//         'tracking_aktif' => post('tracking_aktif') ? 1 : 0,
+//         'http_post' => clean(post('http_post')),
+// 		'profit' => (post('profit') === '' || post('profit') === null) 
+//                     ? (float) post('harga') 
+//                     : (float) post('profit')
+
+//     ];
+    
+//     $errors = validateProdukData($data);
+    
+//     if (empty($errors)) {
+//         if (createProduk($data)) {
+//             setMessage('Produk berhasil ditambahkan!', 'success');
+//             redirect('index.php');
+//         } else {
+//             $errors[] = 'Gagal menambahkan produk. Silakan coba lagi.';
+//         }
+//     }
+// }
+
 if (isPost()) {
     $data = [
-        'nama' => clean(post('nama')),
-        'deskripsi' => clean(post('deskripsi')),
+        'nama' => trim(post('nama')),
+        'deskripsi' => trim(post('deskripsi')),
         'harga' => post('harga'),
         'show_kupon' => post('show_kupon') ? 1 : 0,
-        'show_email' => post('show_email') ? 1 : 0, // <--- PASTIKAN BARIS INI ADA
-        'link_akses' => clean(post('link_akses')),
-        'onesender_account' => clean(post('onesender_account')),
-        'admin_wa' => clean(post('admin_wa')),
-        'meta_pixel_id' => clean(post('meta_pixel_id')),
-        'conversion_api_token' => clean(post('conversion_api_token')),
+        'show_email' => post('show_email') ? 1 : 0,
+        'link_akses' => trim(post('link_akses')),
+        'onesender_account' => trim(post('onesender_account')),
+        'admin_wa' => trim(post('admin_wa')),
+        'meta_pixel_id' => trim(post('meta_pixel_id')),
+        'conversion_api_token' => trim(post('conversion_api_token')),
         'tracking_aktif' => post('tracking_aktif') ? 1 : 0,
-        'http_post' => clean(post('http_post')),
-		'profit' => (post('profit') === '' || post('profit') === null) 
+        'http_post' => trim(post('http_post')),
+        'profit' => (post('profit') === '' || post('profit') === null) 
                     ? (float) post('harga') 
                     : (float) post('profit')
-
     ];
     
     $errors = validateProdukData($data);
