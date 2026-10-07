@@ -134,7 +134,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                                 </a>
                             </div>
                         <?php else: ?>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 1rem;">
                                 <?php foreach ($produk_list as $produk): ?>
                                     <label class="product-selector-card" for="produk_<?= $produk['id'] ?>" style="cursor: pointer; display: block; position: relative;">
                                         <input class="form-check-input produk-checkbox position-absolute" type="checkbox" 

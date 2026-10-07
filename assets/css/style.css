@@ -1,44 +1,35 @@
-/* ==========================================================================
-   CRM DIGITAL PRODUCTS STYLESHEET
-   Theme: Editorial & Fintech Approach (Responsive & Mobile First)
-   ========================================================================== */
-
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-/* ==========================================================================
-   1. ROOT VARIABLES & BASE
-   ========================================================================== */
 :root {
-    /* Brand Colors */
     --primary-color: #111827;
     --primary-dark: #000000;
-    --secondary-color: #6B7280;
+    --secondary-color: #4B5563;
     
-    /* Semantic Colors */
     --success-color: #10B981;
     --warning-color: #F59E0B;
     --danger-color: #EF4444;
     --info-color: #3B82F6;
     
-    /* Backgrounds & Borders */
     --bg-body: #F7F7F9;
     --bg-surface: #FFFFFF;
     --border-light: #E5E7EB;
     
-    /* Layout Dimensions */
     --sidebar-width: 250px; 
     --header-height: 70px;
     
-    /* Typography & Shadows */
     --font-family: 'Plus Jakarta Sans', sans-serif;
     --border-radius: 16px;
     --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.03), 0 2px 8px rgba(0,0,0,0.02);
     
-    /* Animations */
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 * { box-sizing: border-box; }
+
+:focus-visible {
+    outline: 2px solid var(--primary-color) !important;
+    outline-offset: 2px !important;
+}
 
 body {
     background-color: var(--bg-body);
@@ -52,14 +43,10 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-
-/* ==========================================================================
-   2. MAIN LAYOUT (RESPONSIVE GRID)
-   ========================================================================== */
+/* Layout */
 .main-content {
     min-height: 100vh;
     background-color: var(--bg-body);
-    /* Sidebar default terbuka di desktop */
     margin-left: var(--sidebar-width);
     transition: margin-left 0.3s var(--ease-out);
 }
@@ -68,10 +55,7 @@ body {
     padding: 2rem !important;
 }
 
-
-/* ==========================================================================
-   3. SIDEBAR (SLEEK DARK MODE)
-   ========================================================================== */
+/* Sidebar */
 .sidebar {
     position: fixed;
     top: 0; left: 0;
@@ -101,7 +85,7 @@ body {
 .nav-group-title {
     padding: 0.5rem 1.5rem; font-size: 0.75rem;
     text-transform: uppercase; letter-spacing: 0.05em;
-    color: #64748B; font-weight: 700;
+    color: #94A3B8; font-weight: 700;
 }
 
 .nav-item { margin: 4px 12px; }
@@ -187,9 +171,7 @@ body {
 .table-editorial td { padding: 1.25rem 1rem; vertical-align: middle; border-bottom: 1px solid #F3F4F6; transition: background-color 160ms var(--ease-out); }
 
 
-/* ==========================================================================
-   6. FORMS & INPUTS (EDITORIAL UI)
-   ========================================================================== */
+/* Forms & Inputs */
 .form-container { width: 100%; margin: 0 auto; }
 .panel-editorial { background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: 20px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
 .panel-title { font-weight: 800; font-size: 1.1rem; color: var(--primary-color); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; }
@@ -197,17 +179,21 @@ body {
 .form-label { font-weight: 700; font-size: 0.8rem; color: var(--secondary-color); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
 
 .form-control-editorial {
-    width: 100%; background-color: #F9FAFB; border: 1px solid transparent; border-radius: 12px;
+    width: 100%; background-color: #F9FAFB; border: 1px solid var(--border-light); border-radius: 12px;
     padding: 0.85rem 1.25rem; font-size: 0.95rem; font-weight: 500; color: var(--primary-color);
     transition: border-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out), background-color 160ms var(--ease-out);
-    box-shadow: none !important;
-    appearance: none; /* Reset mobile styling */
+    appearance: none;
 }
-.form-control-editorial:focus { background-color: var(--bg-surface); border-color: var(--primary-color); box-shadow: 0 0 0 4px rgba(17, 24, 39, 0.08) !important; outline: none; }
-.form-control-editorial::placeholder { color: #9CA3AF; font-weight: 400; }
+.form-control-editorial:focus { 
+    background-color: var(--bg-surface); 
+    border-color: var(--primary-color); 
+    box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.12) !important; 
+    outline: none; 
+}
+.form-control-editorial::placeholder { color: #6B7280; font-weight: 400; }
 textarea.form-control-editorial { min-height: 120px; resize: vertical; }
 
-/* iOS Style Toggles */
+/* Toggles */
 .toggle-switch {
     display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem;
     background: #F9FAFB; border-radius: 12px; border: 1px solid var(--border-light); margin-bottom: 0.5rem;
@@ -224,10 +210,7 @@ textarea.form-control-editorial { min-height: 120px; resize: vertical; }
 .switch-input:checked + .switch-slider { background-color: var(--success-color); }
 .switch-input:checked + .switch-slider::after { transform: translateX(20px); }
 
-
-/* ==========================================================================
-   7. BUTTONS, ICONS & BADGES
-   ========================================================================== */
+/* Buttons & Badges */
 .btn { border-radius: 12px; font-weight: 600; transition: transform 160ms var(--ease-out), box-shadow 160ms var(--ease-out); padding: 0.6rem 1.25rem; }
 
 .btn-submit {
@@ -247,8 +230,8 @@ textarea.form-control-editorial { min-height: 120px; resize: vertical; }
 }
 
 .btn-action-icon {
-    width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;
-    border-radius: 10px; font-size: 0.9rem; transition: transform 160ms var(--ease-out), background-color 160ms var(--ease-out); border: 1px solid transparent;
+    width: 44px; height: 44px; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 12px; font-size: 0.95rem; transition: transform 160ms var(--ease-out), background-color 160ms var(--ease-out); border: 1px solid transparent;
     color: var(--secondary-color); background: transparent; text-decoration: none;
 }
 
@@ -263,21 +246,14 @@ textarea.form-control-editorial { min-height: 120px; resize: vertical; }
 }
 .placeholder-chip:active { transform: scale(0.95); }
 
-
-/* ==========================================================================
-   8. SPECIFIC MODALS & ANIMATIONS
-   ========================================================================== */
+/* Modals */
 .modal.fade .modal-dialog {
     transition: transform 200ms var(--ease-out), opacity 200ms var(--ease-out);
     transform: scale(0.95); opacity: 0;
 }
 .modal.show .modal-dialog { transform: scale(1); opacity: 1; }
 
-
-/* ==========================================================================
-   9. HOVER EFFECTS (ONLY ON DEVICES WITH MOUSE)
-   Ini adalah kunci dari UX Mobile Premium! Hover tidak boleh terpicu oleh sentuhan jari.
-   ========================================================================== */
+/* Pointer & Hover */
 @media (hover: hover) and (pointer: fine) {
     .nav-link:hover { background: rgba(255,255,255,0.05); color: #F8FAFC; transform: translateX(4px); }
     .stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.04); border-color: #D1D5DB; }
@@ -294,10 +270,50 @@ textarea.form-control-editorial { min-height: 120px; resize: vertical; }
     .btn-action-icon.delete:hover { background: #FEF2F2; color: #EF4444; border-color: #FECACA; transform: translateY(-2px); }
 }
 
+/* Mobile Bottom Navigation */
+.mobile-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #FFFFFF;
+    border-top: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    height: 60px;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    z-index: 1025;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.04);
+}
+.bottom-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 44px;
+    min-width: 44px;
+    color: #6B7280;
+    text-decoration: none;
+    background: transparent;
+    border: none;
+    padding: 6px 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    transition: color 150ms var(--ease-out);
+}
+.bottom-nav-item i {
+    font-size: 1.15rem;
+    margin-bottom: 2px;
+}
+.bottom-nav-item.active,
+.bottom-nav-item:hover {
+    color: var(--primary-color);
+}
 
-/* ==========================================================================
-   10. MOBILE RESPONSIVE QUERIES
-   ========================================================================== */
+/* Responsive */
 @media (min-width: 768px) {
     .dash-header { flex-direction: row; align-items: flex-end; }
     .row-item { flex-direction: row; align-items: center; }
@@ -305,7 +321,6 @@ textarea.form-control-editorial { min-height: 120px; resize: vertical; }
 }
 
 @media (max-width: 991.98px) {
-    /* Tablet & Phone: Sembunyikan Sidebar */
     .sidebar {
         transform: translateX(-100%);
     }
@@ -314,9 +329,9 @@ textarea.form-control-editorial { min-height: 120px; resize: vertical; }
         transform: translateX(0);
     }
     
-    /* Main content mengambil layar penuh */
     .main-content {
         margin-left: 0;
+        padding-bottom: calc(75px + env(safe-area-inset-bottom, 0px)) !important;
     }
     
     .dashboard-wrapper, .content-area {
@@ -326,39 +341,73 @@ textarea.form-control-editorial { min-height: 120px; resize: vertical; }
     .dash-title { font-size: 1.25rem; }
     .panel-editorial { padding: 1.25rem; }
     
-    /* Hide button text on mobile for action icons */
     .btn-action-text { display: none; }
 
-    /* ====== TAMBAHAN PENTING UNTUK FORM DI HP ====== */
-    /* Mencegah form input/filter melebar dan bocor di HP */
-    form .d-flex {
-        flex-direction: column !important;
-        align-items: stretch !important;
-        width: 100% !important;
-    }
-    
-    /* Pengecualian: Biarkan checkbox/radio dan toggle tetap ke samping */
-    form .d-flex.align-items-start.gap-2,
-    form .d-flex.align-items-center.gap-3:has(input[type="checkbox"]),
-    form .d-flex.align-items-center.gap-3:has(input[type="radio"]) {
-        flex-direction: row !important;
-        align-items: center !important;
-        width: auto !important;
+    /* Prevent sticky sidebars/previews from monopolizing small mobile screens */
+    .sticky-top {
+        position: static !important;
     }
 
-    /* Membatalkan paksaan min-width pada elemen input di layar kecil */
-    .form-control, .form-select, .bg-light.rounded-pill {
-        min-width: 100% !important;
-        width: 100% !important;
-        margin-bottom: 0.5rem;
+    /* Disable hover pseudo-tooltips on touch devices to avoid horizontal overflow */
+    .segment-item[data-tooltip]::after {
+        display: none !important;
+    }
+
+    /* Filter bar & inline controls preservation */
+    .bg-light.rounded-pill,
+    .filter-pill {
+        display: inline-flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        flex-wrap: nowrap !important;
+        max-width: 100%;
     }
     
-    /* Tombol submit dalam form filter di-stretch agar gampang ditap */
-    form button[type="submit"] {
-        width: 100% !important;
-        margin-top: 0.5rem;
+    .bg-light.rounded-pill .form-control,
+    .bg-light.rounded-pill .form-select,
+    .filter-pill .form-control,
+    .filter-pill .form-select {
+        min-width: 0 !important;
+        width: auto !important;
+        margin-bottom: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .bg-light.rounded-pill input[type="date"],
+    .filter-pill input[type="date"] {
+        width: 110px !important;
+        max-width: 120px !important;
+        min-width: 90px !important;
+        font-size: 0.8rem !important;
+        margin-bottom: 0 !important;
+    }
+
+    /* Table action cell protection */
+    .table-editorial td:last-child {
+        white-space: nowrap !important;
+    }
+    .table-editorial .btn-action-icon {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        min-height: 38px;
+    }
+
+    /* Responsive metrics strip */
+    .metrics-strip {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem !important;
+        padding: 1rem !important;
+        white-space: normal !important;
+    }
+    .metrics-strip > div {
+        border-right: none !important;
+        padding-right: 0 !important;
+        min-width: 0 !important;
     }
 }
+
 
 .upload-zone {
     border: 2px dashed #D1D5DB;

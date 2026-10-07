@@ -51,10 +51,10 @@ $total_attempts = $stats['sent_today'] + $stats['failed_today'];
 $success_rate = $total_attempts > 0 ? round(($stats['sent_today'] / $total_attempts) * 100, 1) : 0;
 ?>
 
-<div class="main-content">
-    <?php require_once '../../includes/sidebar.php'; ?>
-    
-    <div class="content-area">
+<?php require_once '../../includes/sidebar.php'; ?>
+
+<div class="main-content dashboard-wrapper flex-grow-1">
+    <div class="content-area p-0">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h1 class="page-title">Followup Monitor</h1>
@@ -390,5 +390,6 @@ setTimeout(() => {
     location.reload();
 }, 300000);
 </script>
+</div>
 
 <?php require_once '../../includes/footer.php'; ?>

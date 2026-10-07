@@ -7,9 +7,7 @@ require_once 'includes/whatsapp_helper.php';
 require_once 'modules/template/functions.php';
 require_once 'includes/pixel_helper.php';
 
-// --- TAMBAHKAN KODE INI DI BAWAH require_once ---
-
-// Fungsi untuk menghitung CRC16 CCITT
+// Hitung CRC16 CCITT
 function calculateCRC16($str) {
     $crc = 0xFFFF;
     for ($c = 0; $c < strlen($str); $c++) {
@@ -55,7 +53,6 @@ function generateDynamicQRIS($qris_string, $nominal) {
     // 4. Hitung ulang dan tempelkan CRC baru
     return $new_qris . calculateCRC16($new_qris);
 }
-// --- BATAS PENAMBAHAN KODE ---
 
 // Enable browser caching
 header("Cache-Control: public, max-age=3600");
@@ -205,7 +202,7 @@ if ($transaksi['status'] === 'pending' && !isset($_SESSION['addpaymentinfo_sent_
             'content_type' => 'product'
         ];
 
-        // ✅ Gunakan event_id konsisten
+        // Gunakan event_id konsisten
         $event_id = 'addpaymentinfo_' . $transaksi_id;
 
         sendMetaCAPIEvent(
@@ -447,6 +444,40 @@ $bank_logos = [
         
         /* Smooth Alerts */
         .alert-custom { border-radius: 12px; font-weight: 500; font-size: 0.9rem; padding: 1rem; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+
+        @media (max-width: 576px) {
+            .invoice-container {
+                margin: 1.25rem auto 3rem;
+                padding: 0 0.75rem;
+            }
+            .card {
+                border-radius: 18px;
+            }
+            .invoice-header {
+                padding: 1.5rem 1.25rem;
+            }
+            .card-body {
+                padding: 1.25rem;
+            }
+            .bank-item {
+                padding: 1rem;
+            }
+            .bank-details {
+                padding: 0 0.75rem;
+            }
+            .btn-action {
+                min-height: 44px;
+                min-width: 60px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .btn-wa {
+                padding: 1rem;
+                font-size: 1rem;
+                min-height: 48px;
+            }
+        }
     </style>
 </head>
 <body>

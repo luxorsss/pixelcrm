@@ -72,10 +72,10 @@ $logs = fetchAll($logs_query, $params);
 $products = fetchAll("SELECT id, nama FROM produk ORDER BY nama ASC");
 ?>
 
-<div class="main-content">
-    <?php require_once '../../includes/sidebar.php'; ?>
-    
-    <div class="content-area">
+<?php require_once '../../includes/sidebar.php'; ?>
+
+<div class="main-content dashboard-wrapper flex-grow-1">
+    <div class="content-area p-0">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h1 class="page-title">Followup Logs</h1>
@@ -574,5 +574,6 @@ if (new URLSearchParams(window.location.search).get('status') === 'pending') {
     }, 120000);
 }
 </script>
+</div>
 
 <?php require_once '../../includes/footer.php'; ?>

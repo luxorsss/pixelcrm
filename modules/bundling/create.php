@@ -108,7 +108,7 @@ $products = getAllProducts();
                                 <option value="">Pilih Produk Utama</option>
                                 <?php foreach ($products as $p): ?>
                                     <option value="<?= $p['id'] ?>" <?= $produk_id == $p['id'] ? 'selected' : '' ?> data-harga="<?= $p['harga'] ?>">
-                                        <?= clean($p['nama']) ?> — <?= formatCurrency($p['harga']) ?>
+                                        <?= clean($p['nama']) ?> - <?= formatCurrency($p['harga']) ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -214,7 +214,7 @@ function addBundlingItem() {
                     <label class="form-label">Produk Bundling</label>
                     <select name="bundling[${bundlingCount}][produk_id]" class="form-control-editorial bundling-product" data-index="${bundlingCount}" required style="appearance: auto;">
                         <option value="">Pilih Produk Tambahan</option>
-                        ${allProducts.map(p => `<option value="${p.id}" data-harga="${p.harga}">${p.nama} — ${formatRupiahJS(p.harga)}</option>`).join('')}
+                        ${allProducts.map(p => `<option value="${p.id}" data-harga="${p.harga}">${p.nama} - ${formatRupiahJS(p.harga)}</option>`).join('')}
                     </select>
                 </div>
                 <div class="col-md-5">
@@ -350,7 +350,7 @@ function updateTotalPreview() {
             totalNormal += price;
             totalDiskon += diskon;
             itemsBundled.push({
-                name: select.options[select.selectedIndex].text.split(' — ')[0],
+                name: select.options[select.selectedIndex].text.split(' - ')[0],
                 final: Math.max(0, price - diskon)
             });
         }
@@ -361,7 +361,7 @@ function updateTotalPreview() {
 
         let html = `
             <div class="d-flex justify-content-between mb-2 pb-2 border-bottom" style="border-bottom-style: dashed !important;">
-                <span class="fw-bold">1. ${mainProduct.options[mainProduct.selectedIndex].text.split(' — ')[0]}</span>
+                <span class="fw-bold">1. ${mainProduct.options[mainProduct.selectedIndex].text.split(' - ')[0]}</span>
                 <span class="fw-bold">${formatRupiahJS(mainPrice)}</span>
             </div>
         `;

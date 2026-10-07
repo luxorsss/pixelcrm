@@ -27,7 +27,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
         </div>
         <div class="d-flex align-items-center gap-3">
             <div class="dash-date d-none d-sm-flex align-items-center gap-2 px-3 py-2 bg-white border rounded-pill shadow-sm">
-                <div style="width: 8px; height: 8px; background: #3B82F6; border-radius: 50%; box-shadow: 0 0 0 3px #DBEAFE;"></div>
+                <i class="fas fa-boxes text-primary"></i>
                 <span class="fw-bold text-dark" style="font-size: 0.85rem;"><?= $total_records ?> Produk Aktif</span>
             </div>
             <a href="create.php" class="btn btn-dark fw-bold rounded-pill px-4" style="box-shadow: 0 4px 12px rgba(17, 24, 39, 0.15);">
@@ -39,12 +39,11 @@ require_once __DIR__ . '/../../includes/sidebar.php';
     <div class="panel-editorial p-0 overflow-hidden mb-5">
         <?php if (empty($produk_list)): ?>
             <div class="text-center py-5">
-                <div style="width: 100px; height: 100px; background: #F3F4F6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; position: relative;">
+                <div style="width: 100px; height: 100px; background: #F3F4F6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
                     <i class="fas fa-box-open text-muted" style="font-size: 2.5rem;"></i>
-                    <i class="fas fa-sparkles text-warning position-absolute" style="top: -5px; right: -5px; font-size: 1.5rem;"></i>
                 </div>
                 <h4 class="fw-bold text-dark mb-2">Katalog Masih Kosong</h4>
-                <p class="text-muted mb-4 mx-auto" style="max-width: 400px; line-height: 1.6;">Kamu belum menambahkan produk apa pun. Tambahkan produk pertamamu untuk mulai menerima pesanan dan cuan!</p>
+                <p class="text-muted mb-4 mx-auto" style="max-width: 400px; line-height: 1.6;">Kamu belum menambahkan produk apa pun. Tambahkan produk pertamamu untuk mulai menerima pesanan kasir.</p>
                 <a href="create.php" class="btn btn-primary rounded-pill fw-bold px-5 py-3" style="box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);">
                     <i class="fas fa-plus me-2"></i>Buat Produk Pertama
                 </a>
@@ -59,7 +58,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                             <th width="15%">Harga Jual</th>
                             <th width="15%">Profit Bersih</th>
                             <th width="15%">Routing System</th>
-                            <th width="12%" class="text-end pe-4">Aksi Cepat</th>
+                            <th width="15%" style="min-width: 170px;" class="text-end pe-4">Aksi Cepat</th>
                         </tr>
                     </thead>
                     <tbody>

@@ -75,13 +75,13 @@ require_once 'includes/sidebar.php';
                     </div>
                 </div>
                 <a href="cron/followup_scheduler.php" target="_blank" class="btn btn-warning fw-bold btn-sm rounded-pill px-3">
-                    <i class="fas fa-bolt me-1"></i> Trigger Manual
+                    <i class="fas fa-play me-1"></i> Trigger Manual
                 </a>
             </div>
         </div>
     <?php endif; ?>
 
-    <div class="panel-editorial d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 p-3 px-4" style="background: var(--bg-surface);">    
+    <div class="panel-editorial metrics-strip d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 p-3 px-4" style="background: var(--bg-surface);">    
         <div class="d-flex align-items-center gap-3 pe-4 border-end flex-grow-1">
             <div style="width: 44px; height: 44px; background: #ECFDF5; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
                 <i class="fas fa-rocket text-success"></i>

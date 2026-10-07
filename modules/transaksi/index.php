@@ -50,7 +50,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 
     <?php displaySessionMessage(); ?>
     
-    <div class="panel-editorial d-flex flex-wrap flex-md-nowrap justify-content-between align-items-center gap-3 mb-4 p-3 px-4 overflow-auto" style="background: var(--bg-surface); white-space: nowrap;">
+    <div class="panel-editorial metrics-strip d-flex flex-wrap flex-md-nowrap justify-content-between align-items-center gap-3 mb-4 p-3 px-4 overflow-auto" style="background: var(--bg-surface); white-space: nowrap;">
         
         <div class="d-flex align-items-center gap-3 pe-4 border-end" style="min-width: fit-content;">
             <div style="width: 44px; height: 44px; background: #F3F4F6; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
@@ -170,7 +170,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                             <th width="15%" class="text-end">Nominal Order</th>
                             <th width="15%">Waktu Order</th>
                             <th width="15%" class="text-center">Status Final</th>
-                            <th width="25%" class="text-end pe-4">Aksi / Manage</th>
+                            <th width="25%" style="min-width: 190px;" class="text-end pe-4">Aksi / Manage</th>
                         </tr>
                     </thead>
                     <tbody>

@@ -163,7 +163,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                                 <p class="text-muted fw-bold">Belum ada produk untuk dijual.</p>
                             </div>
                         <?php else: ?>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 1rem;">
                                 <?php 
                                     // Ambil array ID produk yang terpilih
                                     $selected_items = post('produk_items', []);

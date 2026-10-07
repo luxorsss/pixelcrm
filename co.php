@@ -14,25 +14,21 @@ require_once 'includes/pixel_helper.php';
 header("Cache-Control: public, max-age=3600");
 header("Expires: " . gmdate('D, d M Y H:i:s \G\M\T', time() + 3600));
 
-// === SIMPAN fbclid ke COOKIE (_fbc) & SESSION ===
+// Simpan fbclid ke cookie dan session
 if (isset($_GET['fbclid']) && !empty($_GET['fbclid'])) {
     $fbclid = trim($_GET['fbclid']);
-    // Validasi: panjang minimal & hanya karakter alfanumerik, -, _
     if (strlen($fbclid) >= 20 && preg_match('/^[a-zA-Z0-9_-]+$/', $fbclid)) {
-        // Set cookie _fbc (standar Meta) — berlaku 30 hari
         setcookie('_fbc', $fbclid, [
             'expires' => time() + 30*24*60*60,
             'path' => '/',
             'domain' => $cookie_domain,
-            'secure' => true,        // Wajib true jika HTTPS (harus aktif!)
-            'httponly' => false,     // false agar JS bisa baca untuk Pixel
-            'samesite' => 'None'     // Wajib untuk cross-site (iklan → LP → checkout)
+            'secure' => true,
+            'httponly' => false,
+            'samesite' => 'None'
         ]);
-        // Simpan juga ke session sebagai fallback
         $_SESSION['fbclid_final'] = $fbclid;
     }
 }
-// === AKHIR SIMPAN fbclid ===
 
 // Get product ID
 $produk_id = (int) get('id');
@@ -66,10 +62,8 @@ if (isPost()) {
     $email = trim(post('email')); // <--- TANGKAP EMAIL
     $bundling_ids = post('bundling_ids', []);
     
-    // === AMBIL fbc dari COOKIE dulu, baru SESSION (lebih andal) ===
     $fbc = $_COOKIE['_fbc'] ?? $_SESSION['fbclid_final'] ?? null;
     $fbp = $_COOKIE['_fbp'] ?? null;
-    // === AKHIR AMBIL fbc ===
     
     // Cek apakah fitur email aktif tapi pengunjung tidak mengisinya
     $is_email_required = (isset($produk['show_email']) && $produk['show_email'] == 1);
@@ -147,7 +141,7 @@ if (isPost()) {
         // Generate UUID (Contoh hasil: INV-8F3A9C2B)
         $uuid = 'INV-' . strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 8));
 
-        // ✅ Simpan transaksi BESERTA DATA KUPON dan UUID
+        // Simpan transaksi dan kupon
         execute("INSERT INTO transaksi (uuid, pelanggan_id, total_harga, status, ip_pelanggan, user_agent_pelanggan, fbc, fbp, kupon_id, total_diskon) 
                  VALUES (?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?)", 
                 [$uuid, $customer_id, $total_harga, $_SERVER['REMOTE_ADDR'] ?? '', $_SERVER['HTTP_USER_AGENT'] ?? '', $fbc, $fbp, $kupon_id, $total_diskon]);
@@ -246,8 +240,8 @@ if (isPost()) {
             }
         }
 
-        // ✅ BERSIHKAN SESSION & COOKIE SETELAH CHECKOUT SUKSES
-        // Agar jika besok dia beli lagi lewat link WA organik, tidak terhitung sebagai konversi iklan lama
+        // Bersihkan session dan cookie setelah checkout sukses
+        // Menghindari atribusi keliru pada pembelian organik berikutnya
         unset($_SESSION['fbclid_final']);
         
         // Hancurkan cookie _fbc di browser pembeli dengan domain dinamis
@@ -490,6 +484,37 @@ $page_title = 'Checkout - ' . $produk['nama'];
         /* Utilities */
         .text-brand { color: var(--brand-color); }
         h6.section-title { font-weight: 700; font-size: 1rem; margin-bottom: 1.25rem; color: var(--text-main); }
+
+        @media (max-width: 576px) {
+            .checkout-container {
+                margin: 1.25rem auto 3rem;
+                padding: 0 0.75rem;
+            }
+            .card {
+                border-radius: 18px;
+            }
+            .card-header {
+                padding: 1.5rem 1.25rem 1rem;
+            }
+            .card-body {
+                padding: 1.25rem;
+            }
+            .product-info {
+                margin-bottom: 1.5rem;
+            }
+            .product-info h5 {
+                font-size: 1rem;
+            }
+            .product-info h6 {
+                font-size: 1.6rem;
+            }
+            .btn-primary {
+                padding: 1rem;
+                font-size: 1rem;
+                min-height: 48px;
+                margin-top: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>

@@ -58,9 +58,8 @@ $products = fetchAll("
         <div class="bg-light">
             <?php if (empty($products)): ?>
                 <div class="text-center py-5 bg-white">
-                    <div style="width: 80px; height: 80px; background: #F3F4F6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem; position: relative;">
+                    <div style="width: 80px; height: 80px; background: #F3F4F6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
                         <i class="fas fa-box-open text-muted fs-2"></i>
-                        <i class="fas fa-sparkles text-warning position-absolute" style="top: -5px; right: -5px; font-size: 1.25rem;"></i>
                     </div>
                     <h5 class="fw-bold text-dark mb-1">Belum Ada Produk</h5>
                     <p class="text-muted mb-4 mx-auto" style="max-width: 400px;">Kamu harus membuat katalog produk terlebih dahulu sebelum dapat mengatur automasi pesannya.</p>

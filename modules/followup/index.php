@@ -151,7 +151,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                                 </td>
                                 
                                 <td class="text-end pe-4">
-                                    <div class="d-flex justify-content-end gap-1">
+                                    <div class="d-flex justify-content-end gap-1 flex-nowrap">
                                         <!-- Tombol Preview yang sudah diperbaiki pakai data-attributes -->
                                         <button type="button" class="btn-action-icon embed btn-preview-wa" title="Lihat Tampilan WA"
                                                 data-pesan="<?= htmlspecialchars($followup['isi_pesan'], ENT_QUOTES) ?>"

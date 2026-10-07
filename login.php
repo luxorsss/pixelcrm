@@ -1,8 +1,6 @@
 <?php
-// === LOGIC SECTION ===
 require_once __DIR__ . '/includes/init.php';
 
-// Redirect if already logged in
 if (isLoggedIn()) {
     redirect('index.php');
 }
@@ -31,8 +29,6 @@ if (isPost()) {
         }
     }
 }
-
-// === PRESENTATION SECTION ===
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -42,44 +38,40 @@ if (isPost()) {
     <title><?= $page_title ?> - <?= APP_NAME ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --brand-primary: #1E3A8A; /* Deep Navy */
-            --brand-accent: #3B82F6;  /* Bright Blue */
-            --surface: #F9FAFB;
+            --brand-primary: #0F172A;
+            --brand-accent: #2563EB;
+            --surface: #F8FAFC;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border-light: #E2E8F0;
         }
         body {
-            font-family: 'Inter', 'Segoe UI', sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: #FFFFFF;
+            color: var(--text-main);
             overflow-x: hidden;
+            margin: 0;
+            padding: 0;
         }
-        /* Split Layout */
+        :focus-visible {
+            outline: 2px solid var(--brand-accent) !important;
+            outline-offset: 2px !important;
+        }
         .split-layout {
             min-height: 100vh;
-            display: flex;
         }
-        /* Left: Branding Side */
         .brand-section {
-            background: linear-gradient(135deg, var(--brand-primary) 0%, #111827 100%);
-            color: white;
-            position: relative;
-            overflow: hidden;
+            background-color: var(--brand-primary);
+            color: #FFFFFF;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             padding: 4rem;
+            position: relative;
         }
-        /* CSS Abstract Pattern */
-        .brand-section::before {
-            content: ''; position: absolute; top: -10%; left: -10%; width: 50%; height: 50%;
-            background: radial-gradient(circle, rgba(59,130,246,0.3) 0%, transparent 70%); border-radius: 50%;
-        }
-        .brand-section::after {
-            content: ''; position: absolute; bottom: -20%; right: -10%; width: 70%; height: 70%;
-            background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%); border-radius: 50%;
-        }
-        
-        /* Right: Form Side */
         .form-section {
             display: flex;
             flex-direction: column;
@@ -89,66 +81,83 @@ if (isPost()) {
         }
         .form-wrapper {
             width: 100%;
-            max-width: 420px;
+            max-width: 400px;
             margin: 0 auto;
-            animation: fadeUp 0.6s ease forwards;
         }
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Form Controls */
         .form-control-custom {
             background-color: var(--surface);
-            border: 1px solid #E5E7EB;
+            border: 1px solid var(--border-light);
             border-radius: 12px;
             padding: 0.85rem 1.2rem;
             font-weight: 500;
-            color: #111827;
-            transition: all 0.2s;
+            color: var(--text-main);
+            transition: border-color 160ms ease, box-shadow 160ms ease;
+            width: 100%;
         }
         .form-control-custom:focus {
             background-color: #FFFFFF;
             border-color: var(--brand-accent);
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
             outline: none;
         }
         .input-icon-wrap { position: relative; }
         .input-icon-wrap i.prefix {
-            position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #9CA3AF;
+            position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted);
+            font-size: 0.95rem;
         }
-        .input-icon-wrap .form-control-custom { padding-left: 45px; }
+        .input-icon-wrap .form-control-custom { padding-left: 46px; }
         .password-toggle {
-            position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
-            color: #9CA3AF; cursor: pointer; border: none; background: none; padding: 0;
+            position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+            color: var(--text-muted); cursor: pointer; border: none; background: none; 
+            width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center;
+            border-radius: 8px;
         }
-        .password-toggle:hover { color: var(--brand-accent); }
+        .password-toggle:hover { color: var(--text-main); }
 
         .btn-brand {
             background-color: var(--brand-primary);
-            color: white;
+            color: #FFFFFF;
             border-radius: 12px;
-            padding: 0.85rem;
-            font-weight: 600;
-            transition: all 0.3s;
+            padding: 0.9rem 1.5rem;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: all 160ms ease;
             border: none;
+            cursor: pointer;
+            width: 100%;
         }
         .btn-brand:hover {
-            background-color: #1E40AF;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(30, 58, 138, 0.2);
-            color: white;
+            background-color: #1E293B;
+            color: #FFFFFF;
+        }
+        .btn-brand:active {
+            transform: scale(0.98);
         }
 
-        .auth-divider {
-            display: flex; align-items: center; text-align: center; margin: 2rem 0; color: #9CA3AF; font-size: 0.85rem; font-weight: 500;
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
         }
-        .auth-divider::before, .auth-divider::after {
-            content: ''; flex: 1; border-bottom: 1px solid #E5E7EB;
+        .feature-icon-box {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: #FFFFFF;
+            font-size: 0.9rem;
         }
-        .auth-divider::before { margin-right: .5em; }
-        .auth-divider::after { margin-left: .5em; }
+        @media (max-width: 576px) {
+            .form-section {
+                padding: 2.5rem 1.25rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -156,21 +165,43 @@ if (isPost()) {
         <div class="row g-0 split-layout">
             
             <div class="col-lg-5 col-xl-6 d-none d-lg-flex brand-section">
-                <div style="position: relative; z-index: 2; max-width: 500px; margin: 0 auto;">
-                    <div style="width: 64px; height: 64px; background: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-                        <i class="fas fa-layer-group fs-2 text-primary"></i>
+                <div>
+                    <div style="width: 48px; height: 48px; background: rgba(255,255,255,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 2rem;">
+                        <i class="fas fa-layer-group fs-4 text-white"></i>
                     </div>
-                    <h1 class="fw-bold mb-4" style="font-size: 3rem; line-height: 1.2;">Kelola Relasi &<br>Transaksi Otomatis</h1>
-                    <p class="opacity-75" style="font-size: 1.1rem; line-height: 1.8;">
-                        Sistem CRM terintegrasi untuk memaksimalkan penjualan, menargetkan pelanggan, dan mengotomatisasi pesan WhatsApp bisnismu.
+                    <div class="text-uppercase tracking-wider fw-bold text-white-50 mb-2" style="font-size: 0.75rem; letter-spacing: 0.08em;"><?= APP_NAME ?></div>
+                    <h1 class="fw-bold mb-3" style="font-size: 2.4rem; line-height: 1.25; letter-spacing: -0.02em;">Operasional & Kasir Digital</h1>
+                    <p class="text-white-50 mb-5" style="font-size: 1rem; line-height: 1.7; max-width: 440px;">
+                        Platform terpadu untuk mengelola katalog, kasir pesanan, integrasi Meta Pixel, dan pengiriman notifikasi WhatsApp.
                     </p>
                     
-                    <div class="mt-5 p-4 rounded-4" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px);">
-                        <div class="d-flex gap-2 mb-2 text-warning">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    <div class="mt-4 pt-4 border-top border-secondary border-opacity-25" style="max-width: 440px;">
+                        <div class="feature-item">
+                            <div class="feature-icon-box"><i class="fas fa-box-open"></i></div>
+                            <div>
+                                <div class="fw-bold text-white" style="font-size: 0.9rem;">Katalog & Bundling</div>
+                                <div class="text-white-50" style="font-size: 0.8rem;">Kelola varian produk digital dan paket penawaran khusus.</div>
+                            </div>
                         </div>
-                        <p class="fst-italic opacity-75 m-0" style="font-size: 0.9rem;">"Platform ini mengubah cara kami mem-follow up pelanggan. Sangat efisien dan mudah digunakan."</p>
+                        <div class="feature-item">
+                            <div class="feature-icon-box"><i class="fas fa-cash-register"></i></div>
+                            <div>
+                                <div class="fw-bold text-white" style="font-size: 0.9rem;">Checkout Otomatis</div>
+                                <div class="text-white-50" style="font-size: 0.8rem;">Halaman invoice mandiri dilengkapi kupon dan QRIS dinamis.</div>
+                            </div>
+                        </div>
+                        <div class="feature-item mb-0">
+                            <div class="feature-icon-box"><i class="fas fa-chart-line"></i></div>
+                            <div>
+                                <div class="fw-bold text-white" style="font-size: 0.9rem;">Pelacakan Pixel & CAPI</div>
+                                <div class="text-white-50" style="font-size: 0.8rem;">Sinkronisasi event purchase dan analitik langsung ke Meta.</div>
+                            </div>
+                        </div>
                     </div>
+                </div>
+
+                <div class="text-white-50" style="font-size: 0.8rem;">
+                    &copy; <?= date('Y') ?> <?= APP_NAME ?> v<?= APP_VERSION ?? '1.0' ?>
                 </div>
             </div>
 
@@ -178,17 +209,17 @@ if (isPost()) {
                 <div class="form-wrapper">
                     
                     <div class="d-lg-none d-flex align-items-center gap-2 mb-4">
-                        <div style="width: 40px; height: 40px; background: var(--brand-primary); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                        <div style="width: 36px; height: 36px; background: var(--brand-primary); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
                             <i class="fas fa-layer-group text-white"></i>
                         </div>
                         <h4 class="fw-bold m-0" style="color: var(--brand-primary);"><?= APP_NAME ?></h4>
                     </div>
 
-                    <h2 class="fw-bold text-dark mb-2">Selamat Datang 👋</h2>
-                    <p class="text-muted mb-4">Silakan masuk menggunakan akun yang terdaftar.</p>
+                    <h2 class="fw-bold text-dark mb-1" style="letter-spacing: -0.02em;">Masuk ke Akun</h2>
+                    <p class="mb-4" style="color: var(--text-muted); font-size: 0.9rem;">Gunakan kredensial pengelola untuk mengakses dashboard.</p>
 
                     <?php if (!empty($errors)): ?>
-                        <div class="alert alert-danger rounded-3 border-0 bg-danger bg-opacity-10 text-danger fw-bold" style="font-size: 0.85rem;">
+                        <div class="alert alert-danger rounded-3 border-0 bg-danger bg-opacity-10 text-danger fw-bold mb-4" style="font-size: 0.85rem;" role="alert">
                             <ul class="mb-0 ps-3">
                                 <?php foreach ($errors as $error): ?>
                                     <li><?= $error ?></li>
@@ -198,46 +229,35 @@ if (isPost()) {
                     <?php endif; ?>
 
                     <form method="POST">
-                        <div class="mb-4">
-                            <label for="username" class="form-label fw-bold text-dark" style="font-size: 0.85rem;">Username</label>
+                        <div class="mb-3">
+                            <label for="username" class="form-label fw-bold" style="font-size: 0.85rem; color: var(--text-main);">Username</label>
                             <div class="input-icon-wrap">
                                 <i class="fas fa-user prefix"></i>
-                                <input type="text" class="form-control-custom w-100" id="username" name="username" 
-                                       value="<?= post('username') ?>" placeholder="Masukkan username Anda" required autocomplete="off">
+                                <input type="text" class="form-control-custom" id="username" name="username" 
+                                       value="<?= post('username') ?>" placeholder="Masukkan username" required autocomplete="username">
                             </div>
                         </div>
                         
-                        <div class="mb-5">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <label for="password" class="form-label fw-bold text-dark m-0" style="font-size: 0.85rem;">Password</label>
-                                </div>
+                        <div class="mb-4">
+                            <label for="password" class="form-label fw-bold" style="font-size: 0.85rem; color: var(--text-main);">Password</label>
                             <div class="input-icon-wrap">
                                 <i class="fas fa-lock prefix"></i>
-                                <input type="password" class="form-control-custom w-100" id="password" name="password" 
-                                       placeholder="••••••••" required>
-                                <button type="button" class="password-toggle" onclick="togglePassword('password', this)">
+                                <input type="password" class="form-control-custom" id="password" name="password" 
+                                       placeholder="••••••••" required autocomplete="current-password">
+                                <button type="button" class="password-toggle" onclick="togglePassword('password', this)" aria-label="Lihat atau sembunyikan password">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
                         </div>
                         
-                        <button type="submit" class="btn-brand w-100">
-                            Masuk ke Dashboard
+                        <button type="submit" class="btn-brand">
+                            Masuk
                         </button>
                     </form>
-                    
-                    <div class="auth-divider">Atau</div>
-                    
-                    <div class="text-center">
-                        <span class="text-muted" style="font-size: 0.9rem;">Belum memiliki akun?</span>
-                        <a href="register.php" class="text-decoration-none fw-bold" style="color: var(--brand-accent); font-size: 0.9rem;">
-                            Daftar Sekarang
-                        </a>
-                    </div>
 
-                    <div class="text-center mt-5">
-                        <small class="text-muted fw-medium" style="font-size: 0.75rem;">
-                            &copy; <?= date('Y') ?> <?= APP_NAME ?> v<?= APP_VERSION ?? '1.0' ?>. All rights reserved.
+                    <div class="text-center mt-5 pt-3 border-top" style="border-color: var(--border-light) !important;">
+                        <small style="color: var(--text-muted); font-size: 0.8rem;">
+                            Sistem internal. Kontak administrator untuk bantuan akses.
                         </small>
                     </div>
 

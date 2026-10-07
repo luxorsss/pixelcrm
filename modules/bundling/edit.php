@@ -254,7 +254,7 @@ function addBundlingItem(selectedProductId = null, selectedDiskon = null, select
                         ${allProducts.map(p => {
                             if (p.id == mainProductId) return '';
                             const selected = (selectedProductId && p.id == selectedProductId) ? 'selected' : '';
-                            return `<option value="${p.id}" data-harga="${p.harga}" ${selected}>${p.nama} — ${formatRupiahJS(p.harga)}</option>`;
+                            return `<option value="${p.id}" data-harga="${p.harga}" ${selected}>${p.nama} - ${formatRupiahJS(p.harga)}</option>`;
                         }).join('')}
                     </select>
                 </div>
@@ -395,7 +395,7 @@ function updateTotalPreview() {
             totalNormal += price;
             totalDiskon += diskon;
             itemsBundled.push({
-                name: select.options[select.selectedIndex].text.split(' — ')[0],
+                name: select.options[select.selectedIndex].text.split(' - ')[0],
                 final: Math.max(0, price - diskon)
             });
         }

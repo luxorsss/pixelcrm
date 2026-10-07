@@ -167,7 +167,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                         <div class="bg-light" style="max-height: 400px; overflow-y: auto;">
                             <div id="preview-container" class="p-3">
                                 <div class="text-center py-5 text-muted">
-                                    <i class="fas fa-magic fa-2x mb-2 opacity-50"></i>
+                                    <i class="fas fa-table fa-2x mb-2 opacity-50"></i>
                                     <div style="font-size: 0.85rem;">Ketik data CSV di samping untuk merender tabel.</div>
                                 </div>
                             </div>
@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!csvData) {
             previewContainer.innerHTML = `
                 <div class="text-center py-5 text-muted">
-                    <i class="fas fa-magic fa-2x mb-2 opacity-50"></i>
+                    <i class="fas fa-table fa-2x mb-2 opacity-50"></i>
                     <div style="font-size: 0.85rem;">Ketik data CSV di samping untuk merender tabel.</div>
                 </div>`;
             previewStats.innerHTML = '';

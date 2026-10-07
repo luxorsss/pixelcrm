@@ -130,7 +130,7 @@ try {
 				if (!empty($transaksi['fbc'])) $user_data['fbc'] = $transaksi['fbc'];
 				if (!empty($transaksi['fbp'])) $user_data['fbp'] = $transaksi['fbp'];
 
-				// ✅ Tambahkan email HANYA jika ada & valid
+				// Tambahkan email jika tersedia dan valid
 				if (!empty($email) && filter_var(trim($email), FILTER_VALIDATE_EMAIL)) {
 					$user_data['em'] = hash('sha256', strtolower(trim($email)));
 				}

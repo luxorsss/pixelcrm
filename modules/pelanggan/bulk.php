@@ -147,7 +147,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                                     <input type="file" class="d-none" id="csv_file" name="csv_file" accept=".csv,.txt">
                                 </div>
 
-                                <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-3 border">
+                                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-3 p-3 bg-light rounded-3 border">
                                     <div class="d-flex align-items-center gap-3">
                                         <i class="fas fa-download text-primary fs-4"></i>
                                         <div>

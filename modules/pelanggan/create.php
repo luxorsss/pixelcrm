@@ -114,7 +114,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                         <div id="normalized-preview" class="badge-clean bg-light text-muted border">-</div>
                     </div>
                     <div class="text-muted" style="font-size: 0.75rem; line-height: 1.5;">
-                        <i class="fas fa-magic text-warning me-1"></i> Sistem akan otomatis menyesuaikan angka nol di depan menjadi kode negara <strong>62</strong>.
+                        <i class="fas fa-info-circle text-primary me-1"></i> Sistem akan otomatis menyesuaikan angka nol di depan menjadi kode negara <strong>62</strong>.
                     </div>
                 </div>
 

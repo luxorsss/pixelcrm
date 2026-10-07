@@ -104,7 +104,7 @@ $placeholders = getAvailablePlaceholders();
                 <div class="col-lg-7">
                     
                     <div class="panel-editorial mb-4" style="background: #F9FAFB; border: 1px dashed var(--border-light);">
-                        <h3 class="panel-title" style="font-size: 1rem;"><i class="fas fa-magic text-primary"></i> Variabel Otomatis (Klik untuk memasukkan)</h3>
+                        <h3 class="panel-title" style="font-size: 1rem;"><i class="fas fa-code text-primary"></i> Variabel Tersedia (Klik untuk memasukkan)</h3>
                         
                         <div class="d-flex flex-column gap-3">
                             <?php foreach ($placeholders as $category => $items): ?>

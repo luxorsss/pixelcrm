@@ -85,12 +85,12 @@ require_once __DIR__ . '/../../includes/sidebar.php';
         </div>
         <div class="col-6 col-md-6 col-xl-3">
             <div class="p-3 rounded-4 border bg-white d-flex align-items-center gap-3 h-100 shadow-sm" style="transition: transform 0.2s;">
-                <div style="width: 48px; height: 48px; background: #FEF2F2; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
-                    <i class="fas fa-check-double text-danger"></i>
+                <div style="width: 48px; height: 48px; background: #ECFDF5; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                    <i class="fas fa-check-double text-success"></i>
                 </div>
                 <div>
                     <div class="text-muted" style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Terkirim Sukses</div>
-                    <div class="fw-bold text-danger fs-4" style="line-height: 1.2;"><?= number_format($stats['success']) ?></div>
+                    <div class="fw-bold text-success fs-4" style="line-height: 1.2;"><?= number_format($stats['success']) ?></div>
                 </div>
             </div>
         </div>
@@ -174,7 +174,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                                 </div>
                             </td>
                             <td class="text-end pe-4">
-                                <div class="d-flex justify-content-end gap-1">
+                                <div class="d-flex justify-content-end gap-1 flex-nowrap">
                                     <a href="test.php?account=<?= urlencode($config['account_name']) ?>" class="btn-action-icon embed" title="Coba Kirim Pesan">
                                         <i class="fas fa-paper-plane"></i>
                                     </a>

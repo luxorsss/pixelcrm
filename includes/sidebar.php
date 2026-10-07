@@ -21,7 +21,7 @@ function isActive($page, $module = '')
             </div>
             <?= APP_NAME ?>
         </h4>
-        <button type="button" class="btn btn-link text-white d-lg-none p-0 opacity-50" onclick="closeSidebar()" style="text-decoration: none;">
+        <button type="button" class="btn btn-link text-white d-lg-none p-0 opacity-75" onclick="closeSidebar()" aria-label="Tutup Navigasi" style="width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
             <i class="fas fa-times fs-4"></i>
         </button>
     </div>
@@ -160,18 +160,21 @@ function isActive($page, $module = '')
 
     window.addEventListener('resize', function () {
         if (window.innerWidth > 991) {
-            closeSidebar(); // Reset status jika ditarik ke layar lebar
+            closeSidebar();
         }
     });
 
-    // Menutup sidebar jika layar digeser/diswipe ke kiri (Opsional tapi UX banget)
     let touchstartX = 0;
     let touchendX = 0;
     
-    document.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, {passive: true});
+    document.addEventListener('touchstart', e => { 
+        touchstartX = e.changedTouches[0].screenX; 
+    }, {passive: true});
+
     document.addEventListener('touchend', e => {
         touchendX = e.changedTouches[0].screenX;
-        if (touchstartX - touchendX > 50) { // Geser ke kiri
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar && sidebar.classList.contains('show') && (touchstartX - touchendX > 50)) {
             closeSidebarMobile();
         }
     }, {passive: true});

@@ -145,7 +145,7 @@ if (isPost() && post('delete_all_produk_id')) {
                                     </td>
                                     
                                     <td class="text-end pe-4">
-                                        <div class="d-flex justify-content-end gap-1">
+                                        <div class="d-flex justify-content-end gap-1 flex-nowrap">
                                             <a href="edit.php?produk_id=<?= $produk_id ?>" class="btn-action-icon edit" title="Kelola Bundling">
                                                 <i class="fas fa-pen"></i>
                                             </a>

@@ -146,7 +146,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                                 </td>
                                 
                                 <td class="text-end pe-4">
-                                    <div class="d-flex justify-content-end gap-1">
+                                    <div class="d-flex justify-content-end gap-1 flex-nowrap">
                                         <a href="edit.php?id=<?= $k['id'] ?>" class="btn-action-icon edit" title="Edit Kupon">
                                             <i class="fas fa-pen"></i>
                                         </a>
