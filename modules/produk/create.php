@@ -8,21 +8,20 @@ $onesender_accounts = getOneSenderAccounts();
 $active_pixels = fetchAll("SELECT id, nama, meta_pixel_id FROM pixels WHERE is_active = 1 ORDER BY nama ASC");
 $errors = [];
 
-// Handle form submission
 if (isPost()) {
     $data = [
         'nama' => trim(post('nama')),
         'deskripsi' => trim(post('deskripsi')),
         'harga' => post('harga'),
         'show_kupon' => post('show_kupon') ? 1 : 0,
-        'show_email' => post('show_email') ? 1 : 0, // <--- PASTIKAN BARIS INI ADA
-        'link_akses' => clean(post('link_akses')),
-        'onesender_account' => clean(post('onesender_account')),
-        'admin_wa' => clean(post('admin_wa')),
+        'show_email' => post('show_email') ? 1 : 0,
+        'link_akses' => trim(post('link_akses')),
+        'onesender_account' => trim(post('onesender_account')),
+        'admin_wa' => trim(post('admin_wa')),
         'pixel_id' => post('pixel_id') ? (int)post('pixel_id') : null,
         'tracking_aktif' => post('tracking_aktif') ? 1 : 0,
-        'http_post' => clean(post('http_post')),
-		'profit' => (post('profit') === '' || post('profit') === null) 
+        'http_post' => trim(post('http_post')),
+        'profit' => (post('profit') === '' || post('profit') === null) 
                     ? (float) post('harga') 
                     : (float) post('profit')
     ];
