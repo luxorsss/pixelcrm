@@ -8,6 +8,7 @@ $cookie_domain = '.' . preg_replace('/^www\./', '', $current_host);
  */
 require_once 'includes/init.php';
 require_once 'modules/followup/functions.php';
+require_once 'includes/pixel_helper.php';
 
 // Enable browser caching
 header("Cache-Control: public, max-age=3600");
@@ -33,49 +34,6 @@ if (isset($_GET['fbclid']) && !empty($_GET['fbclid'])) {
 }
 // === AKHIR SIMPAN fbclid ===
 
-// Function untuk kirim CAPI — DIPERBAIKI: hapus spasi di URL
-function sendMetaCAPIEvent($access_token, $pixel_id, $event_name, $user_data, $custom_data = [], $event_id = null) {
-    if (!$event_id) {
-        $event_id = uniqid('event_', true);
-    }
-    // ✅ Perbaikan: HAPUS SPASI di URL (sebelumnya: '/ ' . $pixel_id)
-    $capi_url = 'https://graph.facebook.com/v20.0/' . $pixel_id . '/events';
-
-    $data = [
-        'data' => [
-            [
-                'event_name' => $event_name,
-                'event_time' => time(),
-                'event_id' => $event_id,
-                'action_source' => 'website',
-                'user_data' => $user_data,
-                'custom_data' => $custom_data
-            ]
-        ],
-        'access_token' => $access_token
-    ];
-
-    $ch = curl_init($capi_url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json'
-    ]);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true); // Dinaikkan ke true
-
-    $response = curl_exec($ch);
-    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    if ($http_code !== 200) {
-        error_log("CAPI Error ({$event_name}): HTTP {$http_code}, Response: " . $response);
-    }
-
-    return $response;
-}
-
 // Get product ID
 $produk_id = (int) get('id');
 if (!$produk_id) {
@@ -88,6 +46,7 @@ if (!$produk) {
     setMessage('Produk tidak ditemukan', 'error');
     redirect('index.php');
 }
+$pixel_config = getPixelForProduk($produk);
 
 // Get the HTTP POST URL from product
 $post_url = $produk['http_post'];
@@ -244,20 +203,23 @@ if (isPost()) {
             error_log("Failed to generate smart followup queue for transaction $transaksi_id: " . $e->getMessage());
         }
 
-        // Kirim AddToCart via CAPI
-        if (!empty($produk['conversion_api_token']) && !empty($produk['meta_pixel_id'])) {
-            if (!isset($_SESSION['addtocart_sent_' . $transaksi_id])) {
+        // Kirim InitiateCheckout via CAPI saat pesanan dibuat
+        if ($pixel_config && !empty($pixel_config['conversion_api_token'])) {
+            if (!isset($_SESSION['initiatecheckout_sent_' . $transaksi_id])) {
                 $user_data = [
                     'ph' => hash('sha256', $nomor_wa),
                     'client_ip_address' => $_SERVER['REMOTE_ADDR'] ?? '',
                     'client_user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? ''
                 ];
+                if (!empty($email) && filter_var(trim($email), FILTER_VALIDATE_EMAIL)) {
+                    $user_data['em'] = hash('sha256', strtolower(trim($email)));
+                }
                 if ($fbc) $user_data['fbc'] = $fbc;
                 if ($fbp) $user_data['fbp'] = $fbp;
 
                 $custom_data = [
                     'currency' => 'IDR',
-                    'value' => (float) $produk['harga'],
+                    'value' => (float) $total_harga,
                     'content_ids' => [(string) $produk_id],
                     'contents' => [
                         [
@@ -268,18 +230,19 @@ if (isPost()) {
                     'content_type' => 'product'
                 ];
 
-                $event_id = 'addtocart_' . $transaksi_id;
+                $event_id = 'initiatecheckout_' . $transaksi_id;
 
                 sendMetaCAPIEvent(
-                    $produk['conversion_api_token'],
-                    $produk['meta_pixel_id'],
-                    'AddToCart',
+                    $pixel_config['conversion_api_token'],
+                    $pixel_config['meta_pixel_id'],
+                    'InitiateCheckout',
                     $user_data,
                     $custom_data,
-                    $event_id
+                    $event_id,
+                    $pixel_config['test_event_code'] ?? null
                 );
 
-                $_SESSION['addtocart_sent_' . $transaksi_id] = true;
+                $_SESSION['initiatecheckout_sent_' . $transaksi_id] = true;
             }
         }
 
@@ -287,8 +250,8 @@ if (isPost()) {
         // Agar jika besok dia beli lagi lewat link WA organik, tidak terhitung sebagai konversi iklan lama
         unset($_SESSION['fbclid_final']);
         
-        // Hancurkan cookie _fbc di browser pembeli
-        setcookie('_fbc', '', time() - 3600, '/', '.edumuslim.my.id', true, false);
+        // Hancurkan cookie _fbc di browser pembeli dengan domain dinamis
+        setcookie('_fbc', '', time() - 3600, '/', $cookie_domain, true, false);
 
         redirect("invoice.php?uuid=$uuid");
     }
@@ -640,43 +603,19 @@ $page_title = 'Checkout - ' . $produk['nama'];
     </div>
 </div>
 
-<!-- Meta Pixel Code -->
-<script>
-    !function(f,b,e,v,n,t,s)
-    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window, document,'script',
-    'https://connect.facebook.net/en_US/fbevents.js');
-    
-    // ✅ Ambil fbc dari COOKIE (standar Meta), lalu fallback ke session PHP
-    <?php
-    // Baca dari cookie (lebih andal di JS)
-    $fbc_js = $_COOKIE['_fbc'] ?? $_SESSION['fbclid_final'] ?? null;
-    $fbp_js = $_COOKIE['_fbp'] ?? null;
-    ?>
-
-    fbq('init', '<?= $produk['meta_pixel_id'] ?>', {
-        <?php if ($fbc_js): ?>'fbc': '<?= addslashes($fbc_js) ?>',<?php endif; ?>
-        <?php if ($fbp_js): ?>'fbp': '<?= addslashes($fbp_js) ?>',<?php endif; ?>
-        'agent': 'pl_web'
-    });
-    
-    fbq('track', 'AddToCart', {
-        content_ids: ['<?= $produk['id'] ?>'],
-        content_name: '<?= addslashes($produk['nama']) ?>',
-        content_type: 'product',
-        value: <?= $produk['harga'] ?>,
-        currency: 'IDR'
-    });
-</script>
-<noscript>
-    <img height="1" width="1" style="display:none"
-         src="https://www.facebook.com/tr?id=<?= $produk['meta_pixel_id'] ?>&ev=AddToCart&noscript=1"/>
-</noscript>
-<!-- End Meta Pixel Code -->
+<?php if ($pixel_config && !empty($pixel_config['meta_pixel_id'])): ?>
+    <?= renderMetaPixelScript(
+        $pixel_config['meta_pixel_id'],
+        'InitiateCheckout',
+        [
+            'content_ids' => [(string)$produk['id']],
+            'content_name' => $produk['nama'],
+            'content_type' => 'product',
+            'value' => (float)$produk['harga'],
+            'currency' => 'IDR'
+        ]
+    ) ?>
+<?php endif; ?>
 
 <!-- Minified JS with defer -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>

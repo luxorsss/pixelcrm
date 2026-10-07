@@ -29,21 +29,34 @@ function getProdukById($id) {
 
 // Create new produk
 function createProduk($data) {
-    // Tambahkan show_kupon, show_email
-    $sql = "INSERT INTO produk (nama, deskripsi, harga, show_kupon, show_email, link_akses, onesender_account, admin_wa, meta_pixel_id, conversion_api_token, tracking_aktif, http_post, profit) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $pixel_id = !empty($data['pixel_id']) ? (int)$data['pixel_id'] : null;
+    $meta_pixel_id = $data['meta_pixel_id'] ?? '';
+    $conversion_api_token = $data['conversion_api_token'] ?? '';
+    
+    // Sinkronisasi data pixel jika pixel_id dipilih
+    if ($pixel_id) {
+        $px = fetchRow("SELECT meta_pixel_id, conversion_api_token FROM pixels WHERE id = ?", [$pixel_id]);
+        if ($px) {
+            $meta_pixel_id = $px['meta_pixel_id'];
+            $conversion_api_token = $px['conversion_api_token'];
+        }
+    }
+    
+    $sql = "INSERT INTO produk (nama, deskripsi, harga, show_kupon, show_email, link_akses, onesender_account, admin_wa, pixel_id, meta_pixel_id, conversion_api_token, tracking_aktif, http_post, profit) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
     $params = [
         $data['nama'],
         $data['deskripsi'],
         $data['harga'],
-        $data['show_kupon'] ?? 0, // <--- BARU
-        $data['show_email'] ?? 0, // <--- BARU
+        $data['show_kupon'] ?? 0,
+        $data['show_email'] ?? 0,
         $data['link_akses'],
         $data['onesender_account'],
         $data['admin_wa'],
-        $data['meta_pixel_id'] ?? '',
-        $data['conversion_api_token'] ?? '',
+        $pixel_id,
+        $meta_pixel_id,
+        $conversion_api_token,
         $data['tracking_aktif'] ?? 0,
         $data['http_post'] ?? '',
         $data['profit'] ?? 0 
@@ -53,10 +66,25 @@ function createProduk($data) {
 }
 
 function updateProduk($id, $data) {
-    // Tambahkan show_kupon, show_email
+    $pixel_id = !empty($data['pixel_id']) ? (int)$data['pixel_id'] : null;
+    $meta_pixel_id = $data['meta_pixel_id'] ?? '';
+    $conversion_api_token = $data['conversion_api_token'] ?? '';
+    
+    // Sinkronisasi data pixel jika pixel_id dipilih
+    if ($pixel_id) {
+        $px = fetchRow("SELECT meta_pixel_id, conversion_api_token FROM pixels WHERE id = ?", [$pixel_id]);
+        if ($px) {
+            $meta_pixel_id = $px['meta_pixel_id'];
+            $conversion_api_token = $px['conversion_api_token'];
+        }
+    } else {
+        $meta_pixel_id = '';
+        $conversion_api_token = '';
+    }
+    
     $sql = "UPDATE produk SET 
             nama = ?, deskripsi = ?, harga = ?, show_kupon = ?, show_email = ?, link_akses = ?, 
-            onesender_account = ?, admin_wa = ?, meta_pixel_id = ?, 
+            onesender_account = ?, admin_wa = ?, pixel_id = ?, meta_pixel_id = ?, 
             conversion_api_token = ?, tracking_aktif = ?, http_post = ?,
             profit = ?
             WHERE id = ?";
@@ -65,13 +93,14 @@ function updateProduk($id, $data) {
         $data['nama'],
         $data['deskripsi'],
         $data['harga'],
-        $data['show_kupon'] ?? 0, // <--- BARU
-        $data['show_email'] ?? 0, // <--- BARU
+        $data['show_kupon'] ?? 0,
+        $data['show_email'] ?? 0,
         $data['link_akses'],
         $data['onesender_account'],
         $data['admin_wa'],
-        $data['meta_pixel_id'] ?? '',
-        $data['conversion_api_token'] ?? '',
+        $pixel_id,
+        $meta_pixel_id,
+        $conversion_api_token,
         $data['tracking_aktif'] ?? 0,
         $data['http_post'] ?? '',
         $data['profit'] ?? 0,

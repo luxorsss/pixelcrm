@@ -22,20 +22,20 @@ if (!$produk) {
 }
 
 $onesender_accounts = getOneSenderAccounts();
+$active_pixels = fetchAll("SELECT id, nama, meta_pixel_id FROM pixels WHERE is_active = 1 OR id = ? ORDER BY nama ASC", [(int)($produk['pixel_id'] ?? 0)]);
 $errors = [];
 
 if (isPost()) {
     $data = [
         'nama' => post('nama'),
-        'deskripsi' => clean(post('deskripsi')),
+        'deskripsi' => trim(post('deskripsi')),
         'harga' => post('harga'),
         'show_kupon' => post('show_kupon') ? 1 : 0,
         'show_email' => post('show_email') ? 1 : 0, // <--- PASTIKAN BARIS INI ADA
         'link_akses' => clean(post('link_akses')),
         'onesender_account' => clean(post('onesender_account')),
         'admin_wa' => clean(post('admin_wa')),
-        'meta_pixel_id' => clean(post('meta_pixel_id')),
-        'conversion_api_token' => clean(post('conversion_api_token')),
+        'pixel_id' => post('pixel_id') ? (int)post('pixel_id') : null,
         'tracking_aktif' => post('tracking_aktif') ? 1 : 0,
         'http_post' => clean(post('http_post')),
 		'profit' => (post('profit') === '' || post('profit') === null) 
@@ -190,29 +190,37 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                     </div>
 
                     <div class="panel-editorial">
-                        <h3 class="panel-title"><i class="fas fa-chart-line"></i> Meta Tracking</h3>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h3 class="panel-title m-0"><i class="fas fa-chart-line text-primary me-2"></i> Meta Tracking</h3>
+                            <a href="../pixel/create.php" target="_blank" class="small text-decoration-none fw-semibold">
+                                <i class="fas fa-plus-circle me-1"></i> Buat Pixel Baru
+                            </a>
+                        </div>
                         
-                        <label class="toggle-switch mb-4" style="border-color: #BFDBFE; background: #EFF6FF;">
+                        <label class="toggle-switch mb-3" style="border-color: #BFDBFE; background: #EFF6FF;">
                             <div>
                                 <div class="toggle-label text-primary">Aktifkan Tracking</div>
                                 <div class="toggle-desc">Kirim event saat transaksi</div>
                             </div>
                             <input type="checkbox" name="tracking_aktif" value="1" class="switch-input" 
-                                   <?= post('tracking_aktif') ? 'checked' : '' ?>>
+                                   <?= (isPost() ? post('tracking_aktif') : ($produk['tracking_aktif'] ?? 1)) ? 'checked' : '' ?>>
                             <div class="switch-slider"></div>
                         </label>
 
-                        <div class="mb-3">
-                            <label class="form-label">Meta Pixel ID</label>
-                            <input type="text" name="meta_pixel_id" class="form-control-editorial" 
-                                   placeholder="1234567890" 
-                                   value="<?= clean(post('meta_pixel_id')) ?>">
-                        </div>
-                        
-                        <div>
-                            <label class="form-label">Conversion API Token</label>
-                            <textarea name="conversion_api_token" class="form-control-editorial" style="min-height: 80px;" 
-                                      placeholder="EAAI..."><?= clean(post('conversion_api_token')) ?></textarea>
+                        <div class="mb-2">
+                            <label class="form-label fw-bold">Pilih Master Pixel</label>
+                            <?php $current_pixel_id = isPost() ? post('pixel_id') : ($produk['pixel_id'] ?? ''); ?>
+                            <select name="pixel_id" class="form-select form-control-editorial" id="pixelSelector">
+                                <option value="">-- Tanpa Pixel (Nonaktif) --</option>
+                                <?php foreach ($active_pixels as $px): ?>
+                                    <option value="<?= $px['id'] ?>" <?= ((string)$current_pixel_id === (string)$px['id']) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($px['nama']) ?> (ID: <?= htmlspecialchars($px['meta_pixel_id']) ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <div class="form-text text-muted">
+                                Konfigurasi Token CAPI akan otomatis menggunakan akun pixel yang dipilih dari <a href="../pixel/" target="_blank">Master Pixel</a>.
+                            </div>
                         </div>
                     </div>
 

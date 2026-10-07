@@ -5,6 +5,7 @@
 require_once 'includes/init.php';
 require_once 'includes/whatsapp_helper.php';
 require_once 'modules/template/functions.php';
+require_once 'includes/pixel_helper.php';
 
 // --- TAMBAHKAN KODE INI DI BAWAH require_once ---
 
@@ -60,44 +61,6 @@ function generateDynamicQRIS($qris_string, $nominal) {
 header("Cache-Control: public, max-age=3600");
 header("Expires: " . gmdate('D, d M Y H:i:s \G\M\T', time() + 3600));
 
-// Function untuk kirim CAPI
-function sendMetaCAPIEvent($access_token, $pixel_id, $event_name, $user_data, $custom_data = [], $event_id = null) {
-    if (!$event_id) {
-        $event_id = uniqid('event_', true);
-    }
-
-    $capi_url = 'https://graph.facebook.com/v20.0/' . $pixel_id . '/events';
-    
-    $data = [
-        'data' => [
-            [
-                'event_name' => $event_name,
-                'event_time' => time(),
-                'event_id' => $event_id,
-                'action_source' => 'website',
-                'user_data' => $user_data,
-                'custom_data' => $custom_data
-            ]
-        ],
-        'access_token' => $access_token
-    ];
-
-    $ch = curl_init($capi_url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json'
-    ]);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 5); // Timeout 5 detik
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Untuk speed (opsional)
-
-    $response = curl_exec($ch);
-    curl_close($ch);
-
-    return $response;
-}
-
 // Tangkap parameter UUID atau ID (untuk transaksi lama)
 $uuid = get('uuid');
 $transaksi_id_lama = (int) get('id');
@@ -147,6 +110,8 @@ $detail_produk = fetchAll("
 ", [$transaksi_id]);
 
 $main_product = $detail_produk[0];
+$main_product_data = fetchRow("SELECT * FROM produk WHERE id = ?", [$main_product['produk_id']]);
+$pixel_config = getPixelForProduk($main_product_data ?: $main_product);
 
 // Get bank accounts
 $rekening = fetchAll("SELECT * FROM rekening ORDER BY nama_bank");
@@ -211,15 +176,17 @@ if (isPost() && post('action') === 'confirm_payment') {
 
 // Kirim AddPaymentInfo ke CAPI saat halaman dibuka pertama kali
 if ($transaksi['status'] === 'pending' && !isset($_SESSION['addpaymentinfo_sent_' . $transaksi_id])) {
-    if (!empty($main_product['conversion_api_token']) && !empty($main_product['meta_pixel_id'])) {
+    if ($pixel_config && !empty($pixel_config['conversion_api_token'])) {
         $user_data = [
             'ph' => hash('sha256', $transaksi['nomor_wa']),
-            'client_ip_address' => $_SERVER['REMOTE_ADDR'] ?? '',
-            'client_user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? ''
+            'client_ip_address' => $transaksi['ip_pelanggan'] ?? ($_SERVER['REMOTE_ADDR'] ?? ''),
+            'client_user_agent' => $transaksi['user_agent_pelanggan'] ?? ($_SERVER['HTTP_USER_AGENT'] ?? '')
         ];
-        // 👇 Tambahkan fbc/fbp jika disimpan di DB (kamu sudah simpan!)
         if (!empty($transaksi['fbc'])) $user_data['fbc'] = $transaksi['fbc'];
         if (!empty($transaksi['fbp'])) $user_data['fbp'] = $transaksi['fbp'];
+        if (!empty($transaksi['email']) && filter_var(trim($transaksi['email']), FILTER_VALIDATE_EMAIL)) {
+            $user_data['em'] = hash('sha256', strtolower(trim($transaksi['email'])));
+        }
 
         $contents = [];
         $content_ids = [];
@@ -242,12 +209,13 @@ if ($transaksi['status'] === 'pending' && !isset($_SESSION['addpaymentinfo_sent_
         $event_id = 'addpaymentinfo_' . $transaksi_id;
 
         sendMetaCAPIEvent(
-            $main_product['conversion_api_token'],
-            $main_product['meta_pixel_id'],
+            $pixel_config['conversion_api_token'],
+            $pixel_config['meta_pixel_id'],
             'AddPaymentInfo',
             $user_data,
             $custom_data,
-            $event_id  // 👈 Kirim event_id eksplisit
+            $event_id,
+            $pixel_config['test_event_code'] ?? null
         );
 
         $_SESSION['addpaymentinfo_sent_' . $transaksi_id] = true;
@@ -651,7 +619,10 @@ $bank_logos = [
     </div>
 </div>
 
-<?php if (!empty($main_product['meta_pixel_id'])): ?>
+<?php if ($pixel_config && !empty($pixel_config['meta_pixel_id'])): 
+    $event_to_track = ($transaksi['status'] === 'selesai') ? 'Purchase' : 'AddPaymentInfo';
+    $event_id_track = ($transaksi['status'] === 'selesai') ? ('purchase_' . (int)$transaksi_id) : ('addpaymentinfo_' . (int)$transaksi_id);
+?>
 <script>
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -662,17 +633,26 @@ t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 
-fbq('init', '<?= $main_product['meta_pixel_id'] ?>');
-fbq('track', 'AddPaymentInfo', {
+fbq('init', '<?= $pixel_config['meta_pixel_id'] ?>', {
+    <?php if (!empty($transaksi['fbc'])): ?>'fbc': '<?= addslashes($transaksi['fbc']) ?>',<?php endif; ?>
+    <?php if (!empty($transaksi['fbp'])): ?>'fbp': '<?= addslashes($transaksi['fbp']) ?>',<?php endif; ?>
+    'agent': 'pl_web'
+});
+
+fbq('track', '<?= $event_to_track ?>', {
     content_name: '<?= addslashes($main_product['nama']) ?>',
     content_ids: ['<?= $main_product['produk_id'] ?>'],
     content_type: 'product',
-    value: <?= $transaksi['total_harga'] ?>,
+    value: <?= (float)$transaksi['total_harga'] ?>,
     currency: 'IDR'
 }, {
-    eventID: 'addpaymentinfo_<?= (int)$transaksi_id ?>' 
+    eventID: '<?= $event_id_track ?>' 
 });
 </script>
+<noscript>
+    <img height="1" width="1" style="display:none"
+         src="https://www.facebook.com/tr?id=<?= $pixel_config['meta_pixel_id'] ?>&ev=<?= $event_to_track ?>&noscript=1"/>
+</noscript>
 <?php endif; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>

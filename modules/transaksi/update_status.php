@@ -2,50 +2,7 @@
 require_once __DIR__ . '/../../includes/init.php';
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/../../includes/whatsapp_helper.php';
-
-// --- TAMBAHAN: Definisi Fungsi sendMetaCAPIEvent ---
-// Function untuk kirim CAPI
-function sendMetaCAPIEvent($access_token, $pixel_id, $event_name, $user_data, $custom_data = [], $event_id = null) {
-    if (!$event_id) {
-        $event_id = uniqid('event_', true);
-    }
-
-    $capi_url = 'https://graph.facebook.com/v20.0/' . $pixel_id . '/events';
-    
-    $data = [
-        'data' => [
-            [
-                'event_name' => $event_name,
-                'event_time' => time(),
-                'event_id' => $event_id,
-                'action_source' => 'website',
-                'user_data' => $user_data,
-                'custom_data' => $custom_data
-            ]
-        ],
-        'access_token' => $access_token
-    ];
-
-    $ch = curl_init($capi_url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json'
-    ]);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 5); // Timeout 5 detik
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
-    $response = curl_exec($ch);
-    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $error = curl_error($ch);
-    curl_close($ch);
-
-    error_log("CAPI Response for event '$event_name': HTTP $http_code, Error: '$error', Response: " . substr($response, 0, 200)); // Log sebagian response
-
-    return $response;
-}
-// --- AKHIR TAMBAHAN ---
+require_once __DIR__ . '/../../includes/pixel_helper.php';
 
 // Debug: Log URL yang diterima
 error_log("DEBUG: REQUEST_URI: " . ($_SERVER['REQUEST_URI'] ?? 'N/A'));
@@ -148,17 +105,18 @@ try {
     if ($new_status === 'selesai' && $old_status !== 'selesai') {
         // --- TAMBAHAN: Kirim Event Purchase ke Meta CAPI ---
         try {
-            // Ambil data produk utama untuk mendapatkan token dan pixel ID
-            // Query ini mengambil data produk pertama dari transaksi untuk mendapatkan konfigurasi CAPI
-            $main_product_result = fetchRow("
-                SELECT pr.conversion_api_token, pr.meta_pixel_id
+            // Ambil data produk utama untuk mendapatkan konfigurasi pixel
+            $main_product_row = fetchRow("
+                SELECT pr.*
                 FROM detail_transaksi dt
                 JOIN produk pr ON dt.produk_id = pr.id
                 WHERE dt.transaksi_id = ?
                 LIMIT 1
             ", [$id]);
 
-            if ($main_product_result && !empty($main_product_result['conversion_api_token']) && !empty($main_product_result['meta_pixel_id'])) {
+            $pixel_config = getPixelForProduk($main_product_row);
+
+            if ($pixel_config && !empty($pixel_config['conversion_api_token']) && !empty($pixel_config['meta_pixel_id'])) {
                 $email = $transaksi['email'] ?? '';
 
 				// Siapkan user_data dasar
@@ -183,12 +141,16 @@ try {
                     'content_name' => $transaksi['nama_customer'] ?? 'Customer'
                 ];
 
+                $event_id = 'purchase_' . $id;
+
                 sendMetaCAPIEvent(
-                    $main_product_result['conversion_api_token'],
-                    $main_product_result['meta_pixel_id'],
+                    $pixel_config['conversion_api_token'],
+                    $pixel_config['meta_pixel_id'],
                     'Purchase', // Event utama saat konversi selesai
                     $user_data,
-                    $custom_data
+                    $custom_data,
+                    $event_id,
+                    $pixel_config['test_event_code'] ?? null
                 );
                 
                 error_log("CAPI Event 'Purchase' sent for transaction #$id");

@@ -57,6 +57,11 @@ function isActive($page, $module = '')
                     <i class="fas fa-ticket-alt"></i><span>Kupon Diskon</span>
                 </a>
             </div>
+            <div class="nav-item">
+                <a href="<?= BASE_URL ?>modules/pixel/" class="nav-link <?= isActive('', 'pixel') ?>" onclick="closeSidebarMobile()">
+                    <i class="fas fa-chart-line"></i><span>Master Pixel</span>
+                </a>
+            </div>
         </div>
 
         <div class="nav-group mt-3">

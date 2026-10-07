@@ -1,7 +1,9 @@
 <?php
 // proses_embed.php
-ini_set('session.cookie_domain', '.edumuslim.my.id');
-session_set_cookie_params(0, '/', '.edumuslim.my.id');
+$current_host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$cookie_domain = '.' . preg_replace('/^www\./', '', $current_host);
+ini_set('session.cookie_domain', $cookie_domain);
+session_set_cookie_params(0, '/', $cookie_domain);
 session_start();
 
 require_once 'includes/init.php';
@@ -74,8 +76,8 @@ if (isPost()) {
     // (Opsional) Sisipkan fungsi sendMetaCAPIEvent() Anda di sini jika ingin CAPI jalan
 
     // 6. Redirect ke Halaman Invoice
-    redirect("https://edumuslim.my.id/invoice.php?uuid=$uuid");
+    redirect("invoice.php?uuid=$uuid");
     exit;
 } else {
-    redirect("https://edumuslim.my.id"); // Tendang jika bukan POST
+    redirect("index.php"); // Tendang jika bukan POST
 }

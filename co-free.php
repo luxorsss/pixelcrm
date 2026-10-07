@@ -9,6 +9,7 @@ session_start();
 
 require_once 'includes/init.php';
 require_once 'includes/whatsapp_helper.php';
+require_once 'includes/pixel_helper.php';
 
 // Enable browser caching
 header("Cache-Control: public, max-age=3600");
@@ -21,38 +22,13 @@ if (isset($_GET['fbclid']) && !empty($_GET['fbclid'])) {
         setcookie('_fbc', $fbclid, [
             'expires' => time() + 30*24*60*60,
             'path' => '/',
-            'domain' => '.edumuslim.my.id',
+            'domain' => $cookie_domain,
             'secure' => true,
             'httponly' => false,
             'samesite' => 'None'
         ]);
         $_SESSION['fbclid_final'] = $fbclid;
     }
-}
-
-// Function CAPI Sederhana
-function sendMetaCAPILead($access_token, $pixel_id, $user_data, $custom_data, $event_id) {
-    $capi_url = 'https://graph.facebook.com/v20.0/' . $pixel_id . '/events';
-    $data = [
-        'data' => [[
-            'event_name' => 'Lead', // Event khusus Lead Magnet
-            'event_time' => time(),
-            'event_id' => $event_id,
-            'action_source' => 'website',
-            'user_data' => $user_data,
-            'custom_data' => $custom_data
-        ]],
-        'access_token' => $access_token
-    ];
-    
-    $ch = curl_init($capi_url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 4);
-    curl_exec($ch);
-    curl_close($ch);
 }
 
 // === 2. AMBIL DATA PRODUK ===
@@ -64,11 +40,12 @@ if (!$produk) {
     setMessage('Produk tidak ditemukan', 'error');
     redirect('index.php');
 }
+$pixel_config = getPixelForProduk($produk);
 
 // Pastikan harga 0 (Safety Check)
 if ($produk['harga'] > 0) {
     // Jika ternyata berbayar, lempar ke checkout biasa
-    redirect("checkout.php?id=$produk_id");
+    redirect("co.php?id=$produk_id");
 }
 
 // === 3. PROSES SUBMIT ===
@@ -136,7 +113,7 @@ if (isPost()) {
         }
 
         // E. KIRIM CAPI EVENT 'LEAD'
-        if (!empty($produk['conversion_api_token']) && !empty($produk['meta_pixel_id'])) {
+        if ($pixel_config && !empty($pixel_config['conversion_api_token'])) {
             $user_data = [
                 'ph' => hash('sha256', $nomor_wa),
                 'client_ip_address' => $_SERVER['REMOTE_ADDR'] ?? '',
@@ -145,12 +122,14 @@ if (isPost()) {
             if ($fbc) $user_data['fbc'] = $fbc;
             if ($fbp) $user_data['fbp'] = $fbp;
 
-            sendMetaCAPILead(
-                $produk['conversion_api_token'],
-                $produk['meta_pixel_id'],
+            sendMetaCAPIEvent(
+                $pixel_config['conversion_api_token'],
+                $pixel_config['meta_pixel_id'],
+                'Lead',
                 $user_data,
                 ['content_name' => $produk['nama'], 'content_category' => 'Lead Magnet'],
-                'lead_' . $transaksi_id
+                'lead_' . $transaksi_id,
+                $pixel_config['test_event_code'] ?? null
             );
         }
 
@@ -317,12 +296,12 @@ if (isPost()) {
         </div>
     </div>
 
-<?php if(!empty($produk['meta_pixel_id'])): ?>
-<script>
-!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '<?= $produk['meta_pixel_id'] ?>');
-fbq('track', 'ViewContent', {content_name: '<?= addslashes($produk['nama']) ?>', content_ids: ['<?= $produk_id ?>'], content_type: 'product', value: 0, currency: 'IDR'});
-</script>
+<?php if ($pixel_config && !empty($pixel_config['meta_pixel_id'])): ?>
+    <?= renderMetaPixelScript(
+        $pixel_config['meta_pixel_id'],
+        'ViewContent',
+        ['content_name' => $produk['nama'], 'content_ids' => [(string)$produk_id], 'content_type' => 'product', 'value' => 0, 'currency' => 'IDR']
+    ) ?>
 <?php endif; ?>
 
 <script>
