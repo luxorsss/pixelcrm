@@ -26,11 +26,11 @@ require_once __DIR__ . '/../../includes/sidebar.php';
             </div>
         </div>
         <div class="d-flex align-items-center gap-3">
-            <div class="dash-date d-none d-sm-flex align-items-center gap-2 px-3 py-2 bg-white border rounded-pill shadow-sm">
+            <div class="dash-date d-none d-sm-flex align-items-center gap-2 px-3 py-2 bg-white border shadow-sm" style="border-radius: var(--radius-lg);">
                 <i class="fas fa-boxes text-primary"></i>
-                <span class="fw-bold text-dark" style="font-size: 0.85rem;"><?= $total_records ?> Produk Aktif</span>
+                <span class="fw-bold text-dark font-tabular" style="font-size: 0.85rem;"><?= $total_records ?> Produk Aktif</span>
             </div>
-            <a href="create.php" class="btn btn-dark fw-bold rounded-pill px-4" style="box-shadow: 0 4px 12px rgba(17, 24, 39, 0.15);">
+            <a href="create.php" class="btn btn-dark fw-bold px-4" style="border-radius: var(--radius-md);">
                 <i class="fas fa-plus me-2"></i> Tambah Produk
             </a>
         </div>

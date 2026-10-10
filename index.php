@@ -81,22 +81,29 @@ try {
     <style>
         .shortcut-card {
             display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
-            padding: 1.5rem 1rem; border-radius: 20px; background: #FFFFFF; border: 1px solid #E5E7EB;
-            transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease; text-decoration: none !important; gap: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.03); height: 100%; min-height: 120px;
+            padding: 1.25rem 1rem; border-radius: var(--radius-xl); background: #FFFFFF; border: 1px solid var(--border-light);
+            transition: transform var(--duration-snappy) var(--ease-out),
+                        box-shadow var(--duration-snappy) var(--ease-out),
+                        border-color var(--duration-snappy) var(--ease-out);
+            text-decoration: none !important; gap: 10px;
+            box-shadow: var(--box-shadow); height: 100%; min-height: 110px;
+        }
+        .shortcut-card:active {
+            transform: scale(0.97);
         }
         .shortcut-icon {
-            width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; transition: transform 160ms ease;
+            width: 46px; height: 46px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+            transition: transform var(--duration-snappy) var(--ease-out);
         }
-        .shortcut-title { font-weight: 700; color: #111827; font-size: 0.85rem; margin: 0; line-height: 1.3; }
+        .shortcut-title { font-weight: 700; color: var(--primary-color); font-size: 0.85rem; margin: 0; line-height: 1.3; }
         
         @media (hover: hover) and (pointer: fine) {
-            .shortcut-card:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.04); border-color: #D1D5DB; }
+            .shortcut-card:hover { transform: translateY(-2px); box-shadow: var(--box-shadow-hover); border-color: #CBD5E1; }
             .shortcut-card:hover .shortcut-icon { transform: scale(1.05); }
         }
 
         .list-row-hover:hover {
-            background: #F9FAFB;
+            background: #F8FAFC;
         }
         .min-w-0 {
             min-width: 0;
@@ -104,7 +111,7 @@ try {
     </style>
 
     <?php if ($transaksi_pending > 0): ?>
-    <div class="alert alert-editorial mb-3 p-3 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3" style="border-left-color: var(--warning-color); background: #FFFBEB; border-radius: 16px;">
+    <div class="alert alert-editorial mb-3 p-3 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3" style="border-left-color: var(--warning-color); background: #FFFBEB; border-radius: var(--radius-lg); border: 1px solid #FDE68A;">
         <div class="d-flex align-items-center gap-3">
             <div style="width: 40px; height: 40px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(217,119,6,0.15);">
                 <i class="fas fa-wallet text-warning fs-5"></i>
@@ -114,7 +121,7 @@ try {
                 <div class="text-muted" style="font-size: 0.85rem;">Ada <strong><?= $transaksi_pending ?> transaksi</strong> yang butuh konfirmasi.</div>
             </div>
         </div>
-        <a href="<?= BASE_URL ?>modules/transaksi/?status=pending" class="btn btn-warning text-dark fw-bold rounded-pill px-4 btn-sm" style="min-height: 40px; display: inline-flex; align-items: center;">Tinjau Transaksi</a>
+        <a href="<?= BASE_URL ?>modules/transaksi/?status=pending" class="btn btn-warning text-dark fw-bold px-3 btn-sm" style="min-height: 38px; display: inline-flex; align-items: center; border-radius: var(--radius-md);">Tinjau Transaksi</a>
     </div>
     <?php endif; ?>
 

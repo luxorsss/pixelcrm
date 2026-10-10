@@ -36,13 +36,13 @@ require_once __DIR__ . '/../../includes/sidebar.php';
             <div class="text-muted mt-1" style="font-weight: 500; font-size: 0.95rem;">Kelola order masuk, ubah status, dan pantau omzet penjualan.</div>
         </div>
         <div class="d-flex flex-wrap d-md-flex flex-md-nowrap align-items-center gap-2 w-100 w-lg-auto justify-content-start justify-content-md-end">
-            <a href="bulk.php" class="btn btn-light text-dark fw-bold border rounded-pill text-nowrap flex-grow-1 flex-md-grow-0" style="box-shadow: 0 2px 6px rgba(0,0,0,0.02); padding: 0.6rem 1rem; font-size: 0.85rem;">
+            <a href="bulk.php" class="btn btn-light text-dark fw-bold border text-nowrap flex-grow-1 flex-md-grow-0" style="padding: 0.6rem 1rem; font-size: 0.85rem; border-radius: var(--radius-md);">
                 <i class="fas fa-file-import me-1"></i> Import Order
             </a>
-            <a href="bulk_delete_old.php" class="btn btn-light text-danger fw-bold border rounded-pill text-nowrap flex-grow-1 flex-md-grow-0" style="box-shadow: 0 2px 6px rgba(0,0,0,0.02); padding: 0.6rem 1rem; font-size: 0.85rem;">
+            <a href="bulk_delete_old.php" class="btn btn-light text-danger fw-bold border text-nowrap flex-grow-1 flex-md-grow-0" style="padding: 0.6rem 1rem; font-size: 0.85rem; border-radius: var(--radius-md);">
                 <i class="fas fa-broom me-1"></i> Bersihkan
             </a>
-            <a href="create.php" class="btn btn-dark fw-bold rounded-pill text-nowrap flex-grow-1 flex-md-grow-0" style="box-shadow: 0 4px 12px rgba(17, 24, 39, 0.15); padding: 0.6rem 1.25rem; font-size: 0.85rem;">
+            <a href="create.php" class="btn btn-dark fw-bold text-nowrap flex-grow-1 flex-md-grow-0" style="padding: 0.6rem 1.25rem; font-size: 0.85rem; border-radius: var(--radius-md);">
                 <i class="fas fa-plus me-1"></i> Order Manual
             </a>
         </div>
@@ -102,23 +102,23 @@ require_once __DIR__ . '/../../includes/sidebar.php';
     <div class="panel-editorial p-3 p-md-4 mb-4 d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-3">
         <form method="GET" class="d-flex flex-wrap align-items-center gap-2 m-0 w-100">
             
-            <div class="d-flex align-items-center bg-light rounded-pill px-3 py-2 border border-light flex-grow-1" style="min-width: 250px; transition: var(--transition);" id="searchContainer">
+            <div class="d-flex align-items-center bg-light px-3 py-2 border border-light flex-grow-1" style="min-width: 250px; border-radius: var(--radius-lg); transition: border-color var(--duration-snappy) var(--ease-out), background-color var(--duration-snappy) var(--ease-out);" id="searchContainer">
                 <i class="fas fa-search text-muted me-2" style="font-size: 0.85rem;"></i>
                 <input type="text" name="search" class="form-control border-0 bg-transparent p-0 text-dark fw-bold" 
                         placeholder="Cari nama, invoice..." value="<?= $filters['search'] ?? '' ?>" autocomplete="off"
                         style="font-size: 0.9rem; outline: none; box-shadow: none;"
-                        onfocus="document.getElementById('searchContainer').style.borderColor='#3B82F6'; document.getElementById('searchContainer').style.background='#ffffff';"
+                        onfocus="document.getElementById('searchContainer').style.borderColor='var(--primary-color)'; document.getElementById('searchContainer').style.background='#ffffff';"
                         onblur="document.getElementById('searchContainer').style.borderColor='transparent'; document.getElementById('searchContainer').style.background='#f8f9fa';">
             </div>
 
-            <div class="d-flex align-items-center bg-light rounded-pill px-3 py-2 border border-light flex-grow-1 flex-md-grow-0" style="min-width: 280px;">
+            <div class="d-flex align-items-center bg-light px-3 py-2 border border-light flex-grow-1 flex-md-grow-0" style="min-width: 280px; border-radius: var(--radius-lg);">
                 <i class="fas fa-calendar-alt text-muted me-2" style="font-size: 0.85rem;"></i>
                 <input type="date" name="date_from" class="form-control border-0 bg-transparent p-0 text-muted fw-bold" style="width: 110px; font-size: 0.85rem;" value="<?= $filters['date_from'] ?? '' ?>" onchange="this.form.submit()">
                 <span class="mx-2 text-muted">-</span>
                 <input type="date" name="date_to" class="form-control border-0 bg-transparent p-0 text-muted fw-bold" style="width: 110px; font-size: 0.85rem;" value="<?= $filters['date_to'] ?? '' ?>" onchange="this.form.submit()">
             </div>
 
-            <div class="bg-light rounded-pill px-3 py-2 border border-light d-flex align-items-center flex-grow-1 flex-md-grow-0">
+            <div class="bg-light px-3 py-2 border border-light d-flex align-items-center flex-grow-1 flex-md-grow-0" style="border-radius: var(--radius-lg);">
                 <select name="status" class="form-select border-0 bg-transparent p-0 text-dark fw-bold" style="width: 100%; min-width: 120px; font-size: 0.85rem; cursor: pointer; box-shadow: none; outline: none;" onchange="this.form.submit()">
                     <option value="">Semua Status</option>
                     <option value="pending" <?= ($filters['status'] ?? '') === 'pending' ? 'selected' : '' ?>>Menunggu</option>
@@ -129,11 +129,11 @@ require_once __DIR__ . '/../../includes/sidebar.php';
             </div>
 
             <div class="d-flex gap-2 flex-grow-1 flex-md-grow-0 mt-2 mt-md-0">
-                <button type="submit" class="btn btn-primary rounded-pill fw-bold px-4 py-2 w-100" style="min-width: 100px;">
+                <button type="submit" class="btn btn-primary fw-bold px-4 py-2 w-100" style="min-width: 100px; border-radius: var(--radius-lg);">
                     Cari
                 </button>
                 <?php if (!empty($clean_filters)): ?>
-                    <a href="index.php" class="btn btn-light text-danger rounded-pill px-3 fw-bold border-0 py-2" title="Reset Filter">
+                    <a href="index.php" class="btn btn-light text-danger px-3 fw-bold border-0 py-2" title="Reset Filter" style="border-radius: var(--radius-lg);">
                         <i class="fas fa-times"></i>
                     </a>
                 <?php endif; ?>
