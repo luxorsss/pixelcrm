@@ -24,12 +24,20 @@
 <?php endif; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= BASE_URL ?>assets/js/toast.js?v=<?= time() ?>"></script>
+<?php 
+$flash_msg = getMessage();
+if ($flash_msg): 
+    $f_text = addslashes(clean($flash_msg[0]));
+    $f_type = $flash_msg[1] === 'danger' ? 'error' : $flash_msg[1];
+?>
 <script>
-setTimeout(() => {
-    document.querySelectorAll('.alert').forEach(alert => {
-        if (alert) new bootstrap.Alert(alert).close();
-    });
-}, 3000);
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.PixelToast) {
+        window.PixelToast.show("<?= $f_text ?>", "<?= $f_type ?>");
+    }
+});
 </script>
+<?php endif; ?>
 </body>
 </html>

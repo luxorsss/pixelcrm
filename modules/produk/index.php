@@ -405,8 +405,16 @@ function copyEmbedCode(produkId, namaProduk, hargaRaw, showEmail, showKupon, btn
             btnElement.style.borderColor = 'transparent';
             btnElement.style.background = 'transparent';
         }, 1500);
+
+        if (window.PixelToast) {
+            window.PixelToast.success('Kode kasir berhasil disalin!');
+        }
     }).catch(err => {
-        alert('Gagal menyalin kode HTML: ' + err);
+        if (window.PixelToast) {
+            window.PixelToast.error('Gagal menyalin kode HTML: ' + err);
+        } else {
+            console.error('Copy failed:', err);
+        }
     });
 }
 </script>

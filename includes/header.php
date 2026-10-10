@@ -56,12 +56,3 @@ $page_title = $page_title ?? 'Dashboard';
         </button>
     </div>
 <?php endif; ?>
-
-<?php 
-$msg = getMessage();
-if ($msg): ?>
-    <div class="alert alert-<?= $msg[1] === 'error' ? 'danger' : $msg[1] ?> alert-dismissible fade show m-3" role="alert" style="z-index: 1050; position: relative;">
-        <?= clean($msg[0]) ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>

@@ -687,24 +687,20 @@ fbq('track', '<?= $event_to_track ?>', {
 <?php endif; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+<script src="assets/js/toast.js?v=<?= time() ?>"></script>
 <script>
-// Fungsi Salin Rekening yang lebih elegan
+// Fungsi Salin Rekening taktil dengan PixelToast
 function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(function() {
-        const toast = document.createElement("div");
-        toast.className = "position-fixed bottom-0 start-50 translate-middle-x mb-4 alert-custom bg-dark text-white text-center";
-        toast.style.zIndex = "9999";
-        toast.style.minWidth = "250px";
-        toast.innerHTML = '<i class="fas fa-check-circle text-success me-2"></i> Nomor rekening disalin!';
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transition = 'opacity 0.3s ease';
-            setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
-        }, 2500);
+        if (window.PixelToast) {
+            window.PixelToast.success('Nomor rekening berhasil disalin!');
+        }
     }).catch(function() {
-        alert("Gagal menyalin: " + text);
+        if (window.PixelToast) {
+            window.PixelToast.error('Gagal menyalin: ' + text);
+        } else {
+            alert("Gagal menyalin: " + text);
+        }
     });
 }
 
