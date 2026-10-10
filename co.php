@@ -287,24 +287,32 @@ $page_title = 'Checkout - ' . $produk['nama'];
 
         body {
             background-color: var(--bg-body);
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             color: var(--text-main);
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
         }
 
+        .font-tabular,
+        .price-tag,
+        .total-row,
+        .product-info h6 {
+            font-feature-settings: "tnum" 1, "cv05" 1;
+            font-variant-numeric: tabular-nums;
+        }
+
         .checkout-container {
-            max-width: 540px;
-            margin: 3rem auto;
+            max-width: 520px;
+            margin: 2.5rem auto;
             padding: 0 1rem;
         }
 
         /* Modern Card Styling */
         .card {
             background: var(--bg-surface);
-            border: 1px solid rgba(0,0,0,0.04);
-            border-radius: 24px;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0,0,0,0.02);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
             overflow: hidden;
         }
 
@@ -329,19 +337,19 @@ $page_title = 'Checkout - ' . $produk['nama'];
         /* Product Highlight */
         .product-info {
             text-align: center;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
         }
 
         .product-info h5 {
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             color: var(--text-muted);
             margin-bottom: 0.5rem;
         }
 
         .product-info h6 {
             font-weight: 800;
-            font-size: 2rem;
+            font-size: 1.85rem;
             color: var(--text-main);
             letter-spacing: -0.03em;
         }
@@ -349,89 +357,97 @@ $page_title = 'Checkout - ' . $produk['nama'];
         /* Form Inputs - Clean & Sleek */
         .form-label {
             font-weight: 600;
-            font-size: 0.875rem;
+            font-size: 0.85rem;
             color: var(--text-main);
             margin-bottom: 0.5rem;
         }
 
         .form-control {
-            background-color: #F9FAFB;
-            border: 1px solid transparent;
-            border-radius: 12px;
-            padding: 0.875rem 1.25rem;
+            background-color: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 10px;
+            padding: 0.85rem 1.2rem;
             font-weight: 500;
-            transition: all 0.25s var(--ease-out);
+            transition: border-color 160ms var(--ease-out),
+                        background-color 160ms var(--ease-out),
+                        box-shadow 160ms var(--ease-out);
             box-shadow: none !important;
         }
 
         .form-control:focus {
-            background-color: var(--bg-surface);
-            border-color: var(--brand-color);
-            box-shadow: 0 0 0 4px rgba(255, 162, 0, 0.15) !important;
+            background-color: #FFFFFF;
+            border-color: var(--text-main);
+            box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1) !important;
         }
 
         .form-control::placeholder {
-            color: #9CA3AF;
+            color: #94A3B8;
             font-weight: 400;
         }
 
-        /* Bundling Cards - The Emil Kowalski Approach */
+        /* Bundling Cards */
         .bundle-item {
-            background-color: #F9FAFB;
+            background-color: #F8FAFC;
             border: 1px solid var(--border-light);
-            border-radius: 16px;
-            padding: 1.25rem;
+            border-radius: 12px;
+            padding: 1.2rem;
             margin-bottom: 0.75rem;
             cursor: pointer;
-            transition: all 0.3s var(--ease-spring);
+            transition: border-color 160ms var(--ease-out),
+                        background-color 160ms var(--ease-out),
+                        transform 160ms var(--ease-out);
             position: relative;
+        }
+        .bundle-item:active {
+            transform: scale(0.98);
         }
 
         .bundle-item:hover {
-            border-color: #D1D5DB;
+            border-color: #CBD5E1;
         }
 
         .bundle-item.selected {
-            background-color: #FFFDF8;
-            border-color: var(--brand-color);
-            box-shadow: 0 4px 12px rgba(255, 162, 0, 0.08);
-            transform: translateY(-2px);
+            background-color: #FFFFFF;
+            border-color: var(--text-main);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+            transform: translateY(-1px);
         }
 
         .form-check-input {
             width: 1.25rem;
             height: 1.25rem;
             margin-top: 0.2rem;
-            border-color: #D1D5DB;
-            transition: all 0.2s var(--ease-out);
+            border-color: #CBD5E1;
+            transition: background-color 140ms var(--ease-out), border-color 140ms var(--ease-out);
         }
 
         .form-check-input:checked {
-            background-color: var(--brand-color);
-            border-color: var(--brand-color);
+            background-color: var(--text-main);
+            border-color: var(--text-main);
         }
 
         /* Order Summary */
         .summary-box {
-            background: #F9FAFB;
-            border-radius: 16px;
-            padding: 1.5rem;
+            background: #F8FAFC;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            padding: 1.25rem;
             margin-top: 1rem;
         }
 
         .summary-item {
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             color: var(--text-muted);
             font-weight: 500;
         }
 
         .summary-box hr {
             border-color: var(--border-light);
-            margin: 1rem 0;
+            margin: 0.85rem 0;
         }
 
         .total-row {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 800;
             color: var(--text-main);
         }
@@ -441,20 +457,22 @@ $page_title = 'Checkout - ' . $produk['nama'];
             background: var(--text-main);
             color: white;
             border: none;
-            border-radius: 14px;
-            padding: 1.125rem;
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
             font-weight: 700;
-            font-size: 1.05rem;
-            letter-spacing: 0.02em;
-            transition: all 0.3s var(--ease-spring);
+            font-size: 1rem;
+            letter-spacing: -0.01em;
+            transition: transform 160ms var(--ease-out),
+                        background-color 160ms var(--ease-out),
+                        box-shadow 160ms var(--ease-out);
             width: 100%;
-            margin-top: 2rem;
+            margin-top: 1.5rem;
         }
 
         .btn-primary:hover {
-            background: #000000;
-            transform: scale(0.99);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            background: #020617;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
         }
 
         .btn-primary:active {

@@ -87,17 +87,19 @@ if (isPost()) {
         .form-control-custom {
             background-color: var(--surface);
             border: 1px solid var(--border-light);
-            border-radius: 12px;
+            border-radius: 10px;
             padding: 0.85rem 1.2rem;
             font-weight: 500;
             color: var(--text-main);
-            transition: border-color 160ms ease, box-shadow 160ms ease;
+            transition: border-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
+                        background-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
+                        box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1);
             width: 100%;
         }
         .form-control-custom:focus {
             background-color: #FFFFFF;
-            border-color: var(--brand-accent);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.12);
             outline: none;
         }
         .input-icon-wrap { position: relative; }
@@ -111,27 +113,32 @@ if (isPost()) {
             color: var(--text-muted); cursor: pointer; border: none; background: none; 
             width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center;
             border-radius: 8px;
+            transition: color 140ms ease-out;
         }
         .password-toggle:hover { color: var(--text-main); }
+        .password-toggle:active { transform: translateY(-50%) scale(0.92); }
 
         .btn-brand {
             background-color: var(--brand-primary);
             color: #FFFFFF;
-            border-radius: 12px;
+            border-radius: 10px;
             padding: 0.9rem 1.5rem;
             font-weight: 700;
             font-size: 0.95rem;
-            transition: all 160ms ease;
+            transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1),
+                        background-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
+                        box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1);
             border: none;
             cursor: pointer;
             width: 100%;
         }
         .btn-brand:hover {
-            background-color: #1E293B;
+            background-color: #020617;
             color: #FFFFFF;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
         }
         .btn-brand:active {
-            transform: scale(0.98);
+            transform: scale(0.97);
         }
 
         .feature-item {
