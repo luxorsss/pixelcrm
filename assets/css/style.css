@@ -4,7 +4,7 @@
     /* Brand & Surface Colors */
     --primary-color: #0F172A;
     --primary-dark: #020617;
-    --secondary-color: #64748B;
+    --secondary-color: #475569;
     
     /* Semantic Colors */
     --success-color: #10B981;
@@ -58,6 +58,32 @@ body {
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+/* WCAG AA text contrast override for secondary / muted text */
+.text-muted {
+    color: var(--secondary-color) !important;
+}
+
+/* Antislop purposeful empty state styling */
+.empty-state-card {
+    background: #FFFFFF;
+    border: 1px dashed var(--border-light);
+    border-radius: var(--radius-xl);
+    padding: 3rem 1.5rem;
+    text-align: center;
+}
+.empty-state-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #F1F5F9;
+    color: var(--secondary-color);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 /* Tabular figures for financial and tabular data */

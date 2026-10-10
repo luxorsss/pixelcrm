@@ -141,27 +141,27 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
             $pagination_html = '<div class="d-flex gap-1 overflow-auto hide-scrollbar" style="max-width: 100%;">';
             
             if ($page > 1) {
-                $pagination_html .= '<a class="btn btn-sm btn-light text-dark fw-bold border-0 flex-shrink-0 page-link-custom" href="#" data-page="' . ($page - 1) . '"><i class="fas fa-chevron-left"></i></a>';
+                $pagination_html .= '<a class="btn btn-sm btn-light text-dark fw-bold border-0 flex-shrink-0 page-link-custom" href="javascript:void(0)" data-page="' . ($page - 1) . '"><i class="fas fa-chevron-left"></i></a>';
             }
             
             $start = max(1, $page - 2);
             $end = min($total_pages, $page + 2);
             
             if ($start > 1) {
-                $pagination_html .= '<a class="btn btn-sm btn-light text-muted fw-bold border-0 flex-shrink-0 page-link-custom" style="min-width: 32px; border-radius: 8px;" href="#" data-page="1">1</a>';
+                $pagination_html .= '<a class="btn btn-sm btn-light text-muted fw-bold border-0 flex-shrink-0 page-link-custom" style="min-width: 32px; border-radius: 8px;" href="javascript:void(0)" data-page="1">1</a>';
             }
             
             for ($i = $start; $i <= $end; $i++) {
                 $active_class = $i == $page ? 'btn-dark' : 'btn-light text-muted';
-                $pagination_html .= '<a class="btn btn-sm ' . $active_class . ' fw-bold border-0 flex-shrink-0 page-link-custom" style="min-width: 32px; border-radius: 8px;" href="#" data-page="' . $i . '">' . $i . '</a>';
+                $pagination_html .= '<a class="btn btn-sm ' . $active_class . ' fw-bold border-0 flex-shrink-0 page-link-custom" style="min-width: 32px; border-radius: 8px;" href="javascript:void(0)" data-page="' . $i . '">' . $i . '</a>';
             }
             
             if ($end < $total_pages) {
-                $pagination_html .= '<a class="btn btn-sm btn-light text-muted fw-bold border-0 flex-shrink-0 page-link-custom" style="min-width: 32px; border-radius: 8px;" href="#" data-page="' . $total_pages . '">' . $total_pages . '</a>';
+                $pagination_html .= '<a class="btn btn-sm btn-light text-muted fw-bold border-0 flex-shrink-0 page-link-custom" style="min-width: 32px; border-radius: 8px;" href="javascript:void(0)" data-page="' . $total_pages . '">' . $total_pages . '</a>';
             }
             
             if ($page < $total_pages) {
-                $pagination_html .= '<a class="btn btn-sm btn-light text-dark fw-bold border-0 flex-shrink-0 page-link-custom" href="#" data-page="' . ($page + 1) . '"><i class="fas fa-chevron-right"></i></a>';
+                $pagination_html .= '<a class="btn btn-sm btn-light text-dark fw-bold border-0 flex-shrink-0 page-link-custom" href="javascript:void(0)" data-page="' . ($page + 1) . '"><i class="fas fa-chevron-right"></i></a>';
             }
             
             $pagination_html .= '</div>';
@@ -396,7 +396,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
         
         <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
             <button id="modal-cancel-btn" style="background: #F3F4F6; color: #4B5563; border: none; padding: 0.6rem 1.25rem; border-radius: 100px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: background 150ms ease;">Batal</button>
-            <a id="modal-confirm-btn" href="#" style="background: #111827; color: #FFFFFF; border: none; padding: 0.6rem 1.25rem; border-radius: 100px; font-weight: 600; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; transition: background 150ms ease;">
+            <a id="modal-confirm-btn" href="javascript:void(0)" style="background: #111827; color: #FFFFFF; border: none; padding: 0.6rem 1.25rem; border-radius: 100px; font-weight: 600; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; transition: background 150ms ease;">
                 <span>Ya, Validasi</span>
             </a>
         </div>

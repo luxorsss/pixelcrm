@@ -253,7 +253,7 @@ if ($search) $baseUrl .= 'search=' . urlencode($search) . '&';
                 </p>
                 <div class="d-flex gap-2">
                     <button type="button" class="btn btn-light w-50 fw-bold rounded-pill" data-bs-dismiss="modal">Batal</button>
-                    <a href="#" id="confirmDeleteBtn" class="btn btn-danger w-50 fw-bold rounded-pill" style="background: #EF4444; border: none;">Hapus</a>
+                    <a href="javascript:void(0)" id="confirmDeleteBtn" class="btn btn-danger w-50 fw-bold rounded-pill" style="background: #EF4444; border: none;">Hapus</a>
                 </div>
             </div>
         </div>

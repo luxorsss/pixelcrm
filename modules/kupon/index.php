@@ -180,7 +180,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                 </p>
                 <div class="d-flex gap-2">
                     <button type="button" class="btn btn-light w-50 fw-bold" data-bs-dismiss="modal" style="border-radius: 12px;">Batal</button>
-                    <a href="#" id="confirmDeleteBtn" class="btn btn-danger w-50 fw-bold" style="border-radius: 12px; background: #EF4444; border: none;">Hapus</a>
+                    <a href="javascript:void(0)" id="confirmDeleteBtn" class="btn btn-danger w-50 fw-bold" style="border-radius: 12px; background: #EF4444; border: none;">Hapus</a>
                 </div>
             </div>
         </div>

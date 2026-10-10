@@ -94,11 +94,14 @@ foreach ($pixels as $p) {
                     <tbody>
                         <?php if (empty($pixels)): ?>
                             <tr>
-                                <td colspan="7" class="text-center py-5 text-muted">
-                                    <div class="mb-2"><i class="fas fa-chart-line fa-3x opacity-25"></i></div>
-                                    <p class="mb-3">Belum ada akun pixel yang tersimpan.</p>
-                                    <a href="create.php" class="btn btn-sm btn-primary rounded-pill px-4">
-                                        <i class="fas fa-plus me-1"></i> Tambah Sekarang
+                                <td colspan="7" class="text-center py-5">
+                                    <div class="empty-state-icon mx-auto mb-3">
+                                        <i class="fas fa-chart-line"></i>
+                                    </div>
+                                    <h6 class="fw-bold text-dark mb-1">Belum Ada Akun Pixel</h6>
+                                    <p class="text-muted small mb-3" style="max-width: 360px; margin: 0 auto;">Hubungkan Meta Pixel atau TikTok Pixel untuk melacak konversi checkout pelanggan secara otomatis.</p>
+                                    <a href="create.php" class="btn btn-sm btn-dark rounded-pill px-4 fw-bold">
+                                        <i class="fas fa-plus me-1"></i> Hubungkan Pixel Pertama
                                     </a>
                                 </td>
                             </tr>
@@ -190,7 +193,7 @@ foreach ($pixels as $p) {
                 </p>
                 <div class="d-flex justify-content-center gap-2">
                     <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
-                    <a href="#" id="deleteConfirmBtn" class="btn btn-danger rounded-pill px-4">Ya, Hapus</a>
+                    <a href="javascript:void(0)" id="deleteConfirmBtn" class="btn btn-danger rounded-pill px-4">Ya, Hapus</a>
                 </div>
             </div>
         </div>
