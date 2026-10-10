@@ -50,22 +50,51 @@ if ($produk['harga'] > 0) {
 
 // === 3. PROSES SUBMIT ===
 if (isPost()) {
-    $nama = trim(post('nama'));
-    $nomor_wa = trim(post('nomor_wa'));
+    // Honeypot anti-bot
+    if (!empty(post('website_url'))) {
+        exit;
+    }
+
+    $raw_nama = trim(post('nama'));
+    $raw_nomor_wa = trim(post('nomor_wa'));
     
     // Ambil tracking data
     $fbc = $_COOKIE['_fbc'] ?? $_SESSION['fbclid_final'] ?? null;
     $fbp = $_COOKIE['_fbp'] ?? null;
 
-    if (empty($nama) || empty($nomor_wa)) {
-        setMessage('Nama dan nomor WhatsApp wajib diisi', 'error');
-    } elseif (strlen($nomor_wa) < 5 || !is_numeric($nomor_wa)) {
-        setMessage('Nomor WhatsApp tidak valid', 'error');
+    // Sanitasi dan validasi Nama
+    $nama = preg_replace('/[^\p{L}\s\.\'\-]/u', '', $raw_nama);
+    $nama = trim(preg_replace('/\s+/', ' ', $nama));
+    $nama_clean_letters = preg_replace('/[^\p{L}]/u', '', $nama);
+    $nama_lower = strtolower($nama);
+
+    $spam_keywords = ['test', 'tes', 'testing', 'coba', 'asdf', 'qwerty', 'trial', 'null', 'undefined', 'demo', 'admin'];
+
+    // Sanitasi dan format Nomor WhatsApp
+    $clean_phone = preg_replace('/[^0-9]/', '', $raw_nomor_wa);
+    if (substr($clean_phone, 0, 1) === '0') {
+        $nomor_wa = '62' . substr($clean_phone, 1);
     } else {
-        // Format WA
-        if (substr($nomor_wa, 0, 1) === '0') {
-            $nomor_wa = '62' . substr($nomor_wa, 1);
+        $nomor_wa = $clean_phone;
+    }
+
+    $is_dummy_phone = false;
+    if (strlen($nomor_wa) >= 10) {
+        $suffix = substr($nomor_wa, 3);
+        if (preg_match('/^(\d)\1+$/', $suffix)) {
+            $is_dummy_phone = true;
         }
+    }
+
+    if (empty($nama) || mb_strlen($nama_clean_letters) < 3) {
+        setMessage('Mohon masukkan nama lengkap yang valid (minimal 3 huruf)', 'error');
+    } elseif (in_array($nama_lower, $spam_keywords) || in_array(strtolower($nama_clean_letters), $spam_keywords)) {
+        setMessage('Nama tidak valid. Mohon gunakan nama asli Anda', 'error');
+    } elseif (empty($clean_phone)) {
+        setMessage('Nomor WhatsApp wajib diisi', 'error');
+    } elseif (!preg_match('/^628[1-9][0-9]{7,11}$/', $nomor_wa) || $is_dummy_phone) {
+        setMessage('Nomor WhatsApp tidak valid (Gunakan awalan 08 atau 628 yang aktif, 10-14 digit)', 'error');
+    } else {
 
         // A. Simpan/Update Pelanggan
         $existing_customer = fetchRow("SELECT * FROM pelanggan WHERE nomor_wa = ?", [$nomor_wa]);
@@ -258,6 +287,11 @@ if (isPost()) {
             <?php endif; ?>
 
             <form method="POST" id="leadForm">
+                <!-- Honeypot Field for Spam Bots -->
+                <div style="position: absolute; left: -9999px; top: -9999px; opacity: 0; pointer-events: none;" aria-hidden="true">
+                    <input type="text" name="website_url" tabindex="-1" autocomplete="off" value="">
+                </div>
+
                 <div class="row g-3">
                     <div class="col-12">
                         <label class="form-label-custom">Nama Lengkap</label>
@@ -265,7 +299,8 @@ if (isPost()) {
                             <span class="input-group-text bg-white border-end-0 rounded-start-4 ps-3">
                                 <i class="far fa-user text-muted"></i>
                             </span>
-                            <input type="text" name="nama" class="form-control form-control-lg border-start-0" placeholder="Masukkan nama Anda" required>
+                            <input type="text" name="nama" class="form-control form-control-lg border-start-0" 
+                                   placeholder="Masukkan nama Anda" minlength="3" maxlength="70" required autocomplete="name">
                         </div>
                     </div>
 
@@ -275,10 +310,11 @@ if (isPost()) {
                             <span class="input-group-text bg-white border-end-0 rounded-start-4 ps-3">
                                 <i class="fab fa-whatsapp text-muted" style="font-size: 1.2rem;"></i>
                             </span>
-                            <input type="tel" name="nomor_wa" id="nomor_wa" class="form-control form-control-lg border-start-0" placeholder="0812xxxx" required>
+                            <input type="tel" name="nomor_wa" id="nomor_wa" class="form-control form-control-lg border-start-0 font-tabular" 
+                                   placeholder="081234567890" inputmode="numeric" pattern="[0-9]{10,15}" minlength="10" maxlength="15" required autocomplete="tel">
                         </div>
                         <div class="form-text text-success mt-2 ms-1">
-                            <small><i class="fas fa-check-circle me-1"></i>Link akses akan dikirim otomatis ke WA ini.</small>
+                            <small><i class="fas fa-check-circle me-1"></i>Link akses akan dikirim otomatis ke WA ini (Gunakan awalan 08 / 628).</small>
                         </div>
                     </div>
 
@@ -307,13 +343,40 @@ if (isPost()) {
 <script>
 // Auto format WA
 document.getElementById('nomor_wa').addEventListener('blur', function() {
-    let phone = this.value.trim();
+    let phone = this.value.trim().replace(/[^0-9]/g, '');
     if (phone.length >= 5 && phone.startsWith('0')) {
         this.value = '62' + phone.substring(1);
     }
 });
-// Loading Button
-document.getElementById('leadForm').addEventListener('submit', function() {
+// Validasi dan Loading Button
+document.getElementById('leadForm').addEventListener('submit', function(e) {
+    const namaInput = document.querySelector('input[name="nama"]');
+    const waInput = document.getElementById('nomor_wa');
+    const spamWords = ['test', 'tes', 'testing', 'coba', 'asdf', 'qwerty', 'trial', 'null', 'undefined', 'demo', 'admin'];
+
+    if (namaInput) {
+        const valNama = namaInput.value.trim().toLowerCase();
+        const pureLetters = valNama.replace(/[^a-z]/g, '');
+        if (pureLetters.length < 3 || spamWords.includes(valNama) || spamWords.includes(pureLetters)) {
+            e.preventDefault();
+            alert('Mohon masukkan nama asli Anda yang valid (minimal 3 huruf, bukan kata uji coba).');
+            namaInput.focus();
+            return;
+        }
+    }
+
+    if (waInput) {
+        let cleanWa = waInput.value.replace(/[^0-9]/g, '');
+        if (cleanWa.startsWith('0')) cleanWa = '62' + cleanWa.substring(1);
+        const isRepetitive = /^628(\d)\1{6,}$/.test(cleanWa);
+        if (!/^628[1-9][0-9]{7,11}$/.test(cleanWa) || isRepetitive) {
+            e.preventDefault();
+            alert('Nomor WhatsApp tidak valid. Mohon gunakan format 08 atau 628 yang aktif (10-14 digit).');
+            waInput.focus();
+            return;
+        }
+    }
+
     const btn = document.getElementById('submitBtn');
     btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-2"></i>Memproses...';
     btn.style.opacity = '0.8';
