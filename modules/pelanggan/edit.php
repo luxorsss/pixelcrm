@@ -168,10 +168,11 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                         
                         <?php if ($stats['total_transaksi'] == 0): ?>
                             <a href="delete.php?id=<?= $pelanggan_id ?>" 
-                               class="btn btn-outline-danger fw-bold w-100 text-start bg-white" 
-                               style="border-radius: 12px; padding: 0.85rem;"
-                               onclick="return confirm('Hapus pelanggan <?= safeHtml($pelanggan['nama']) ?> secara permanen?')">
-                                <i class="fas fa-trash-alt me-2 fs-5 align-middle"></i> Hapus Pelanggan
+                               class="btn-hold-confirm w-100 text-start" 
+                               style="border-radius: var(--radius-md); padding: 0.85rem;"
+                               data-hold-time="1500">
+                                <span class="hold-progress"></span>
+                                <span class="hold-label"><i class="fas fa-trash-alt me-2 fs-5 align-middle"></i> Tahan untuk Hapus Pelanggan</span>
                             </a>
                         <?php else: ?>
                             <div class="bg-white border rounded-3 p-3 text-center mt-2">

@@ -663,6 +663,146 @@ textarea.form-control-editorial { min-height: 120px; resize: vertical; }
 .nav-link-custom.active { background: white !important; box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important; color: #0F172A !important; font-weight: 800 !important; }
 .nav-link-custom:not(.active):hover { background: rgba(0,0,0,0.02) !important; color: #475569 !important; }
 
+/* ==========================================================================
+   Advanced Emil Kowalski Recipes: Stagger, Hold-to-Confirm, Origin Popovers
+   ========================================================================== */
+
+/* 1. Stagger Group Entrance (Dashboard Metrics & Table Rows) */
+.stagger-in {
+    opacity: 0;
+    transform: translateY(8px);
+    animation: emilStaggerIn 240ms var(--ease-out) forwards;
+}
+.stagger-in:nth-child(1) { animation-delay: 0ms; }
+.stagger-in:nth-child(2) { animation-delay: 35ms; }
+.stagger-in:nth-child(3) { animation-delay: 70ms; }
+.stagger-in:nth-child(4) { animation-delay: 105ms; }
+.stagger-in:nth-child(5) { animation-delay: 140ms; }
+.stagger-in:nth-child(6) { animation-delay: 175ms; }
+
+@keyframes emilStaggerIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 2. Hold to Confirm (Destructive Actions) */
+.btn-hold-confirm {
+    position: relative;
+    overflow: hidden;
+    user-select: none;
+    cursor: pointer;
+    background: #FEF2F2;
+    color: #DC2626;
+    border: 1px solid #FECACA;
+    border-radius: var(--radius-md);
+    padding: 0.6rem 1.25rem;
+    font-weight: 700;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: transform var(--duration-snappy) var(--ease-out);
+}
+.btn-hold-confirm:active {
+    transform: scale(0.97);
+}
+.btn-hold-confirm .hold-progress {
+    position: absolute;
+    inset: 0;
+    background: #EF4444;
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 200ms var(--ease-out); /* Snap back on release */
+    pointer-events: none;
+    z-index: 1;
+}
+.btn-hold-confirm:active .hold-progress {
+    clip-path: inset(0 0 0 0);
+    transition: clip-path 1.5s linear; /* Deliberate linear fill while holding */
+}
+.btn-hold-confirm .hold-label {
+    position: relative;
+    z-index: 2;
+    transition: color 200ms var(--ease-out);
+}
+.btn-hold-confirm:active .hold-label {
+    color: #FFFFFF;
+}
+
+/* 3. Origin-Aware Dropdowns & Popovers */
+.dropdown-menu {
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.05);
+    padding: 6px;
+    transform-origin: top right;
+    animation: emilDropdownEnter var(--duration-snappy) var(--ease-out);
+}
+.dropdown-menu-start {
+    transform-origin: top left;
+}
+@keyframes emilDropdownEnter {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+.dropdown-item {
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--primary-color);
+    transition: background-color var(--duration-fast) var(--ease-out),
+                color var(--duration-fast) var(--ease-out);
+}
+.dropdown-item:active {
+    transform: scale(0.98);
+}
+.dropdown-item:hover {
+    background-color: var(--bg-subtle);
+    color: var(--primary-color);
+}
+
+/* 4. Instant Subsequent Tooltips */
+.pixel-tooltip {
+    position: fixed;
+    z-index: 1080;
+    background: #0F172A;
+    color: #F8FAFC;
+    padding: 5px 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+    white-space: nowrap;
+    opacity: 0;
+    transform: scale(0.96) translateY(3px);
+    transition: opacity var(--duration-snappy) var(--ease-out),
+                transform var(--duration-snappy) var(--ease-out);
+}
+.pixel-tooltip.visible {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+.pixel-tooltip.instant {
+    transition: none !important;
+}
+
+/* 5. State Morph Blur (Masking Text/State Swaps) */
+.state-morphing {
+    filter: blur(2px);
+    opacity: 0.7;
+    transition: filter var(--duration-snappy) ease, opacity var(--duration-snappy) ease;
+}
+
 /* Accessibility: prefers-reduced-motion (Emil Kowalski Spec) */
 @media (prefers-reduced-motion: reduce) {
     *, ::before, ::after {

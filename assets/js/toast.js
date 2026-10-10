@@ -152,4 +152,126 @@
 
     window.PixelToast = PixelToast;
     window.toast = PixelToast; // convenient alias
+
+    /* ==========================================================================
+       Instant Subsequent Tooltips (Emil Kowalski Recipe)
+       ========================================================================== */
+    let tooltipEl = null;
+    let tooltipTimer = null;
+    let isAnyTooltipOpen = false;
+    let closeGraceTimer = null;
+
+    function getOrCreateTooltip() {
+        if (!tooltipEl) {
+            tooltipEl = document.createElement('div');
+            tooltipEl.className = 'pixel-tooltip';
+            document.body.appendChild(tooltipEl);
+        }
+        return tooltipEl;
+    }
+
+    function positionTooltip(el, targetRect) {
+        const spacing = 6;
+        const ttRect = el.getBoundingClientRect();
+        let top = targetRect.top - ttRect.height - spacing;
+        let left = targetRect.left + (targetRect.width / 2) - (ttRect.width / 2);
+
+        // Boundary adjustments
+        if (top < 10) top = targetRect.bottom + spacing;
+        if (left < 10) left = 10;
+        if (left + ttRect.width > window.innerWidth - 10) {
+            left = window.innerWidth - ttRect.width - 10;
+        }
+
+        el.style.top = `${top}px`;
+        el.style.left = `${left}px`;
+    }
+
+    document.addEventListener('mouseover', (e) => {
+        const trigger = e.target.closest('[data-tooltip], [title]');
+        if (!trigger) return;
+
+        // Extract and swap native title to prevent default browser tooltip clash
+        if (trigger.hasAttribute('title') && !trigger.hasAttribute('data-tooltip')) {
+            trigger.setAttribute('data-tooltip', trigger.getAttribute('title'));
+            trigger.removeAttribute('title');
+        }
+
+        const text = trigger.getAttribute('data-tooltip');
+        if (!text) return;
+
+        clearTimeout(closeGraceTimer);
+        const tt = getOrCreateTooltip();
+        tt.textContent = text;
+
+        const show = () => {
+            const rect = trigger.getBoundingClientRect();
+            positionTooltip(tt, rect);
+            tt.classList.add('visible');
+            if (isAnyTooltipOpen) {
+                tt.classList.add('instant');
+            } else {
+                tt.classList.remove('instant');
+            }
+            isAnyTooltipOpen = true;
+        };
+
+        if (isAnyTooltipOpen) {
+            show();
+        } else {
+            clearTimeout(tooltipTimer);
+            tooltipTimer = setTimeout(show, 250);
+        }
+    });
+
+    document.addEventListener('mouseout', (e) => {
+        const trigger = e.target.closest('[data-tooltip]');
+        if (!trigger) return;
+
+        clearTimeout(tooltipTimer);
+        if (tooltipEl) {
+            tooltipEl.classList.remove('visible');
+        }
+
+        // Keep instant mode alive briefly for adjacent buttons
+        closeGraceTimer = setTimeout(() => {
+            isAnyTooltipOpen = false;
+            if (tooltipEl) tooltipEl.classList.remove('instant');
+        }, 300);
+    });
+
+    /* ==========================================================================
+       Hold-To-Confirm Action Handler (Emil Kowalski Recipe)
+       ========================================================================== */
+    document.addEventListener('pointerdown', (e) => {
+        const btn = e.target.closest('.btn-hold-confirm');
+        if (!btn || btn.disabled) return;
+
+        let holdTimeout = null;
+        const requiredHold = parseInt(btn.getAttribute('data-hold-time') || '1500', 10);
+
+        holdTimeout = setTimeout(() => {
+            // Trigger confirmation completion
+            if (btn.tagName === 'A' && btn.href && !btn.href.startsWith('javascript:')) {
+                window.location.href = btn.href;
+            } else if (btn.dataset.action) {
+                try { eval(btn.dataset.action); } catch(err) { console.error(err); }
+            } else if (btn.type === 'submit' && btn.form) {
+                btn.form.submit();
+            } else {
+                btn.click();
+            }
+        }, requiredHold);
+
+        const cancelHold = () => {
+            clearTimeout(holdTimeout);
+            window.removeEventListener('pointerup', cancelHold);
+            window.removeEventListener('pointercancel', cancelHold);
+        };
+
+        window.addEventListener('pointerup', cancelHold);
+        window.addEventListener('pointercancel', cancelHold);
+    });
+
 })(window);
+

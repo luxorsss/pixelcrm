@@ -142,7 +142,7 @@ try {
 
     <div class="row g-3 mb-4">
         <?php if ($followup_stats): ?>
-        <div class="col-xl-3 col-sm-6">
+        <div class="col-xl-3 col-sm-6 stagger-in">
             <a href="<?= BASE_URL ?>modules/followup/" class="stat-card">
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     <div class="stat-icon m-0" style="background: #FEF3C7; color: #D97706;"><i class="fas fa-clock"></i></div>
@@ -159,7 +159,7 @@ try {
             </a>
         </div>
         <?php else: ?>
-        <div class="col-xl-3 col-sm-6">
+        <div class="col-xl-3 col-sm-6 stagger-in">
             <div class="stat-card">
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     <div class="stat-icon m-0" style="background: #ECFDF5; color: #059669;"><i class="fas fa-wallet"></i></div>
@@ -176,7 +176,7 @@ try {
         </div>
         <?php endif; ?>
 
-        <div class="col-xl-3 col-sm-6">
+        <div class="col-xl-3 col-sm-6 stagger-in">
             <a href="<?= BASE_URL ?>modules/transaksi/?date_from=<?= $tanggal_awal_bulan ?>&date_to=<?= $tanggal_akhir_bulan ?>" class="stat-card">
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     <div class="stat-icon m-0" style="background: #F1F5F9; color: #0F172A;"><i class="fas fa-shopping-bag"></i></div>
@@ -192,7 +192,7 @@ try {
             </a>
         </div>
 
-        <div class="col-xl-3 col-sm-6">
+        <div class="col-xl-3 col-sm-6 stagger-in">
             <a href="<?= BASE_URL ?>modules/pelanggan/" class="stat-card">
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     <div class="stat-icon m-0" style="background: #F1F5F9; color: #0F172A;"><i class="fas fa-users"></i></div>
@@ -207,7 +207,7 @@ try {
             </a>
         </div>
 
-        <div class="col-xl-3 col-sm-6">
+        <div class="col-xl-3 col-sm-6 stagger-in">
             <a href="<?= BASE_URL ?>modules/produk/" class="stat-card">
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     <div class="stat-icon m-0" style="background: #F1F5F9; color: #0F172A;"><i class="fas fa-box-open"></i></div>
