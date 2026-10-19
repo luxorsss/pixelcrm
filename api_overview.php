@@ -143,6 +143,19 @@ try {
         WHERE dt.produk_id IN (6, 19) AND t.tanggal_transaksi >= '$firstDayThisMonth'
     ");
 
+    // 4b. Day of Week Distribution (All-Time Completed Orders)
+    $day_of_week_rows = fetchAll("
+        SELECT 
+            DAYNAME(tanggal_transaksi) as day_name,
+            DAYOFWEEK(tanggal_transaksi) as day_num,
+            COUNT(*) as total_orders,
+            COALESCE(SUM(total_harga), 0) as total_revenue
+        FROM transaksi
+        WHERE status = 'selesai'
+        GROUP BY day_num, day_name
+        ORDER BY day_num ASC
+    ");
+
     // 5. Products Leaderboard
     $products_leaderboard = fetchAll("
         SELECT 
@@ -281,7 +294,8 @@ try {
         ],
         'products_leaderboard' => $products_leaderboard,
         'rfm_customer_segments' => $rfm_distribution,
-        'recent_orders' => $recent_transactions
+        'recent_orders' => $recent_transactions,
+        'day_of_week_distribution' => $day_of_week_rows
     ];
 
     echo json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);

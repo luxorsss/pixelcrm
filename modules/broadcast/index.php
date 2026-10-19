@@ -11,6 +11,9 @@ $wa_accounts = fetchAll("SELECT id, account_name FROM onesender_config ORDER BY 
 if (!$wa_accounts) {
     $wa_accounts = []; 
 }
+if (!$produk_list) {
+    $produk_list = [];
+}
 
 $produk_json = json_encode(array_map(fn($p) => ['id' => (int)$p['id'], 'text' => $p['nama']], $produk_list));
 
@@ -61,17 +64,16 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 
     /* Multi-select Tags UI */
     .multi-select-container { position: relative; width: 100%; }
-    .multi-select-input { width: 100%; padding: 10px 10px 10px 36px; border: 1px solid #D1D5DB; border-radius: 12px; font-size: 0.85rem; font-weight: 500; outline: none; transition: border-color 0.2s; }
+    .multi-select-input { width: 100%; padding: 10px 10px 10px 36px; border: 1px solid #D1D5DB; border-radius: 12px; font-size: 0.85rem; font-weight: 500; outline: none; transition: border-color 0.2s, box-shadow 0.2s; background: #ffffff; color: #1f2937; }
     .multi-select-input:focus { border-color: #3B82F6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-    .multi-select-input::before { content: "\f002"; font-family: "Font Awesome 5 Free"; font-weight: 900; position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9CA3AF; }
     .multi-select-tags { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
     .tag { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
     .tag-remove { cursor: pointer; color: #93C5FD; transition: color 0.2s; font-size: 1rem; line-height: 1; }
     .tag-remove:hover { color: #DC2626; }
-    .dropdown-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #D1D5DB; border-radius: 8px; margin-top: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-height: 200px; overflow-y: auto; z-index: 100; display: none; }
-    .dropdown-item { padding: 10px 14px; cursor: pointer; font-size: 0.85rem; font-weight: 500; border-bottom: 1px solid #F3F4F6; }
+    .dropdown-list { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #ffffff; border: 1px solid #D1D5DB; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); max-height: 220px; overflow-y: auto; z-index: 1050; display: none; }
+    .dropdown-item { padding: 10px 14px; cursor: pointer; font-size: 0.85rem; font-weight: 500; border-bottom: 1px solid #F3F4F6; color: #374151; background: #ffffff; transition: background 0.15s, color 0.15s; }
     .dropdown-item:last-child { border-bottom: none; }
-    .dropdown-item:hover { background: #F9FAFB; color: #2563EB; }
+    .dropdown-item:hover { background: #F3F4F6; color: #2563EB; }
     .dropdown-item.selected { background: #EFF6FF; color: #1D4ED8; font-weight: 700; }
     
     /* Custom Radio Toggle */
@@ -99,14 +101,14 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                 
                 <div class="col-xl-8 col-lg-7 d-flex flex-column gap-4">
                     
-                    <div class="panel-editorial p-0 overflow-hidden">
-                        <div class="p-4 border-bottom bg-white d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div class="panel-editorial p-0" style="position: relative; z-index: 20;">
+                        <div class="p-4 border-bottom bg-white d-flex justify-content-between align-items-center flex-wrap gap-3" style="border-radius: 20px 20px 0 0;">
                             <h3 class="panel-title m-0"><i class="fas fa-users text-success me-2"></i> Filter Audiens (RFM)</h3>
                             <button type="button" id="btnUpdateSegment" class="btn btn-light btn-sm border fw-bold text-dark rounded-pill px-3">
                                 <i class="fas fa-sync-alt text-primary me-1"></i> Update Data RFM
                             </button>
                         </div>
-                        <div class="p-4" style="background: #FAFAFA;">
+                        <div class="p-4" style="background: #FAFAFA; border-radius: 0 0 20px 20px;">
                             
                             <div class="mb-4">
                                 <label class="fw-bold text-dark mb-1" style="font-size: 0.85rem;">Pilih Segmentasi Target</label>
@@ -138,10 +140,10 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                                     <label class="fw-bold text-dark mb-1" style="font-size: 0.85rem;"><i class="fas fa-filter text-info me-1"></i> Wajib Beli Produk Ini (Include)</label>
                                     <div class="multi-select-container mt-1" id="includeContainer">
                                         <div class="position-relative">
-                                            <i class="fas fa-search position-absolute text-muted" style="top: 50%; left: 14px; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none;"></i>
-                                            <input type="text" class="multi-select-input" placeholder="Cari nama produk...">
+                                            <i class="fas fa-search position-absolute text-muted" style="top: 50%; left: 14px; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none; z-index: 2;"></i>
+                                            <input type="text" class="multi-select-input" placeholder="Cari nama produk..." autocomplete="off">
+                                            <div class="dropdown-list"></div>
                                         </div>
-                                        <div class="dropdown-list"></div>
                                         <div class="multi-select-tags" id="includeTags"></div>
                                     </div>
                                     <input type="hidden" name="include_produk_json" id="includeProdukJson">
@@ -151,10 +153,10 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                                     <label class="fw-bold text-dark mb-1" style="font-size: 0.85rem;"><i class="fas fa-ban text-danger me-1"></i> Jangan Kirim Jika Pernah Beli (Exclude)</label>
                                     <div class="multi-select-container mt-1" id="excludeContainer">
                                         <div class="position-relative">
-                                            <i class="fas fa-search position-absolute text-muted" style="top: 50%; left: 14px; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none;"></i>
-                                            <input type="text" class="multi-select-input" placeholder="Cari nama produk...">
+                                            <i class="fas fa-search position-absolute text-muted" style="top: 50%; left: 14px; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none; z-index: 2;"></i>
+                                            <input type="text" class="multi-select-input" placeholder="Cari nama produk..." autocomplete="off">
+                                            <div class="dropdown-list"></div>
                                         </div>
-                                        <div class="dropdown-list"></div>
                                         <div class="multi-select-tags" id="excludeTags"></div>
                                     </div>
                                     <input type="hidden" name="exclude_produk_json" id="excludeProdukJson">
@@ -391,29 +393,60 @@ require_once __DIR__ . '/../../includes/sidebar.php';
       const hiddenInput = document.getElementById(hiddenInputId);
       let selected = [];
 
+      input.addEventListener('focus', () => showDropdown());
       input.addEventListener('click', () => showDropdown());
       input.addEventListener('input', () => showDropdown());
 
       function showDropdown() {
-        const term = input.value.toLowerCase();
+        const term = input.value.trim().toLowerCase();
         dropdown.innerHTML = '';
+        
+        if (!Array.isArray(produkList) || produkList.length === 0) {
+          const empty = document.createElement('div');
+          empty.className = 'dropdown-item text-muted';
+          empty.style.cursor = 'default';
+          empty.textContent = 'Belum ada data produk di sistem';
+          dropdown.appendChild(empty);
+          dropdown.style.display = 'block';
+          container.style.zIndex = '50';
+          return;
+        }
+
         const filtered = produkList.filter(p => p.text.toLowerCase().includes(term));
-        filtered.forEach(p => {
-          const item = document.createElement('div');
-          item.className = 'dropdown-item';
-          if (selected.some(s => s.id === p.id)) item.classList.add('selected');
-          item.textContent = p.text;
-          item.addEventListener('click', () => {
-            if (!selected.some(s => s.id === p.id)) {
-              selected.push(p); renderTags();
-            }
-            input.value = ''; hideDropdown(); triggerPreview();
+        if (filtered.length === 0) {
+          const empty = document.createElement('div');
+          empty.className = 'dropdown-item text-muted';
+          empty.style.cursor = 'default';
+          empty.textContent = 'Tidak ada produk yang cocok';
+          dropdown.appendChild(empty);
+        } else {
+          filtered.forEach(p => {
+            const item = document.createElement('div');
+            item.className = 'dropdown-item';
+            if (selected.some(s => s.id === p.id)) item.classList.add('selected');
+            item.textContent = p.text;
+            item.addEventListener('click', (e) => {
+              e.stopPropagation();
+              if (!selected.some(s => s.id === p.id)) {
+                selected.push(p); 
+                renderTags();
+              }
+              input.value = ''; 
+              hideDropdown(); 
+              triggerPreview();
+            });
+            dropdown.appendChild(item);
           });
-          dropdown.appendChild(item);
-        });
-        dropdown.style.display = filtered.length ? 'block' : 'none';
+        }
+        dropdown.style.display = 'block';
+        container.style.zIndex = '50';
       }
-      function hideDropdown() { dropdown.style.display = 'none'; }
+
+      function hideDropdown() { 
+        dropdown.style.display = 'none'; 
+        container.style.zIndex = '';
+      }
+
       function renderTags() {
         tagsContainer.innerHTML = '';
         selected.forEach(p => {
@@ -426,7 +459,10 @@ require_once __DIR__ . '/../../includes/sidebar.php';
         });
         hiddenInput.value = JSON.stringify(selected.map(p => p.id));
       }
-      document.addEventListener('click', (e) => { if (!container.contains(e.target)) hideDropdown(); });
+
+      document.addEventListener('click', (e) => { 
+        if (!container.contains(e.target)) hideDropdown(); 
+      });
     }
 
     initMultiSelect('includeContainer', 'includeTags', 'includeProdukJson');
