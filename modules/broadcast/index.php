@@ -280,18 +280,18 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                                 <div class="text-start pe-3">
                                     <div class="toggle-label text-dark" style="font-size: 0.85rem;"><i class="fas fa-calendar-alt text-info me-1"></i> Filter Tgl Transaksi</div>
                                 </div>
-                                <input type="checkbox" id="tglCheckbox" class="switch-input">
+                                <input type="checkbox" id="tglCheckbox" name="filter_tanggal" value="1" class="switch-input">
                                 <div class="switch-slider"></div>
                             </label>
                             <div id="tanggalFields" style="display:none;" class="mt-2 p-3 bg-light rounded-3 border">
                                 <div class="row g-2">
                                     <div class="col-6">
                                         <label class="text-muted" style="font-size: 0.7rem;">Dari Tanggal</label>
-                                        <input type="date" class="form-control-editorial text-muted px-2" name="tanggal_mulai" value="<?= date('Y-m-01') ?>">
+                                        <input type="date" class="form-control-editorial text-muted px-2" name="tanggal_mulai" value="<?= date('Y-m-01') ?>" disabled>
                                     </div>
                                     <div class="col-6">
                                         <label class="text-muted" style="font-size: 0.7rem;">Sampai</label>
-                                        <input type="date" class="form-control-editorial text-muted px-2" name="tanggal_akhir" value="<?= date('Y-m-d') ?>">
+                                        <input type="date" class="form-control-editorial text-muted px-2" name="tanggal_akhir" value="<?= date('Y-m-d') ?>" disabled>
                                     </div>
                                 </div>
                             </div>
@@ -404,10 +404,16 @@ require_once __DIR__ . '/../../includes/sidebar.php';
     // Tanggal Toggle (Custom Switch)
     document.getElementById('tglCheckbox').addEventListener('change', function() {
       const tgF = document.getElementById('tanggalFields');
+      const tglMulai = document.querySelector('input[name="tanggal_mulai"]');
+      const tglAkhir = document.querySelector('input[name="tanggal_akhir"]');
       if(this.checked) {
           tgF.style.display = 'block';
+          if (tglMulai) tglMulai.disabled = false;
+          if (tglAkhir) tglAkhir.disabled = false;
       } else {
           tgF.style.display = 'none';
+          if (tglMulai) tglMulai.disabled = true;
+          if (tglAkhir) tglAkhir.disabled = true;
       }
       triggerPreview();
     });

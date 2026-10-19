@@ -18,7 +18,7 @@ if (!isPost()) die('Akses ditolak.');
 
 $tipe_pesan = post('tipe_pesan', 'text');
 $pesan_template = trim($tipe_pesan === 'text' ? post('pesan') : post('caption'));
-$segments = !empty($_POST['segments']) ? explode(',', $_POST['segments']) : [];
+$segments = !empty($_POST['segments']) ? array_filter(array_map('trim', explode(',', $_POST['segments']))) : [];
 $include_produk = json_decode($_POST['include_produk_json'] ?? '[]', true);
 $exclude_produk = json_decode($_POST['exclude_produk_json'] ?? '[]', true);
 $wa_account_id = (int)post('wa_account_id');
@@ -33,7 +33,8 @@ $account_name = $wa_config['account_name'];
 $where = "t.status = 'selesai'";
 $params = [];
 
-if (post('tanggal_mulai') && post('tanggal_akhir')) {
+// Hanya filter tanggal jika checkbox toggle tanggal diaktifkan pengguna
+if (post('filter_tanggal') == '1' && post('tanggal_mulai') && post('tanggal_akhir')) {
     $where .= " AND t.tanggal_transaksi BETWEEN ? AND ?";
     $params[] = post('tanggal_mulai') . ' 00:00:00';
     $params[] = post('tanggal_akhir') . ' 23:59:59';
