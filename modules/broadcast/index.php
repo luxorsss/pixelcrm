@@ -62,19 +62,52 @@ require_once __DIR__ . '/../../includes/sidebar.php';
     }
     .segment-item[data-tooltip]:hover::after { opacity: 1; bottom: 130%; }    
 
-    /* Multi-select Tags UI */
+    /* Multi-select Dropdown UI */
     .multi-select-container { position: relative; width: 100%; }
-    .multi-select-input { width: 100%; padding: 10px 10px 10px 36px; border: 1px solid #D1D5DB; border-radius: 12px; font-size: 0.85rem; font-weight: 500; outline: none; transition: border-color 0.2s, box-shadow 0.2s; background: #ffffff; color: #1f2937; }
-    .multi-select-input:focus { border-color: #3B82F6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-    .multi-select-tags { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
-    .tag { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
-    .tag-remove { cursor: pointer; color: #93C5FD; transition: color 0.2s; font-size: 1rem; line-height: 1; }
-    .tag-remove:hover { color: #DC2626; }
-    .dropdown-list { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #ffffff; border: 1px solid #D1D5DB; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); max-height: 220px; overflow-y: auto; z-index: 1050; display: none; }
-    .dropdown-item { padding: 10px 14px; cursor: pointer; font-size: 0.85rem; font-weight: 500; border-bottom: 1px solid #F3F4F6; color: #374151; background: #ffffff; transition: background 0.15s, color 0.15s; }
+    .multi-select-box {
+      display: flex; align-items: center; background: #ffffff;
+      border: 1px solid #D1D5DB; border-radius: 12px; padding: 2px 12px 2px 14px;
+      transition: all 0.2s ease; cursor: pointer; min-height: 44px;
+    }
+    .multi-select-box:hover { border-color: #9CA3AF; }
+    .multi-select-box.is-active, .multi-select-box:focus-within {
+      border-color: #3B82F6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+    .multi-select-input {
+      flex: 1; border: none; outline: none; background: transparent;
+      padding: 8px 6px; font-size: 0.85rem; font-weight: 500; color: #1F2937;
+    }
+    .multi-select-arrow {
+      color: #6B7280; font-size: 0.8rem; transition: transform 0.2s ease; cursor: pointer; padding: 4px;
+    }
+    .multi-select-box.is-active .multi-select-arrow {
+      transform: rotate(180deg); color: #2563EB;
+    }
+    .dropdown-list {
+      position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+      background: #ffffff; border: 1px solid #D1D5DB; border-radius: 12px;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.14); max-height: 240px; overflow-y: auto;
+      z-index: 99999; display: none; padding: 4px 0;
+    }
+    .dropdown-item {
+      padding: 9px 14px; cursor: pointer; font-size: 0.85rem; font-weight: 500;
+      color: #374151; background: #ffffff; display: flex; align-items: center; justify-content: space-between;
+      transition: background 0.15s, color 0.15s; border-bottom: 1px solid #F9FAFB;
+    }
     .dropdown-item:last-child { border-bottom: none; }
-    .dropdown-item:hover { background: #F3F4F6; color: #2563EB; }
-    .dropdown-item.selected { background: #EFF6FF; color: #1D4ED8; font-weight: 700; }
+    .dropdown-item:hover { background: #F3F4F6; color: #1D4ED8; }
+    .dropdown-item.selected { background: #EFF6FF; color: #1D4ED8; font-weight: 600; }
+    .dropdown-item .check-icon { font-size: 0.8rem; color: #3B82F6; opacity: 0; }
+    .dropdown-item.selected .check-icon { opacity: 1; }
+    
+    .multi-select-tags { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag {
+      background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE;
+      padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .tag-remove { cursor: pointer; color: #93C5FD; font-size: 1rem; line-height: 1; }
+    .tag-remove:hover { color: #DC2626; }
     
     /* Custom Radio Toggle */
     .radio-option { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; padding: 8px 16px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.85rem; transition: all 0.2s; background: white; margin-right: 10px; }
@@ -137,26 +170,34 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 
                             <div class="row g-4">
                                 <div class="col-md-6">
-                                    <label class="fw-bold text-dark mb-1" style="font-size: 0.85rem;"><i class="fas fa-filter text-info me-1"></i> Wajib Beli Produk Ini (Include)</label>
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <label class="fw-bold text-dark m-0" style="font-size: 0.85rem;"><i class="fas fa-filter text-info me-1"></i> Wajib Beli Produk Ini (Include)</label>
+                                        <span class="badge rounded-pill bg-light text-muted border" id="includeCountBadge" style="font-size: 0.7rem; font-weight: 600;">0 dipilih</span>
+                                    </div>
                                     <div class="multi-select-container mt-1" id="includeContainer">
-                                        <div class="position-relative">
-                                            <i class="fas fa-search position-absolute text-muted" style="top: 50%; left: 14px; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none; z-index: 2;"></i>
-                                            <input type="text" class="multi-select-input" placeholder="Cari nama produk..." autocomplete="off">
-                                            <div class="dropdown-list"></div>
+                                        <div class="multi-select-box">
+                                            <i class="fas fa-search text-muted me-2" style="font-size: 0.85rem; pointer-events: none;"></i>
+                                            <input type="text" class="multi-select-input" placeholder="Klik untuk pilih produk..." autocomplete="off">
+                                            <i class="fas fa-chevron-down multi-select-arrow" title="Buka daftar produk"></i>
                                         </div>
+                                        <div class="dropdown-list"></div>
                                         <div class="multi-select-tags" id="includeTags"></div>
                                     </div>
                                     <input type="hidden" name="include_produk_json" id="includeProdukJson">
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="fw-bold text-dark mb-1" style="font-size: 0.85rem;"><i class="fas fa-ban text-danger me-1"></i> Jangan Kirim Jika Pernah Beli (Exclude)</label>
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <label class="fw-bold text-dark m-0" style="font-size: 0.85rem;"><i class="fas fa-ban text-danger me-1"></i> Jangan Kirim Jika Pernah Beli</label>
+                                        <span class="badge rounded-pill bg-light text-muted border" id="excludeCountBadge" style="font-size: 0.7rem; font-weight: 600;">0 dipilih</span>
+                                    </div>
                                     <div class="multi-select-container mt-1" id="excludeContainer">
-                                        <div class="position-relative">
-                                            <i class="fas fa-search position-absolute text-muted" style="top: 50%; left: 14px; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none; z-index: 2;"></i>
-                                            <input type="text" class="multi-select-input" placeholder="Cari nama produk..." autocomplete="off">
-                                            <div class="dropdown-list"></div>
+                                        <div class="multi-select-box">
+                                            <i class="fas fa-search text-muted me-2" style="font-size: 0.85rem; pointer-events: none;"></i>
+                                            <input type="text" class="multi-select-input" placeholder="Klik untuk pilih produk..." autocomplete="off">
+                                            <i class="fas fa-chevron-down multi-select-arrow" title="Buka daftar produk"></i>
                                         </div>
+                                        <div class="dropdown-list"></div>
                                         <div class="multi-select-tags" id="excludeTags"></div>
                                     </div>
                                     <input type="hidden" name="exclude_produk_json" id="excludeProdukJson">
@@ -384,31 +425,86 @@ require_once __DIR__ . '/../../includes/sidebar.php';
         }
     });
 
-    // Multi-select Logic (Include/Exclude Produk)
-    function initMultiSelect(containerId, tagsId, hiddenInputId) {
+    // Multi-select Dropdown Logic (Include/Exclude Produk)
+    function initMultiSelect(containerId, tagsId, hiddenInputId, badgeId) {
       const container = document.getElementById(containerId);
+      const box = container.querySelector('.multi-select-box');
       const input = container.querySelector('.multi-select-input');
+      const arrow = container.querySelector('.multi-select-arrow');
       const dropdown = container.querySelector('.dropdown-list');
       const tagsContainer = document.getElementById(tagsId);
       const hiddenInput = document.getElementById(hiddenInputId);
+      const countBadge = document.getElementById(badgeId);
       let selected = [];
 
-      input.addEventListener('focus', () => showDropdown());
-      input.addEventListener('click', () => showDropdown());
-      input.addEventListener('input', () => showDropdown());
+      function isOpen() {
+        return dropdown.style.display === 'block';
+      }
 
       function showDropdown() {
+        renderDropdownItems();
+        dropdown.style.display = 'block';
+        box.classList.add('is-active');
+        container.style.zIndex = '9999';
+        const panel = container.closest('.panel-editorial');
+        if (panel) panel.style.zIndex = '100';
+      }
+
+      function hideDropdown() {
+        dropdown.style.display = 'none';
+        box.classList.remove('is-active');
+        container.style.zIndex = '';
+        const panel = container.closest('.panel-editorial');
+        if (panel) panel.style.zIndex = '20';
+      }
+
+      function toggleDropdown() {
+        if (isOpen()) {
+          hideDropdown();
+        } else {
+          showDropdown();
+        }
+      }
+
+      box.addEventListener('click', (e) => {
+        if (e.target !== input) {
+          input.focus();
+        }
+        if (!isOpen()) {
+          showDropdown();
+        }
+      });
+
+      arrow.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleDropdown();
+      });
+
+      input.addEventListener('focus', () => {
+        showDropdown();
+      });
+
+      input.addEventListener('input', () => {
+        if (!isOpen()) showDropdown();
+        renderDropdownItems();
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          hideDropdown();
+        }
+      });
+
+      function renderDropdownItems() {
         const term = input.value.trim().toLowerCase();
         dropdown.innerHTML = '';
-        
+
         if (!Array.isArray(produkList) || produkList.length === 0) {
           const empty = document.createElement('div');
           empty.className = 'dropdown-item text-muted';
           empty.style.cursor = 'default';
           empty.textContent = 'Belum ada data produk di sistem';
           dropdown.appendChild(empty);
-          dropdown.style.display = 'block';
-          container.style.zIndex = '50';
           return;
         }
 
@@ -421,43 +517,54 @@ require_once __DIR__ . '/../../includes/sidebar.php';
           dropdown.appendChild(empty);
         } else {
           filtered.forEach(p => {
+            const isSelected = selected.some(s => s.id === p.id);
             const item = document.createElement('div');
-            item.className = 'dropdown-item';
-            if (selected.some(s => s.id === p.id)) item.classList.add('selected');
-            item.textContent = p.text;
+            item.className = 'dropdown-item' + (isSelected ? ' selected' : '');
+            item.innerHTML = `<span>${p.text}</span><i class="fas fa-check check-icon"></i>`;
+            
             item.addEventListener('click', (e) => {
               e.stopPropagation();
-              if (!selected.some(s => s.id === p.id)) {
-                selected.push(p); 
-                renderTags();
+              if (selected.some(s => s.id === p.id)) {
+                selected = selected.filter(s => s.id !== p.id);
+              } else {
+                selected.push(p);
               }
-              input.value = ''; 
-              hideDropdown(); 
+              renderTags();
+              renderDropdownItems();
               triggerPreview();
+              input.focus();
             });
             dropdown.appendChild(item);
           });
         }
-        dropdown.style.display = 'block';
-        container.style.zIndex = '50';
-      }
-
-      function hideDropdown() { 
-        dropdown.style.display = 'none'; 
-        container.style.zIndex = '';
       }
 
       function renderTags() {
         tagsContainer.innerHTML = '';
         selected.forEach(p => {
-          const tag = document.createElement('div'); tag.className = 'tag';
-          tag.innerHTML = `${p.text} <span class="tag-remove" data-id="${p.id}">&times;</span>`;
+          const tag = document.createElement('div');
+          tag.className = 'tag';
+          tag.innerHTML = `<span>${p.text}</span> <span class="tag-remove" data-id="${p.id}">&times;</span>`;
           tag.querySelector('.tag-remove').addEventListener('click', (e) => {
-            e.stopPropagation(); selected = selected.filter(s => s.id !== p.id); renderTags(); triggerPreview();
+            e.stopPropagation();
+            selected = selected.filter(s => s.id !== p.id);
+            renderTags();
+            renderDropdownItems();
+            triggerPreview();
           });
           tagsContainer.appendChild(tag);
         });
         hiddenInput.value = JSON.stringify(selected.map(p => p.id));
+        if (countBadge) {
+          countBadge.textContent = selected.length + ' dipilih';
+          if (selected.length > 0) {
+            countBadge.classList.remove('bg-light', 'text-muted');
+            countBadge.classList.add('bg-primary', 'text-white');
+          } else {
+            countBadge.classList.remove('bg-primary', 'text-white');
+            countBadge.classList.add('bg-light', 'text-muted');
+          }
+        }
       }
 
       document.addEventListener('click', (e) => { 
@@ -465,8 +572,8 @@ require_once __DIR__ . '/../../includes/sidebar.php';
       });
     }
 
-    initMultiSelect('includeContainer', 'includeTags', 'includeProdukJson');
-    initMultiSelect('excludeContainer', 'excludeTags', 'excludeProdukJson');
+    initMultiSelect('includeContainer', 'includeTags', 'includeProdukJson', 'includeCountBadge');
+    initMultiSelect('excludeContainer', 'excludeTags', 'excludeProdukJson', 'excludeCountBadge');
 
     // === LIVE PREVIEW FETCHING ===
     let previewTimeout;
