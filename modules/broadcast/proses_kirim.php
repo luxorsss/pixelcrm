@@ -64,9 +64,8 @@ $penerima = [];
 foreach ($results as $row) {
     if (!empty($segments) && !in_array($row['rfm_segment'], $segments)) continue;
     
-    // GANTI safeHtml MENJADI htmlspecialchars DI BAWAH INI:
     $penerima[] = [
-        'nama' => htmlspecialchars($row['nama'] ?? '', ENT_QUOTES, 'UTF-8'), 
+        'nama' => trim($row['nama'] ?? ''), 
         'nomor_wa' => normalizeWa($row['nomor_wa'])
     ];
 }
@@ -101,8 +100,13 @@ foreach ($penerima as $p) {
     $nomor = $p['nomor_wa'];
     if (strlen($nomor) < 10) continue;
     
-    // Replace Variabel [nama]
-    $pesan_final = str_replace('[nama]', $p['nama'], $pesan_template);
+    // Replace Variabel [nama] (Case-Insensitive: [nama], [Nama], [NAMA], {nama}, dll)
+    $namaPelanggan = !empty($p['nama']) ? trim($p['nama']) : 'Kak';
+    $pesan_final = str_ireplace(
+        ['[nama]', '{nama}', '[name]', '{name}', '%nama%', '%name%'], 
+        $namaPelanggan, 
+        $pesan_template
+    );
     
     // Eksekusi fungsi dari whatsapp_helper.php
     if ($tipe_pesan === 'text') {
