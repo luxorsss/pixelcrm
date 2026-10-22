@@ -295,7 +295,26 @@ try {
         'products_leaderboard' => $products_leaderboard,
         'rfm_customer_segments' => $rfm_distribution,
         'recent_orders' => $recent_transactions,
-        'day_of_week_distribution' => $day_of_week_rows
+        'day_of_week_distribution' => $day_of_week_rows,
+        'followup_system' => [
+            'queue' => fetchAll("
+                SELECT fl.id, fl.transaksi_id, fl.pelanggan_id, p.nama as pelanggan_nama, p.nomor_wa,
+                       fm.produk_id, pr.nama as produk_nama, fm.urutan, fm.nama_pesan, fm.delay_value, fm.delay_unit,
+                       fl.status, fl.jadwal_kirim, fl.waktu_kirim
+                FROM followup_logs fl
+                JOIN followup_messages fm ON fl.followup_message_id = fm.id
+                JOIN pelanggan p ON fl.pelanggan_id = p.id
+                JOIN produk pr ON fm.produk_id = pr.id
+                ORDER BY fl.id DESC
+                LIMIT 20
+            "),
+            'sequences' => fetchAll("
+                SELECT fm.id, fm.produk_id, pr.nama as produk_nama, fm.urutan, fm.nama_pesan, fm.delay_value, fm.delay_unit, fm.status
+                FROM followup_messages fm
+                JOIN produk pr ON fm.produk_id = pr.id
+                ORDER BY fm.produk_id ASC, fm.urutan ASC
+            ")
+        ]
     ];
 
     echo json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
