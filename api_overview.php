@@ -229,6 +229,40 @@ try {
           AND t.id IN (SELECT DISTINCT transaksi_id FROM detail_transaksi WHERE produk_id = 29)
     ");
 
+    // Cek perbandingan getPenjualanHarian analitik.php (profit vs omzet kotor)
+    $analitik_harian_debug = fetchAll("
+        SELECT 
+            DAY(t.waktu_selesai) as hari,
+            DATE(t.waktu_selesai) as tanggal,
+            COUNT(DISTINCT t.id) as total_transaksi,
+            COALESCE(SUM(dt.profit), 0) as profit_harian,
+            COALESCE(SUM(dt.harga), 0) as omzet_harian
+        FROM transaksi t
+        JOIN detail_transaksi dt ON t.id = dt.transaksi_id
+        WHERE t.status = 'selesai' 
+          AND t.waktu_selesai IS NOT NULL
+          AND MONTH(t.waktu_selesai) = 11 
+          AND YEAR(t.waktu_selesai) = 2026
+        GROUP BY DAY(t.waktu_selesai), DATE(t.waktu_selesai)
+        ORDER BY hari
+    ");
+
+    $sisa_usia_profit_vs_omzet = fetchAll("
+        SELECT 
+            DAY(t.waktu_selesai) as hari,
+            DATE(t.waktu_selesai) as tanggal,
+            COUNT(DISTINCT t.id) as total_transaksi,
+            COALESCE(SUM(dt.profit), 0) as profit_bersih,
+            COALESCE(SUM(dt.harga), 0) as omzet_kotor
+        FROM transaksi t
+        JOIN detail_transaksi dt ON t.id = dt.transaksi_id
+        WHERE t.status = 'selesai' 
+          AND t.waktu_selesai IS NOT NULL
+          AND t.id IN (SELECT DISTINCT transaksi_id FROM detail_transaksi WHERE produk_id = 29)
+        GROUP BY DAY(t.waktu_selesai), DATE(t.waktu_selesai)
+        ORDER BY hari
+    ");
+
     // 4d. Dynamic Daily Breakdown per Product if Requested (?produk_id=XX)
     $req_produk_id = isset($_GET['produk_id']) ? (int)$_GET['produk_id'] : 0;
     $product_daily_breakdown = [];
@@ -415,6 +449,8 @@ try {
             'daily_breakdown_by_waktu_selesai' => $sisa_usia_daily_by_waktu_selesai
         ],
         'product_daily_breakdown' => $product_daily_breakdown,
+        'analitik_harian_debug' => $analitik_harian_debug,
+        'sisa_usia_profit_vs_omzet' => $sisa_usia_profit_vs_omzet,
         'products_leaderboard' => $products_leaderboard,
         'rfm_customer_segments' => $rfm_distribution,
         'recent_orders' => $recent_transactions,
