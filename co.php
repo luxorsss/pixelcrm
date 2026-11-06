@@ -209,15 +209,16 @@ if (isPost()) {
 			$bundle_produk = fetchRow("SELECT harga, profit FROM produk WHERE id = ?", [$bundle_detail['produk_id']]);
 
 			$harga_normal = (float)$bundle_produk['harga'];
-			$profit_normal = (float)$bundle_produk['profit'];
+			// Fallback: jika profit di master produk 0 atau kosong, anggap profit 100% (modal = 0)
+			$profit_normal = ($bundle_produk['profit'] > 0) ? (float)$bundle_produk['profit'] : $harga_normal;
 			$harga_jual_bundling = (float)$bundle_detail['harga'];
 
 			// Hitung modal asli: Harga Normal - Profit Normal
-			$modal = $harga_normal - $profit_normal;
+			$modal = max(0, $harga_normal - $profit_normal);
 
-			// Profit Baru: Harga Jual Bundling - Modal
-			// Jika hasilnya negatif (karena diskon terlalu besar), set ke 0
-			$profit_final = max(0, $harga_jual_bundling - $modal);
+			// Profit Baru: jika modal 0 (produk digital), profit = 100% harga jual bundling
+			// Jika ada modal fisik (> 0), profit = harga jual bundling - modal
+			$profit_final = ($modal > 0) ? max(0, $harga_jual_bundling - $modal) : $harga_jual_bundling;
 
 			execute("INSERT INTO detail_transaksi (transaksi_id, produk_id, harga, profit) VALUES (?, ?, ?, ?)", 
 				[$transaksi_id, $bundle_detail['produk_id'], $harga_jual_bundling, $profit_final]);
