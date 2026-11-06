@@ -143,7 +143,7 @@ try {
         WHERE dt.produk_id IN (6, 19) AND t.tanggal_transaksi >= '$firstDayThisMonth'
     ");
 
-    // 4c. Sisa Usia Campaign Focus & Daily Breakdown (ID 29 & Bundling IDs 18, 26)
+    // 4c. Sisa Usia Campaign Focus & Daily Breakdown (ID 29 & All Bundling)
     $sisa_usia_daily = fetchAll("
         SELECT 
             DATE(t.tanggal_transaksi) as tanggal,
@@ -162,12 +162,64 @@ try {
         ORDER BY tanggal ASC
     ");
 
+    // Perbandingan jika dikelompokkan berdasarkan waktu_selesai (seperti di analitik.php)
+    $sisa_usia_daily_by_waktu_selesai = fetchAll("
+        SELECT 
+            DATE(t.waktu_selesai) as tanggal_selesai,
+            COUNT(DISTINCT t.id) as selesai,
+            COALESCE(SUM(CASE WHEN dt.produk_id = 29 THEN dt.harga ELSE 0 END), 0) as omzet_pokok,
+            COALESCE(SUM(CASE WHEN dt.produk_id != 29 THEN dt.harga ELSE 0 END), 0) as omzet_bundling,
+            COALESCE(SUM(dt.harga), 0) as total_omzet_riil
+        FROM transaksi t
+        JOIN detail_transaksi dt ON t.id = dt.transaksi_id
+        WHERE t.status = 'selesai'
+          AND t.id IN (SELECT DISTINCT transaksi_id FROM detail_transaksi WHERE produk_id = 29)
+        GROUP BY DATE(t.waktu_selesai)
+        ORDER BY tanggal_selesai ASC
+    ");
+
+    // Rincian produk apa saja yang ikut terbeli di transaksi Sisa Usia (apakah Qila, DaQo, STKI, dll)
+    $sisa_usia_bundled_products = fetchAll("
+        SELECT 
+            dt.produk_id, 
+            pr.nama as produk_nama, 
+            COUNT(DISTINCT dt.transaksi_id) as total_transaksi,
+            COALESCE(SUM(dt.harga), 0) as total_nominal,
+            MIN(DATE(t.tanggal_transaksi)) as first_date,
+            MAX(DATE(t.tanggal_transaksi)) as last_date
+        FROM detail_transaksi dt
+        JOIN produk pr ON dt.produk_id = pr.id
+        JOIN transaksi t ON dt.transaksi_id = t.id
+        WHERE t.status = 'selesai'
+          AND dt.transaksi_id IN (SELECT DISTINCT transaksi_id FROM detail_transaksi WHERE produk_id = 29)
+        GROUP BY dt.produk_id, pr.nama
+        ORDER BY total_transaksi DESC
+    ");
+
+    // Rincian produk bundling per tanggal transaksi
+    $sisa_usia_bundling_daily_detail = fetchAll("
+        SELECT 
+            DATE(t.tanggal_transaksi) as tanggal,
+            pr.nama as produk_nama,
+            dt.produk_id,
+            COUNT(DISTINCT t.id) as jumlah_order,
+            COALESCE(SUM(dt.harga), 0) as subtotal_omzet
+        FROM transaksi t
+        JOIN detail_transaksi dt ON t.id = dt.transaksi_id
+        JOIN produk pr ON dt.produk_id = pr.id
+        WHERE t.status = 'selesai'
+          AND t.id IN (SELECT DISTINCT transaksi_id FROM detail_transaksi WHERE produk_id = 29)
+          AND dt.produk_id != 29
+        GROUP BY DATE(t.tanggal_transaksi), dt.produk_id, pr.nama
+        ORDER BY tanggal ASC, jumlah_order DESC
+    ");
+
     $sisa_usia_bundling_stats = fetchRow("
         SELECT 
             COUNT(DISTINCT t.id) as total_order_selesai,
             COUNT(DISTINCT CASE WHEN dt.produk_id = 18 THEN t.id END) as order_include_daqo,
             COUNT(DISTINCT CASE WHEN dt.produk_id = 26 THEN t.id END) as order_include_stki,
-            COUNT(DISTINCT CASE WHEN dt.produk_id = 18 AND t.id IN (SELECT transaksi_id FROM detail_transaksi WHERE produk_id = 26) THEN t.id END) as order_take_all_bundle,
+            COUNT(DISTINCT CASE WHEN dt.produk_id IN (6, 19) THEN t.id END) as order_include_qila,
             COALESCE(SUM(CASE WHEN dt.produk_id = 29 THEN dt.harga ELSE 0 END), 0) as omzet_pokok,
             COALESCE(SUM(CASE WHEN dt.produk_id != 29 THEN dt.harga ELSE 0 END), 0) as omzet_bundling,
             COALESCE(SUM(dt.harga), 0) as grand_total_revenue
@@ -352,12 +404,15 @@ try {
                 'total_orders_selesai' => (int)($sisa_usia_bundling_stats['total_order_selesai'] ?? 0),
                 'order_with_daqo' => (int)($sisa_usia_bundling_stats['order_include_daqo'] ?? 0),
                 'order_with_stki' => (int)($sisa_usia_bundling_stats['order_include_stki'] ?? 0),
-                'order_take_all_bundle' => (int)($sisa_usia_bundling_stats['order_take_all_bundle'] ?? 0),
+                'order_with_qila' => (int)($sisa_usia_bundling_stats['order_include_qila'] ?? 0),
                 'omzet_pokok_sisa_usia' => (float)($sisa_usia_bundling_stats['omzet_pokok'] ?? 0),
                 'omzet_tambahan_bundling' => (float)($sisa_usia_bundling_stats['omzet_bundling'] ?? 0),
                 'grand_total_revenue' => (float)($sisa_usia_bundling_stats['grand_total_revenue'] ?? 0)
             ],
-            'daily_breakdown' => $sisa_usia_daily
+            'bundled_products_all' => $sisa_usia_bundled_products,
+            'bundling_by_date_detail' => $sisa_usia_bundling_daily_detail,
+            'daily_breakdown_by_tanggal_transaksi' => $sisa_usia_daily,
+            'daily_breakdown_by_waktu_selesai' => $sisa_usia_daily_by_waktu_selesai
         ],
         'product_daily_breakdown' => $product_daily_breakdown,
         'products_leaderboard' => $products_leaderboard,
