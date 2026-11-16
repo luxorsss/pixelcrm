@@ -157,6 +157,80 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 <script>
 // Fungsi copy embed JS
 function copyEmbedCode(produkId, namaProduk, hargaRaw, showEmail, showKupon, btnElement) {
+    if (hargaRaw === 0) {
+        let leadHtml = `<div id="edu-embed-lead-${produkId}" style="background: #ffffff; padding: 25px; border-radius: 16px; border: 1px solid #e2e8f0; max-width: 450px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.06); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    <h5 style="color: #1e293b; margin-bottom: 4px; font-weight: 800; font-size: 18px;">Dapatkan Akses Gratis:</h5>
+    <p style="color: #64748b; font-size: 13px; margin-bottom: 16px;">${namaProduk}</p>
+    <hr style="border: 0; border-top: 1px dashed #cbd5e1; margin-bottom: 20px;">
+    
+    <form action="<?= BASE_URL ?>co-free.php" method="POST" id="form-embed-${produkId}">
+        <input type="hidden" name="id" value="${produkId}">
+        <input type="hidden" name="fbclid" id="fbclid_embed_${produkId}" value="">
+        <div style="position: absolute; left: -9999px; top: -9999px; opacity: 0; pointer-events: none;" aria-hidden="true">
+            <input type="text" name="website_url" tabindex="-1" autocomplete="off" value="">
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; font-weight: 700; margin-bottom: 6px; font-size: 13px; color: #334155;">Nama Lengkap *</label>
+            <input type="text" name="nama" required placeholder="Masukkan nama Anda" minlength="3" maxlength="70" style="width: 100%; padding: 13px 15px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; box-sizing: border-box; outline: none;">
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: 700; margin-bottom: 6px; font-size: 13px; color: #334155;">Nomor WhatsApp *</label>
+            <input type="tel" name="nomor_wa" required placeholder="081234567890" inputmode="numeric" pattern="[0-9]{10,15}" minlength="10" maxlength="15" style="width: 100%; padding: 13px 15px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; box-sizing: border-box; outline: none;">
+            <small style="display: block; color: #10B981; font-size: 12px; margin-top: 5px;">Link materi gratis akan dikirim otomatis ke nomor ini.</small>
+        </div>
+        
+        <button type="submit" id="btn_submit_${produkId}" style="width: 100%; background: #10B981; color: white; padding: 15px; font-size: 16px; font-weight: 800; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 6px 18px rgba(16,185,129,0.25); transition: transform 0.2s;">
+            DAPATKAN AKSES SEKARANG &rarr;
+        </button>
+        
+        <div style="text-align: center; font-size: 12px; color: #94a3b8; margin-top: 14px;">
+            🔒 Data Anda 100% aman dan bebas spam.
+        </div>
+    </form>
+    
+    <script>
+    (function(){
+        const p = new URLSearchParams(window.location.search);
+        const f = p.get('fbclid');
+        if (f) {
+            const el = document.getElementById('fbclid_embed_${produkId}');
+            if (el) el.value = f;
+        }
+        const waInp = document.querySelector('#form-embed-${produkId} input[name="nomor_wa"]');
+        if (waInp) {
+            waInp.addEventListener('blur', function() {
+                let clean = this.value.trim().replace(/[^0-9]/g, '');
+                if (clean.length >= 5 && clean.startsWith('0')) {
+                    this.value = '62' + clean.substring(1);
+                }
+            });
+        }
+    })();
+    <\/script>
+</div>`;
+
+        navigator.clipboard.writeText(leadHtml).then(() => {
+            const originalHTML = btnElement.innerHTML;
+            const originalColor = btnElement.style.color;
+            btnElement.innerHTML = '<i class="fas fa-check"></i>';
+            btnElement.style.color = '#10B981';
+            btnElement.style.borderColor = '#A7F3D0';
+            btnElement.style.background = '#ECFDF5';
+            setTimeout(() => {
+                btnElement.innerHTML = originalHTML;
+                btnElement.style.color = originalColor;
+                btnElement.style.borderColor = 'transparent';
+                btnElement.style.background = 'transparent';
+            }, 1500);
+            if (window.PixelToast) window.PixelToast.success('Kode form lead magnet berhasil disalin!');
+        }).catch(err => {
+            console.error('Copy failed:', err);
+        });
+        return;
+    }
+
     const formatRp = (angka) => 'Rp ' + new Intl.NumberFormat('id-ID').format(angka);
     const bundlingJsonStr = btnElement.getAttribute('data-bundling');
     
@@ -172,6 +246,7 @@ function copyEmbedCode(produkId, namaProduk, hargaRaw, showEmail, showKupon, btn
     
     <form action="<?= BASE_URL ?>proses_embed.php" method="POST" id="form-embed-${produkId}">
         <input type="hidden" name="produk_id" value="${produkId}">
+        <input type="hidden" name="fbclid" id="fbclid_embed_${produkId}" value="">
         <input type="hidden" name="kupon_id" id="kupon_id_${produkId}" value="">
         <input type="hidden" name="total_diskon" id="total_diskon_${produkId}" value="0">
         
@@ -277,6 +352,12 @@ function copyEmbedCode(produkId, namaProduk, hargaRaw, showEmail, showKupon, btn
     
     \x3Cscript>
         (function(){
+            const p = new URLSearchParams(window.location.search);
+            const f = p.get('fbclid');
+            if (f) {
+                const el = document.getElementById('fbclid_embed_${produkId}');
+                if (el) el.value = f;
+            }
             const hargaUtama = ${hargaRaw};
             let diskonAktif = 0;
             

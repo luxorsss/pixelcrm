@@ -42,8 +42,9 @@ if (isPost()) {
     $uuid = 'INV-' . strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 8));
     $total_harga = $produk['harga'];
     
-    // Ambil fbclid jika ada di cookie
-    $fbc = $_COOKIE['_fbc'] ?? null;
+    // Ambil fbclid jika ada di POST atau cookie
+    $raw_fbclid = trim(post('fbclid') ?: ($_COOKIE['_fbc'] ?? ''));
+    $fbc = (!empty($raw_fbclid) && strlen($raw_fbclid) >= 20) ? $raw_fbclid : null;
     $fbp = $_COOKIE['_fbp'] ?? null;
 
     execute("INSERT INTO transaksi (uuid, pelanggan_id, total_harga, status, ip_pelanggan, user_agent_pelanggan, fbc, fbp) 
