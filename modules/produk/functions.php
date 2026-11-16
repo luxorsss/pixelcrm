@@ -42,8 +42,8 @@ function createProduk($data) {
         }
     }
     
-    $sql = "INSERT INTO produk (nama, deskripsi, harga, show_kupon, show_email, link_akses, onesender_account, admin_wa, pixel_id, meta_pixel_id, conversion_api_token, tracking_aktif, http_post, profit) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO produk (nama, deskripsi, harga, show_kupon, show_email, link_akses, redirect_url, onesender_account, admin_wa, pixel_id, meta_pixel_id, conversion_api_token, tracking_aktif, http_post, profit) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
     $params = [
         $data['nama'],
@@ -52,6 +52,7 @@ function createProduk($data) {
         $data['show_kupon'] ?? 0,
         $data['show_email'] ?? 0,
         $data['link_akses'],
+        $data['redirect_url'] ?? null,
         $data['onesender_account'],
         $data['admin_wa'],
         $pixel_id,
@@ -84,7 +85,7 @@ function updateProduk($id, $data) {
     
     $sql = "UPDATE produk SET 
             nama = ?, deskripsi = ?, harga = ?, show_kupon = ?, show_email = ?, link_akses = ?, 
-            onesender_account = ?, admin_wa = ?, pixel_id = ?, meta_pixel_id = ?, 
+            redirect_url = ?, onesender_account = ?, admin_wa = ?, pixel_id = ?, meta_pixel_id = ?, 
             conversion_api_token = ?, tracking_aktif = ?, http_post = ?,
             profit = ?
             WHERE id = ?";
@@ -96,6 +97,7 @@ function updateProduk($id, $data) {
         $data['show_kupon'] ?? 0,
         $data['show_email'] ?? 0,
         $data['link_akses'],
+        $data['redirect_url'] ?? null,
         $data['onesender_account'],
         $data['admin_wa'],
         $pixel_id,
@@ -148,6 +150,11 @@ function validateProdukData($data) {
     // Validate URL if provided
     if (!empty($data['link_akses']) && !filter_var($data['link_akses'], FILTER_VALIDATE_URL)) {
         $errors[] = 'Format link akses tidak valid';
+    }
+
+    // Validate redirect URL if provided
+    if (!empty($data['redirect_url']) && !filter_var($data['redirect_url'], FILTER_VALIDATE_URL)) {
+        $errors[] = 'Format URL redirect tidak valid';
     }
     
     // Validate HTTP POST URL if provided

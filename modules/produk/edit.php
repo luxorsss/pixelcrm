@@ -33,6 +33,7 @@ if (isPost()) {
         'show_kupon' => post('show_kupon') ? 1 : 0,
         'show_email' => post('show_email') ? 1 : 0, // <--- PASTIKAN BARIS INI ADA
         'link_akses' => clean(post('link_akses')),
+        'redirect_url' => trim(post('redirect_url')) ?: null,
         'onesender_account' => clean(post('onesender_account')),
         'admin_wa' => clean(post('admin_wa')),
         'pixel_id' => post('pixel_id') ? (int)post('pixel_id') : null,
@@ -131,6 +132,14 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                             <input type="url" name="link_akses" class="form-control-editorial" 
                                    placeholder="https://drive.google.com/..." 
                                    value="<?= clean(post('link_akses')) ?>">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">URL Redirect (Opsional / Halaman SLO)</label>
+                            <input type="url" name="redirect_url" class="form-control-editorial" 
+                                   placeholder="https://lp.edumuslim.my.id/sisa-usia-oto" 
+                                   value="<?= clean(post('redirect_url')) ?>">
+                            <div class="text-muted mt-2" style="font-size: 0.75rem;">Khusus produk gratis (Lead Magnet). Jika diisi, setelah pendaftar mengisi form, otomatis dialihkan ke URL ini membawa parameter <code>?nama=...&wa=...&fbclid=...</code> (Kosongkan jika ingin default ke invoice).</div>
                         </div>
 
                         <div class="mb-4">

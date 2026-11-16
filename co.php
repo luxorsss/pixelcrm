@@ -600,14 +600,14 @@ $page_title = 'Checkout - ' . $produk['nama'];
                 <div class="mb-3">
                     <label class="form-label" for="nama">Nama Lengkap</label>
                     <input type="text" name="nama" id="nama" class="form-control" 
-                           placeholder="Contoh: Budi Santoso" value="<?= clean(post('nama')) ?>" 
+                           placeholder="Contoh: Budi Santoso" value="<?= clean(post('nama') ?: get('nama')) ?>" 
                            minlength="3" maxlength="70" required autocomplete="name">
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label" for="nomor_wa">Nomor WhatsApp</label>
                     <input type="tel" name="nomor_wa" id="nomor_wa" class="form-control font-tabular" 
-                           placeholder="081234567890" value="<?= clean(post('nomor_wa')) ?>" 
+                           placeholder="081234567890" value="<?= clean(post('nomor_wa') ?: get('wa') ?: get('nowa') ?: get('nomor_wa')) ?>" 
                            inputmode="numeric" pattern="[0-9]{10,15}" minlength="10" maxlength="15" 
                            required autocomplete="tel">
                     <div class="form-text text-muted" style="font-size: 0.75rem; margin-top: 4px;">
@@ -619,7 +619,7 @@ $page_title = 'Checkout - ' . $produk['nama'];
                 <div class="mb-4">
                     <label class="form-label">Email</label>
                     <input type="email" name="email" id="email" class="form-control" 
-                           placeholder="budi@email.com" value="<?= clean(post('email')) ?>" required>
+                           placeholder="budi@email.com" value="<?= clean(post('email') ?: get('email')) ?>" required>
                 </div>
                 <?php endif; ?>
 

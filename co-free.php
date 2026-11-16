@@ -16,23 +16,23 @@ header("Cache-Control: public, max-age=3600");
 header("Expires: " . gmdate('D, d M Y H:i:s \G\M\T', time() + 3600));
 
 // === 1. SIMPAN fbclid (Sama seperti checkout bayar) ===
-if (isset($_GET['fbclid']) && !empty($_GET['fbclid'])) {
-    $fbclid = trim($_GET['fbclid']);
-    if (strlen($fbclid) >= 20 && preg_match('/^[a-zA-Z0-9_-]+$/', $fbclid)) {
-        setcookie('_fbc', $fbclid, [
+$raw_fbclid = trim(post('fbclid') ?: get('fbclid') ?: '');
+if (!empty($raw_fbclid)) {
+    if (strlen($raw_fbclid) >= 20 && preg_match('/^[a-zA-Z0-9_-]+$/', $raw_fbclid)) {
+        setcookie('_fbc', $raw_fbclid, [
             'expires' => time() + 30*24*60*60,
             'path' => '/',
             'domain' => $cookie_domain,
             'secure' => true,
             'httponly' => false,
-            'samesite' => 'None'
+            'samesite' => 'Lax'
         ]);
-        $_SESSION['fbclid_final'] = $fbclid;
+        $_SESSION['fbclid_final'] = $raw_fbclid;
     }
 }
 
 // === 2. AMBIL DATA PRODUK ===
-$produk_id = (int) get('id');
+$produk_id = (int) (post('id') ?: post('produk_id') ?: get('id'));
 if (!$produk_id) redirect('index.php');
 
 $produk = fetchRow("SELECT * FROM produk WHERE id = ?", [$produk_id]);
@@ -108,18 +108,9 @@ if (isPost()) {
             $customer_id = db()->insert_id;
         }
 
-        // B. Simpan Transaksi (LANGSUNG SELESAI)
-        execute("INSERT INTO transaksi (pelanggan_id, total_harga, status, is_invoice_sent, ip_pelanggan, user_agent_pelanggan, fbc, fbp) 
-                 VALUES (?, 0, 'selesai', 1, ?, ?, ?, ?)", 
-                [$customer_id, $_SERVER['REMOTE_ADDR'] ?? '', $_SERVER['HTTP_USER_AGENT'] ?? '', $fbc, $fbp]);
-        
-        $transaksi_id = db()->insert_id;
+        // B. (TIDAK MEMBUAT TRANSAKSI Rp 0 AGAR TABEL TRANSAKSI MURNI TRANSAKSI BERBAYAR)
 
-        // C. Simpan Detail Transaksi
-        execute("INSERT INTO detail_transaksi (transaksi_id, produk_id, harga, profit) VALUES (?, ?, 0, 0)", 
-                [$transaksi_id, $produk_id]);
-
-        // D. KIRIM PESAN AKSES PRODUK
+        // C. KIRIM PESAN AKSES PRODUK
         try {
             $template_row = fetchRow("SELECT isi_pesan FROM template_pesan_produk WHERE produk_id = ? AND jenis_pesan = 'akses_produk'", [$produk_id]);
             $template_pesan = $template_row['isi_pesan'] ?? "Halo *{nama}*,\n\nTerima kasih sudah mendaftar!\nBerikut adalah akses untuk *{produk}*:\n\nLink: {link_akses}\n\nSilakan simpan link ini. Semoga bermanfaat!";
@@ -138,10 +129,10 @@ if (isPost()) {
             sendWhatsAppText($nomor_wa, $pesan_final, $account_wa);
 
         } catch (Exception $e) {
-            error_log("Gagal kirim akses lead magnet #$transaksi_id: " . $e->getMessage());
+            error_log("Gagal kirim akses lead magnet customer #$customer_id: " . $e->getMessage());
         }
 
-        // E. KIRIM CAPI EVENT 'LEAD'
+        // D. KIRIM CAPI EVENT 'LEAD'
         if ($pixel_config && !empty($pixel_config['conversion_api_token'])) {
             $user_data = [
                 'ph' => hash('sha256', $nomor_wa),
@@ -157,13 +148,28 @@ if (isPost()) {
                 'Lead',
                 $user_data,
                 ['content_name' => $produk['nama'], 'content_category' => 'Lead Magnet'],
-                'lead_' . $transaksi_id,
+                'lead_' . $customer_id . '_' . time(),
                 $pixel_config['test_event_code'] ?? null
             );
         }
 
-        unset($_SESSION['fbclid_final']);
-        redirect("invoice.php?id=$transaksi_id");
+        // E. REDIRECT TARGET (SLO PAGE ATAU FALLBACK)
+        $redirect_target = trim(post('redirect_url') ?: ($produk['redirect_url'] ?? ''));
+        if (!empty($redirect_target)) {
+            $sep = strpos($redirect_target, '?') !== false ? '&' : '?';
+            $fbc_val = $fbc ?: ($raw_fbclid ?: ($_SESSION['fbclid_final'] ?? ''));
+            $params_out = [
+                'nama' => $nama,
+                'wa' => $nomor_wa,
+                'lead_id' => $customer_id
+            ];
+            if (!empty($fbc_val)) {
+                $params_out['fbclid'] = $fbc_val;
+            }
+            redirect($redirect_target . $sep . http_build_query($params_out));
+        } else {
+            setMessage("Alhamdulillah! Pendaftaran berhasil. Link akses materi telah dikirimkan ke WhatsApp Anda ({$nomor_wa}).", 'success');
+        }
     }
 }
 ?>

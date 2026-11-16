@@ -170,7 +170,7 @@ function copyEmbedCode(produkId, namaProduk, hargaRaw, showEmail, showKupon, btn
     <h5 style="color: #333; margin-bottom: 5px; font-weight: bold; font-size: 18px;">Lengkapi Data:</h5>
     <hr style="border: 0; border-top: 1px dashed #ccc; margin-bottom: 20px;">
     
-    <form action="https://edumuslim.my.id/proses_embed.php" method="POST" id="form-embed-${produkId}">
+    <form action="<?= BASE_URL ?>proses_embed.php" method="POST" id="form-embed-${produkId}">
         <input type="hidden" name="produk_id" value="${produkId}">
         <input type="hidden" name="kupon_id" id="kupon_id_${produkId}" value="">
         <input type="hidden" name="total_diskon" id="total_diskon_${produkId}" value="0">
