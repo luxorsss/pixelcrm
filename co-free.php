@@ -159,8 +159,6 @@ if (isPost()) {
             $sep = strpos($redirect_target, '?') !== false ? '&' : '?';
             $fbc_val = $fbc ?: ($raw_fbclid ?: ($_SESSION['fbclid_final'] ?? ''));
             $params_out = [
-                'nama' => $nama,
-                'wa' => $nomor_wa,
                 'lead_id' => $customer_id
             ];
             if (!empty($fbc_val)) {
