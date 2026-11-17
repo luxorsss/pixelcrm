@@ -1,32 +1,42 @@
 <?php
-// Mengambil nama domain yang sedang diakses secara otomatis
-$current_host = $_SERVER['HTTP_HOST'];
-$cookie_domain = '.' . preg_replace('/^www\./', '', $current_host);
+// Deteksi root cookie domain (misal .edumuslim.my.id) agar cookie bisa dibaca lintas subdomain
+$current_host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$host_parts = explode('.', $current_host);
+if (count($host_parts) >= 3 && in_array($host_parts[count($host_parts)-2], ['my', 'co', 'ac', 'go', 'or', 'sch', 'web', 'biz'])) {
+    $cookie_domain = '.' . implode('.', array_slice($host_parts, -3));
+} elseif (count($host_parts) >= 2) {
+    $cookie_domain = '.' . implode('.', array_slice($host_parts, -2));
+} else {
+    $cookie_domain = '.' . $current_host;
+}
+ini_set('session.cookie_domain', $cookie_domain);
+session_set_cookie_params(0, '/', $cookie_domain);
 
 /**
- * Checkout Page - Fixed fbclid Persistence (Cookie + Session)
+ * Checkout Page - Fixed fbclid & lead_id Persistence (Cookie + Session + URL)
  */
 require_once 'includes/init.php';
 require_once 'modules/followup/functions.php';
 require_once 'includes/pixel_helper.php';
 
-// Enable browser caching
-header("Cache-Control: public, max-age=3600");
-header("Expires: " . gmdate('D, d M Y H:i:s \G\M\T', time() + 3600));
+// Pastikan checkout page bersifat dinamis dan TIDAK dicache oleh browser
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Pragma: no-cache");
+header("Expires: Thu, 19 Nov 1981 08:52:00 GMT");
 
 // Simpan fbclid ke cookie dan session
-if (isset($_GET['fbclid']) && !empty($_GET['fbclid'])) {
-    $fbclid = trim($_GET['fbclid']);
-    if (strlen($fbclid) >= 20 && preg_match('/^[a-zA-Z0-9_-]+$/', $fbclid)) {
-        setcookie('_fbc', $fbclid, [
+$incoming_fbclid = trim(get('fbclid') ?: (post('fbclid') ?: ''));
+if (!empty($incoming_fbclid)) {
+    if (strlen($incoming_fbclid) >= 20 && preg_match('/^[a-zA-Z0-9_-]+$/', $incoming_fbclid)) {
+        setcookie('_fbc', $incoming_fbclid, [
             'expires' => time() + 30*24*60*60,
             'path' => '/',
             'domain' => $cookie_domain,
             'secure' => true,
             'httponly' => false,
-            'samesite' => 'None'
+            'samesite' => 'Lax'
         ]);
-        $_SESSION['fbclid_final'] = $fbclid;
+        $_SESSION['fbclid_final'] = $incoming_fbclid;
     }
 }
 
@@ -55,12 +65,22 @@ $bundling = fetchAll("
     WHERE b.produk_id = ? AND b.is_active = 1
 ", [$produk_id]);
 
-// Pre-fill data pelanggan jika ada parameter lead_id di URL
+// Pre-fill data pelanggan jika ada parameter lead_id di URL, Session, atau Cookie
 $prefill_nama = '';
 $prefill_wa = '';
 $prefill_email = '';
-$lead_id = (int) (get('lead_id') ?: post('lead_id'));
+$lead_id = (int) (get('lead_id') ?: (post('lead_id') ?: ($_SESSION['lead_id'] ?? ($_COOKIE['last_lead_id'] ?? 0))));
 if ($lead_id > 0) {
+    $_SESSION['lead_id'] = $lead_id;
+    setcookie('last_lead_id', (string)$lead_id, [
+        'expires' => time() + 7*24*60*60,
+        'path' => '/',
+        'domain' => $cookie_domain,
+        'secure' => true,
+        'httponly' => false,
+        'samesite' => 'Lax'
+    ]);
+
     $lead_data = fetchRow("SELECT nama, nomor_wa, email FROM pelanggan WHERE id = ?", [$lead_id]);
     if ($lead_data) {
         $prefill_nama = $lead_data['nama'] ?? '';
@@ -617,14 +637,14 @@ $page_title = 'Checkout - ' . $produk['nama'];
                 <div class="mb-3">
                     <label class="form-label" for="nama">Nama Lengkap</label>
                     <input type="text" name="nama" id="nama" class="form-control" 
-                           placeholder="Contoh: Budi Santoso" value="<?= clean(post('nama') ?: ($prefill_nama ?: get('nama'))) ?>" 
+                           placeholder="Contoh: Budi Santoso" value="<?= clean(post('nama') ?: ($prefill_nama ?: (get('nama') ?: get('name')))) ?>" 
                            minlength="3" maxlength="70" required autocomplete="name">
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label" for="nomor_wa">Nomor WhatsApp</label>
                     <input type="tel" name="nomor_wa" id="nomor_wa" class="form-control font-tabular" 
-                           placeholder="081234567890" value="<?= clean(post('nomor_wa') ?: ($prefill_wa ?: (get('wa') ?: (get('nowa') ?: get('nomor_wa'))))) ?>" 
+                           placeholder="081234567890" value="<?= clean(post('nomor_wa') ?: ($prefill_wa ?: (get('wa') ?: (get('nowa') ?: (get('nomor_wa') ?: (get('phone') ?: get('no_wa'))))))) ?>" 
                            inputmode="numeric" pattern="[0-9]{10,15}" minlength="10" maxlength="15" 
                            required autocomplete="tel">
                     <div class="form-text text-muted" style="font-size: 0.75rem; margin-top: 4px;">

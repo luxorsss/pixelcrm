@@ -3,17 +3,27 @@
  * Checkout Page for FREE PRODUCTS (Lead Magnet)
  * Status langsung 'selesai' & Kirim Pesan Akses
  */
-ini_set('session.cookie_domain', '.edumuslim.my.id');
-session_set_cookie_params(0, '/', '.edumuslim.my.id');
+$current_host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$host_parts = explode('.', $current_host);
+if (count($host_parts) >= 3 && in_array($host_parts[count($host_parts)-2], ['my', 'co', 'ac', 'go', 'or', 'sch', 'web', 'biz'])) {
+    $cookie_domain = '.' . implode('.', array_slice($host_parts, -3));
+} elseif (count($host_parts) >= 2) {
+    $cookie_domain = '.' . implode('.', array_slice($host_parts, -2));
+} else {
+    $cookie_domain = '.' . $current_host;
+}
+ini_set('session.cookie_domain', $cookie_domain);
+session_set_cookie_params(0, '/', $cookie_domain);
 session_start();
 
 require_once 'includes/init.php';
 require_once 'includes/whatsapp_helper.php';
 require_once 'includes/pixel_helper.php';
 
-// Enable browser caching
-header("Cache-Control: public, max-age=3600");
-header("Expires: " . gmdate('D, d M Y H:i:s \G\M\T', time() + 3600));
+// Jangan cache respons checkout
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Pragma: no-cache");
+header("Expires: Thu, 19 Nov 1981 08:52:00 GMT");
 
 // === 1. SIMPAN fbclid (Sama seperti checkout bayar) ===
 $raw_fbclid = trim(post('fbclid') ?: get('fbclid') ?: '');
@@ -107,6 +117,17 @@ if (isPost()) {
             execute("INSERT INTO pelanggan (nama, nomor_wa) VALUES (?, ?)", [$nama, $nomor_wa]);
             $customer_id = db()->insert_id;
         }
+
+        // Simpan lead_id ke Session & Cookie (.edumuslim.my.id) agar checkout berbayar (co.php) otomatis mengenali pelanggan
+        $_SESSION['lead_id'] = $customer_id;
+        setcookie('last_lead_id', (string)$customer_id, [
+            'expires' => time() + 7*24*60*60,
+            'path' => '/',
+            'domain' => $cookie_domain,
+            'secure' => true,
+            'httponly' => false,
+            'samesite' => 'Lax'
+        ]);
 
         // B. (TIDAK MEMBUAT TRANSAKSI Rp 0 AGAR TABEL TRANSAKSI MURNI TRANSAKSI BERBAYAR)
 
