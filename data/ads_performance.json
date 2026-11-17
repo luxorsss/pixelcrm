@@ -1,0 +1,109 @@
+{
+  "updated_at": "2026-11-17 22:25:17",
+  "records": [
+    {
+      "date": "2026-11-17",
+      "spend_raw": 19749,
+      "tax_amount": 0,
+      "total_ad_cost": 19749,
+      "sales_completed": 3,
+      "omzet_riil": 30000,
+      "cpa": 6583,
+      "roas": 1.52,
+      "net_profit": 10251,
+      "tax_notes": "Akun HK (0% Pajak) - Berjalan Siang",
+      "status": "success"
+    },
+    {
+      "date": "2026-11-16",
+      "spend_raw": 32653.0,
+      "tax_amount": 0.0,
+      "total_ad_cost": 32653.0,
+      "sales_completed": 5,
+      "omzet_riil": 77000.0,
+      "cpa": 6531,
+      "roas": 2.36,
+      "net_profit": 44347.0,
+      "tax_notes": "Akun HK (0% Pajak)",
+      "status": "success"
+    },
+    {
+      "date": "2026-11-15",
+      "spend_raw": 42792,
+      "tax_amount": 0,
+      "total_ad_cost": 42792,
+      "sales_completed": 5,
+      "omzet_riil": 97000,
+      "cpa": 8558,
+      "roas": 2.27,
+      "net_profit": 54208,
+      "tax_notes": "Akun HK (0% Pajak) - Angle 4 Focus",
+      "status": "success"
+    },
+    {
+      "date": "2026-11-14",
+      "spend_raw": 60272,
+      "tax_amount": 0,
+      "total_ad_cost": 60272,
+      "sales_completed": 0,
+      "omzet_riil": 0,
+      "cpa": 0,
+      "roas": 0.0,
+      "net_profit": -60272,
+      "tax_notes": "Akun HK (0% Pajak)",
+      "status": "danger"
+    },
+    {
+      "date": "2026-11-13",
+      "spend_raw": 79546,
+      "tax_amount": 0,
+      "total_ad_cost": 79546,
+      "sales_completed": 6,
+      "omzet_riil": 97000,
+      "cpa": 13258,
+      "roas": 1.22,
+      "net_profit": 17454,
+      "tax_notes": "Akun HK (0% Pajak)",
+      "status": "warning"
+    },
+    {
+      "date": "2026-11-12",
+      "spend_raw": 127420,
+      "tax_amount": 0,
+      "total_ad_cost": 127420,
+      "sales_completed": 7,
+      "omzet_riil": 154000,
+      "cpa": 18203,
+      "roas": 1.21,
+      "net_profit": 26580,
+      "tax_notes": "Akun HK (0% Pajak)",
+      "status": "warning"
+    },
+    {
+      "date": "2026-11-11",
+      "spend_raw": 190963,
+      "tax_amount": 0,
+      "total_ad_cost": 190963,
+      "sales_completed": 10,
+      "omzet_riil": 221000,
+      "cpa": 19096,
+      "roas": 1.16,
+      "net_profit": 30037,
+      "tax_notes": "Akun HK (0% Pajak)",
+      "status": "warning"
+    },
+    {
+      "date": "2026-11-10",
+      "spend_raw": 169572,
+      "tax_amount": 0,
+      "total_ad_cost": 169572,
+      "sales_completed": 7,
+      "omzet_riil": 238000,
+      "cpa": 24225,
+      "roas": 1.4,
+      "net_profit": 68428,
+      "tax_notes": "Akun HK (0% Pajak)",
+      "status": "warning"
+    }
+  ]
+}

@@ -76,6 +76,11 @@ function isActive($page, $module = '')
                     <i class="fas fa-chart-line"></i><span>Analisis Laporan</span>
                 </a>
             </div>
+            <div class="nav-item">
+                <a href="<?= BASE_URL ?>modules/laporan/analisa_iklan.php" class="nav-link <?= isActive('analisa_iklan.php', 'laporan') ?>" onclick="closeSidebarMobile()">
+                    <i class="fas fa-bullseye"></i><span>Analisa Iklan & ROAS</span>
+                </a>
+            </div>
         </div>
 
         <div class="nav-group mt-3">
