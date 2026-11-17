@@ -3,53 +3,49 @@ $page_title = "Analisa Iklan & ROAS";
 require_once __DIR__ . '/../../includes/header.php';
 require_once __DIR__ . '/../../includes/sidebar.php';
 
-$jsonFile = __DIR__ . '/../../data/ads_performance.json';
+// Setup Table Database iklan_harian otomatis di MySQL
+$dbConnected = false;
+$conn = null;
 
-// Pastikan file JSON ada
-if (!file_exists($jsonFile)) {
-    file_put_contents($jsonFile, json_encode(['updated_at' => date('Y-m-d H:i:s'), 'records' => []], JSON_PRETTY_PRINT));
-}
-
-$adData = json_decode(file_get_contents($jsonFile), true) ?: ['records' => []];
-$adRecords = $adData['records'] ?? [];
-
-// Index data iklan berdasarkan tanggal
-$adsByDate = [];
-foreach ($adRecords as $r) {
-    if (!empty($r['date'])) {
-        $adsByDate[$r['date']] = $r;
-    }
-}
-
-// 1. Ambil data penjualan selesai secara otomatis dari tabel transaksi (Single Source of Truth)
-$crmByDate = [];
 if (function_exists('db')) {
     try {
         $conn = db();
         if ($conn && !$conn->connect_error) {
-            $sql = "SELECT 
-                        DATE(tanggal_transaksi) as tgl,
-                        COUNT(CASE WHEN status = 'selesai' THEN 1 END) as jml_selesai,
-                        COALESCE(SUM(CASE WHEN status = 'selesai' THEN total_harga ELSE 0 END), 0) as omzet
-                    FROM transaksi 
-                    GROUP BY DATE(tanggal_transaksi)
-                    ORDER BY tgl DESC";
-            $res = $conn->query($sql);
-            if ($res) {
-                while ($row = $res->fetch_assoc()) {
-                    $crmByDate[$row['tgl']] = [
-                        'sales' => (int)$row['jml_selesai'],
-                        'omzet' => (float)$row['omzet']
-                    ];
-                }
+            $dbConnected = true;
+            // Buat tabel jika belum ada
+            $conn->query("CREATE TABLE IF NOT EXISTS `iklan_harian` (
+                `id` INT AUTO_INCREMENT PRIMARY KEY,
+                `tanggal` DATE UNIQUE NOT NULL,
+                `spend_raw` DECIMAL(12,2) NOT NULL DEFAULT 0,
+                `tax_amount` DECIMAL(12,2) NOT NULL DEFAULT 0,
+                `tax_notes` VARCHAR(255) NULL,
+                `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+                `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+            // Seed data historis awal 10-16 Nov jika tabel masih kosong
+            $checkEmpty = $conn->query("SELECT COUNT(*) as cnt FROM `iklan_harian`");
+            if ($checkEmpty && ($r = $checkEmpty->fetch_assoc()) && (int)$r['cnt'] === 0) {
+                $seedSql = "INSERT IGNORE INTO `iklan_harian` (`tanggal`, `spend_raw`, `tax_amount`, `tax_notes`) VALUES 
+                    ('2026-11-10', 169572, 0, 'Akun HK (0% Pajak)'),
+                    ('2026-11-11', 190963, 0, 'Akun HK (0% Pajak)'),
+                    ('2026-11-12', 127420, 0, 'Akun HK (0% Pajak)'),
+                    ('2026-11-13', 79546, 0, 'Akun HK (0% Pajak)'),
+                    ('2026-11-14', 60272, 0, 'Akun HK (0% Pajak)'),
+                    ('2026-11-15', 42792, 0, 'Akun HK (0% Pajak) - Angle 4 Focus'),
+                    ('2026-11-16', 32653, 0, 'Akun HK (0% Pajak) - Angle 4 Focus');";
+                $conn->query($seedSql);
             }
         }
     } catch (Exception $e) {
-        // Fallback jika database lokal belum start
+        $dbConnected = false;
     }
 }
 
-// 2. Handle Simpan / Edit Biaya Iklan & Pajak (Hanya Iklan & Pajak yang diedit manual)
+// Fallback JSON (hanya untuk lokal jika DB offline, tidak di-commit ke Git)
+$localJsonFile = __DIR__ . '/../../data/ads_performance.json';
+
+// Handle Simpan / Edit Biaya Iklan & Pajak
 $notice = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'save_ad_cost') {
     $date = trim($_POST['date'] ?? '');
@@ -58,41 +54,91 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $tax_notes = trim($_POST['tax_notes'] ?? '');
 
     if ($date) {
-        $adsByDate[$date] = [
-            'date' => $date,
-            'spend_raw' => $spend_raw,
-            'tax_amount' => $tax_amount,
-            'total_ad_cost' => $spend_raw + $tax_amount,
-            'tax_notes' => $tax_notes ?: ($tax_amount > 0 ? "Pajak Diinput Manual" : "Bebas Pajak (HK)")
-        ];
-
-        // Simpan ke JSON
-        $saveList = array_values($adsByDate);
-        usort($saveList, function($a, $b) {
-            return strcmp($b['date'], $a['date']);
-        });
-
-        $adData['updated_at'] = date('Y-m-d H:i:s');
-        $adData['records'] = $saveList;
-        file_put_contents($jsonFile, json_encode($adData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-        $notice = "Data iklan tanggal " . date('d M Y', strtotime($date)) . " berhasil diperbarui.";
+        if ($dbConnected && $conn) {
+            $stmt = $conn->prepare("INSERT INTO `iklan_harian` (`tanggal`, `spend_raw`, `tax_amount`, `tax_notes`) 
+                                    VALUES (?, ?, ?, ?) 
+                                    ON DUPLICATE KEY UPDATE `spend_raw` = VALUES(`spend_raw`), `tax_amount` = VALUES(`tax_amount`), `tax_notes` = VALUES(`tax_notes`)");
+            if ($stmt) {
+                $stmt->bind_param("sdds", $date, $spend_raw, $tax_amount, $tax_notes);
+                $stmt->execute();
+            }
+        } elseif (file_exists($localJsonFile)) {
+            $localData = json_decode(file_get_contents($localJsonFile), true) ?: ['records' => []];
+            $recs = $localData['records'] ?? [];
+            $found = false;
+            foreach ($recs as $k => $item) {
+                if ($item['date'] === $date) {
+                    $recs[$k]['spend_raw'] = $spend_raw;
+                    $recs[$k]['tax_amount'] = $tax_amount;
+                    $recs[$k]['tax_notes'] = $tax_notes;
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found) {
+                $recs[] = ['date' => $date, 'spend_raw' => $spend_raw, 'tax_amount' => $tax_amount, 'tax_notes' => $tax_notes];
+            }
+            $localData['records'] = $recs;
+            file_put_contents($localJsonFile, json_encode($localData, JSON_PRETTY_PRINT));
+        }
+        $notice = "Data iklan tanggal " . date('d M Y', strtotime($date)) . " berhasil disimpan ke database.";
     }
 }
 
-// 3. Tanggal yang dianalisa adalah tanggal yang sudah memiliki data iklan tuntas
-$allDates = array_keys($adsByDate);
-if ($range === 'today' && !in_array($today, $allDates)) {
-    $allDates[] = $today;
+// 1. Ambil data iklan dari Database MySQL
+$adsByDate = [];
+if ($dbConnected && $conn) {
+    $qAds = $conn->query("SELECT `tanggal`, `spend_raw`, `tax_amount`, `tax_notes` FROM `iklan_harian` ORDER BY `tanggal` DESC");
+    if ($qAds) {
+        while ($ra = $qAds->fetch_assoc()) {
+            $adsByDate[$ra['tanggal']] = [
+                'date' => $ra['tanggal'],
+                'spend_raw' => (float)$ra['spend_raw'],
+                'tax_amount' => (float)$ra['tax_amount'],
+                'total_ad_cost' => (float)$ra['spend_raw'] + (float)$ra['tax_amount'],
+                'tax_notes' => $ra['tax_notes'] ?: '-'
+            ];
+        }
+    }
+} elseif (file_exists($localJsonFile)) {
+    $localData = json_decode(file_get_contents($localJsonFile), true) ?: [];
+    foreach ($localData['records'] ?? [] as $lr) {
+        $adsByDate[$lr['date']] = [
+            'date' => $lr['date'],
+            'spend_raw' => (float)$lr['spend_raw'],
+            'tax_amount' => (float)($lr['tax_amount'] ?? 0),
+            'total_ad_cost' => (float)$lr['spend_raw'] + (float)($lr['tax_amount'] ?? 0),
+            'tax_notes' => $lr['tax_notes'] ?? '-'
+        ];
+    }
 }
-rsort($allDates); // Terbaru di atas
 
-// 4. Filter Rentang Tanggal
+// 2. Ambil data penjualan selesai dari tabel transaksi secara otomatis
+$crmByDate = [];
+if ($dbConnected && $conn) {
+    $qCrm = $conn->query("SELECT 
+                            DATE(tanggal_transaksi) as tgl,
+                            COUNT(CASE WHEN status = 'selesai' THEN 1 END) as jml_selesai,
+                            COALESCE(SUM(CASE WHEN status = 'selesai' THEN total_harga ELSE 0 END), 0) as omzet
+                          FROM transaksi 
+                          GROUP BY DATE(tanggal_transaksi)");
+    if ($qCrm) {
+        while ($rc = $qCrm->fetch_assoc()) {
+            $crmByDate[$rc['tgl']] = [
+                'sales' => (int)$rc['jml_selesai'],
+                'omzet' => (float)$rc['omzet']
+            ];
+        }
+    }
+}
+
+// 3. Tanggal yang dianalisa murni dari data iklan yang sudah dicatat
+$today = date('Y-m-d');
+$yesterday = date('Y-m-d', strtotime('-1 day'));
+
 $range = $_GET['range'] ?? 'last_7d';
 $startDate = $_GET['start'] ?? '';
 $endDate = $_GET['end'] ?? '';
-
-$today = date('Y-m-d');
-$yesterday = date('Y-m-d', strtotime('-1 day'));
 
 if ($range === 'today') {
     $startDate = $today;
@@ -102,40 +148,36 @@ if ($range === 'today') {
     $endDate = $yesterday;
 } elseif ($range === 'last_7d') {
     $startDate = date('Y-m-d', strtotime('-6 days'));
-    $endDate = $today;
+    $endDate = $yesterday; // Fokus hari yang tuntas
 } elseif ($range === 'this_month') {
     $startDate = date('Y-m-01');
-    $endDate = $today;
+    $endDate = $yesterday;
 } elseif ($range === 'all') {
-    $startDate = !empty($allDates) ? end($allDates) : date('Y-m-01');
+    $startDate = !empty($adsByDate) ? min(array_keys($adsByDate)) : date('Y-m-01');
     $endDate = $today;
 }
 
-// Filter dataset berdasarkan tanggal
+$allDates = array_keys($adsByDate);
+if ($range === 'today' && !in_array($today, $allDates)) {
+    $allDates[] = $today;
+}
+rsort($allDates);
+
+// Filter data harian
 $filteredRows = [];
 foreach ($allDates as $d) {
     if ($startDate && $d < $startDate) continue;
     if ($endDate && $d > $endDate) continue;
 
     $ad = $adsByDate[$d] ?? ['spend_raw' => 0, 'tax_amount' => 0, 'total_ad_cost' => 0, 'tax_notes' => '-'];
-    
-    // Prioritas data omzet: dari query database transaksi
-    // Jika tidak ada di DB lokal, fallback ke data historis terverifikasi di JSON
-    $crmSales = 0;
-    $crmOmzet = 0.0;
-    if (isset($crmByDate[$d])) {
-        $crmSales = $crmByDate[$d]['sales'];
-        $crmOmzet = $crmByDate[$d]['omzet'];
-    } elseif (isset($adsByDate[$d]['sales_completed'])) {
-        $crmSales = (int)$adsByDate[$d]['sales_completed'];
-        $crmOmzet = (float)($adsByDate[$d]['omzet_riil'] ?? 0);
-    }
+    $sales = $crmByDate[$d]['sales'] ?? 0;
+    $omzet = $crmByDate[$d]['omzet'] ?? 0.0;
 
-    $spend = (float)($ad['spend_raw'] ?? 0);
-    $tax = (float)($ad['tax_amount'] ?? 0);
+    $spend = (float)$ad['spend_raw'];
+    $tax = (float)$ad['tax_amount'];
     $totalCost = $spend + $tax;
-    $netProfit = $crmOmzet - $totalCost;
-    $roas = $totalCost > 0 ? round($crmOmzet / $totalCost, 2) : 0.0;
+    $netProfit = $omzet - $totalCost;
+    $roas = $totalCost > 0 ? round($omzet / $totalCost, 2) : 0.0;
 
     $filteredRows[] = [
         'date' => $d,
@@ -143,14 +185,14 @@ foreach ($allDates as $d) {
         'tax_amount' => $tax,
         'total_ad_cost' => $totalCost,
         'tax_notes' => $ad['tax_notes'] ?? '-',
-        'sales_completed' => $crmSales,
-        'omzet_riil' => $crmOmzet,
+        'sales_completed' => $sales,
+        'omzet_riil' => $omzet,
         'roas' => $roas,
         'net_profit' => $netProfit
     ];
 }
 
-// 5. Agregasi Total untuk Card Atas
+// 4. Agregasi untuk KPI Card Atas
 $totSpend = 0;
 $totTax = 0;
 $totCost = 0;
@@ -170,7 +212,6 @@ foreach ($filteredRows as $fr) {
 $filteredROAS = $totCost > 0 ? round($totOmzet / $totCost, 2) : 0.0;
 $profitMargin = $totOmzet > 0 ? round(($totProfit / $totOmzet) * 100, 1) : 0;
 
-// Status Keputusan Global (Sesuai Filter)
 if ($totCost == 0) {
     $evalStatus = "Organik / Tanpa Iklan";
     $evalBadgeClass = "badge-subtle";
@@ -185,7 +226,7 @@ if ($totCost == 0) {
     $evalBadgeClass = "badge-danger";
 }
 
-// 6. Data untuk Grafik (Kronologis Ascending)
+// 5. Data Grafik (Ascending)
 $chartRows = $filteredRows;
 usort($chartRows, function($a, $b) {
     return strcmp($a['date'], $b['date']);
@@ -204,14 +245,14 @@ foreach ($chartRows as $cr) {
 
 <div class="main-content dashboard-wrapper flex-grow-1">
 
-    <!-- Header & Filter Bar -->
+    <!-- Header & Action -->
     <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-3">
         <div>
             <h1 class="dash-title d-flex align-items-center gap-2 mb-1" style="font-size: 1.25rem; font-weight: 700; color: #0F172A;">
                 Analisa Iklan & ROAS
             </h1>
             <div style="font-size: 0.8rem; color: #64748B;">
-                Sinkronisasi belanja iklan vs omzet otomatis dari pesanan selesai PixelCRM.
+                Database MySQL: data omzet diambil otomatis dari transaksi, biaya iklan & pajak tersimpan di tabel <code style="font-size: 0.75rem; color: #475569;">iklan_harian</code>.
             </div>
         </div>
 
@@ -222,7 +263,7 @@ foreach ($chartRows as $cr) {
         </div>
     </div>
 
-    <!-- Filter Pills (Tactile & Fast) -->
+    <!-- Filter Pills -->
     <div class="card p-2 mb-3" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px;">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
             <div class="d-flex flex-wrap align-items-center gap-1">
@@ -250,9 +291,9 @@ foreach ($chartRows as $cr) {
     </div>
     <?php endif; ?>
 
-    <!-- KPI Summary Cards (Restrained Typography & Dynamic Status) -->
+    <!-- KPI Summary Cards (Compact, Restrained, No Slop) -->
     <div class="row g-2 mb-3">
-        <!-- 1. Status Evaluasi (Dynamic by Filter) -->
+        <!-- 1. Status Evaluasi Dinamis -->
         <div class="col-6 col-lg-3">
             <div class="kpi-mini-card">
                 <div class="kpi-label">Status Evaluasi</div>
@@ -261,11 +302,11 @@ foreach ($chartRows as $cr) {
                         <?= $evalStatus ?>
                     </span>
                 </div>
-                <div class="kpi-sub mt-2">Berdasarkan data filter terpilih</div>
+                <div class="kpi-sub mt-2">Sesuai rentang filter aktif</div>
             </div>
         </div>
 
-        <!-- 2. Total Modal Iklan (+Pajak) -->
+        <!-- 2. Biaya Iklan (+Pajak) -->
         <div class="col-6 col-lg-3">
             <div class="kpi-mini-card">
                 <div class="kpi-label">Biaya Iklan (+Pajak)</div>
@@ -326,7 +367,7 @@ foreach ($chartRows as $cr) {
         </div>
     </div>
 
-    <!-- Editorial Table (Dense, Clean, No Slop) -->
+    <!-- Table: Data Murni & Padat -->
     <div class="card" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden;">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0" style="font-size: 0.85rem;">
@@ -398,7 +439,7 @@ foreach ($chartRows as $cr) {
     </div>
 </div>
 
-<!-- Modal Edit Biaya Iklan & Pajak (Hanya 2 Nilai Ini yang Diedit) -->
+<!-- Modal Edit Biaya Iklan & Pajak -->
 <div id="adModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 1050; align-items: center; justify-content: center; padding: 16px;">
     <div class="modal-box" style="background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; width: 100%; max-width: 400px; padding: 20px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
         <div class="d-flex align-items-center justify-content-between mb-3">

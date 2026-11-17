@@ -2,3 +2,4 @@ includes/init.php
 logs/
 *.log
 cron/error_log
+data/
