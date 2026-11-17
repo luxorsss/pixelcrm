@@ -2,19 +2,6 @@
   "updated_at": "2026-11-17 22:25:17",
   "records": [
     {
-      "date": "2026-11-17",
-      "spend_raw": 19749,
-      "tax_amount": 0,
-      "total_ad_cost": 19749,
-      "sales_completed": 3,
-      "omzet_riil": 30000,
-      "cpa": 6583,
-      "roas": 1.52,
-      "net_profit": 10251,
-      "tax_notes": "Akun HK (0% Pajak) - Berjalan Siang",
-      "status": "success"
-    },
-    {
       "date": "2026-11-16",
       "spend_raw": 32653.0,
       "tax_amount": 0.0,

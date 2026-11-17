@@ -79,8 +79,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// 3. Gabungkan seluruh tanggal yang ada (dari Iklan maupun dari Transaksi CRM)
-$allDates = array_unique(array_merge(array_keys($adsByDate), array_keys($crmByDate)));
+// 3. Tanggal yang dianalisa adalah tanggal yang sudah memiliki data iklan tuntas
+$allDates = array_keys($adsByDate);
+if ($range === 'today' && !in_array($today, $allDates)) {
+    $allDates[] = $today;
+}
 rsort($allDates); // Terbaru di atas
 
 // 4. Filter Rentang Tanggal
